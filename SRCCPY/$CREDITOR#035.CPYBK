@@ -1,0 +1,5 @@
+      */copy SRCCPY,$CREDITOR#                    CREDITOR : Creditor validations
+     d $CREDITOR       pr
+     d  Event                         1
+     d  oCREDITOR                    11
+     d  nCREDITOR                    11

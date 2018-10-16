@@ -1,0 +1,204 @@
+      *& Apache License
+      *****************************************************************************************
+      *                                                                                       *
+      * Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.                               *
+      * Created by AO Foundation - www.adsero-optima.com                                      *
+      * Original TEMPLATE author: Tommy Atkins - Chief Development Officer                    *
+      *                                                                                       *
+      * All source rendered by AO Foundation, based on harvested information from S2E Models  *
+      * retrieved and recovered with the consent of Axiom Systems Africa Pty (Ltd)            *
+      * from their Infologic application, subject to the Apache License, Version 2.0 terms.   *
+      * (http://www.axiom.co.za/index.php/solutions/application-systems/infologic)            *
+      *                                                                                       *
+      * Licensed under the Apache License, Version 2.0 (the "License");                       *
+      * you may not use this file except in compliance with the License.                      *
+      * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0    *
+      *                                                                                       *
+      * Unless required by applicable law or agreed to in writing, software                   *
+      * distributed under the License is distributed on an "AS IS" BASIS,                     *
+      * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.              *
+      * See the License for the specific language governing permissions and                   *
+      * limitations under the License.                                                        *
+      *                                                                                       *
+      * The above copyright notice and this permission notice shall be included in all copies *
+      * or substantial portions of the Software.                                              *
+      *                                                                                       *
+      *                            http://www.i-nterprise.org/                                *
+      *                                                                                       *
+      *****************************************************************************************
+      *===============================================================
+     h nomain aut(*use)
+      *===============================================================
+      *& Open Source Error Handlers #04
+      *    ERR20: Retrieve Message Text MD=128  RETURN=132
+      *    ERR21: Retrieve Message Text MD=2048 RETURN=132
+      *    ERR22: Retrieve Message Help MD=2048 RETURN=3000
+      *& =============================================================
+      /copy SRCCPY,API_EC#                       API Error Data Structure
+      /copy SRCCPY,ERR03#                        Move *DIAG and Resend *ESCAPE Messages
+      /copy SRCCPY,ERR20#                        Retrieve Message Text MD=128,  RETURN=132
+      /copy SRCCPY,ERR21#                        Retrieve Message Text MD=2048, RETURN=132
+      /copy SRCCPY,ERR22#                        Retrieve Message Help MD=2048, RETURN=3000
+      *& =============================================================
+     d QMHRTVM         pr                  ExtPgm( 'QMHRTVM' )
+     d  RV                         4096    options(*varsize)
+     d  RVL                          10i 0 const
+     d  Fmt                           8    const
+     d  MsgId                         7    const
+     d  MsgFL                        20    const
+     d  MsgDta                      128    const  options(*varsize)
+     d  MsgDtaL                      10i 0 const
+     d  RplSubVal                    10    const
+     d  RtnFmtChr                    10    const
+     d  Err                                like(EC)
+      *
+     d* RtvOpt                       10    const  options(*nopass)
+     d* CvtCcsId                     10i 0 const  options(*nopass)
+     d* RplCcsId                     10i 0 const  options(*nopass)
+      *===============================================================
+     d RVP             s               *   inz(%addr(RV))
+     d RVL             s             10i 0 inz(%size(RV))
+     d RV              ds          4096
+     d  BytesR                       10i 0
+     d  BytesA                       10i 0
+     d  MsgLR                        10i 0
+     d  MsgLA                        10i 0
+     d  HelpLR                       10i 0
+     d  HelpLA                       10i 0
+     d  Msg                         132
+     d HP              s               *
+     d Help            s           3000    based(HP)
+      *===============================================================
+     d MFL             s             20    inz('ERRMSGF   *LIBL')
+     d MDD             s            128    inz(' ')
+     d MDDL            s           2048    inz(' ')
+     d MDL             s             10i 0 inz(1)
+      *===============================================================
+      *& ERR20: Retrieve Message Text MD=128  RETURN=132 <<<<<<<<<<<<<
+      *===============================================================
+     p ERR20           b                   export
+     d ERR20           pi           132
+     d  MI                            7    const
+     d  MF                           10    const options(*omit:*nopass)
+     d  MD                          128    const options(*nopass)
+      *===============================================================
+      /free
+       //=============================================================
+       monitor;
+          //==========================================================
+          reset MFL;
+          reset MDD;
+          reset MDL;
+          //==========================================================
+          select;
+             when %parms = 1;
+             when %parms = 2;
+                  MFL = MF+'*LIBL';
+             when %parms = 3;
+                  if %addr(MF) <> *NULL;
+                     MFL = MF+'*LIBL';
+                  endif;
+                  MDD = %trim(MD);
+                  MDL = %len(%trim(MDD));
+          endsl;
+          //==========================================================
+          QMHRTVM(RV:RVL:'RTVM0100':MI:MFL:MDD:MDL:'*YES':'*NO':EC);
+          //==========================================================
+          return %subst(Msg:1:MsgLR);
+          //==========================================================
+       on-error;
+          ERR03();
+       endmon;
+       //=============================================================
+      /end-free
+     p ERR20           e
+      *===============================================================
+      *& ERR21: Retrieve Message Text MD=2048 RETURN=132 <<<<<<<<<<<<<
+      *===============================================================
+     p ERR21           b                   export
+     d ERR21           pi           132
+     d  MI                            7    const
+     d  MF                           10    const options(*omit:*nopass)
+     d  MD                         2048    const options(*nopass)
+      *===============================================================
+      /free
+       //=============================================================
+       monitor;
+          //==========================================================
+          reset MFL;
+          reset MDDL;
+          reset MDL;
+          //==========================================================
+          select;
+             when %parms = 1;
+             when %parms = 2;
+                  MFL = MF+'*LIBL';
+             when %parms = 3;
+                  if %addr(MF) <> *NULL;
+                     MFL = MF+'*LIBL';
+                  endif;
+                  MDDL = %trim(MD);
+                  MDL = %len(%trim(MDDL));
+          endsl;
+          //==========================================================
+          QMHRTVM(RV:RVL:'RTVM0100':MI:MFL:MDDL:MDL:'*YES':'*NO':EC);
+          //==========================================================
+          return %subst(Msg:1:MsgLR);
+          //==========================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p ERR21           e
+      *===============================================================
+      *& ERR22: Retrieve Message Help MD=2048 RETURN=3000 <<<<<<<<<<<<
+      *===============================================================
+     p ERR22           b                   export
+     d ERR22           pi          3000
+     d  MI                            7    const
+     d  MF                           10    const options(*omit:*nopass)
+     d  MD                         2048    const options(*nopass)
+      *- - - - - - - - - - - - - - - - - -
+      /free
+       //=============================================================
+       monitor;
+          //==========================================================
+          reset MFL;
+          reset MDDL;
+          reset MDL;
+          //==========================================================
+          select;
+             when %parms = 1;
+             when %parms = 2;
+                  MFL = MF+'*LIBL';
+             when %parms = 3;
+                  if %addr(MF) <> *NULL;
+                     MFL = MF+'*LIBL';
+                  endif;
+                  MDDL = %trim(MD);
+                  MDL = %len(%trim(MDDL));
+          endsl;
+          select;
+              when %parms = 1;
+                   QMHRTVM(RV:RVL:'RTVM0100':MI:MFL:' ':1
+                           :'*YES':'*NO':EC);
+              when %parms = 2;
+                   QMHRTVM(RV:RVL:'RTVM0100':MI:MF+'*LIBL':' ':1
+                           :'*YES':'*NO':EC);
+              when %parms = 3;
+                   MDL = %len(%trim(MD));
+          endsl;
+          //==========================================================
+          QMHRTVM(RV:RVL:'RTVM0100':MI:MFL:MDDL:MDL:'*YES':'*NO':EC);
+          //==========================================================
+          HP = %addr(Msg) + MsgLR;
+          return %subst(Help:1:HelpLR);
+          //==========================================================
+       on-error;
+          ERR03();
+       endmon;
+       //=============================================================
+      /end-free
+     p ERR22           e
+      *===============================================================
