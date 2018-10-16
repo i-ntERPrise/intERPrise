@@ -15,15 +15,15 @@ Please review (http://www.i-nterprise.org/about.html) and (http://www.i-nterpris
 
 The following principles are FUNDAMENTAL to this initiative:
  
-•	Absolute data-centricity (ALL data rules enforced by DB2 by way of triggers and constraints)
-•	ILE
-•	No DSPF’s (display files aka 5250)
-•	Absolute separation of concerns (MVC)
-•	Absolute leveraging of standard, unique IBM i capabilities (*MSGF, work management, *USRSPC, *USRIDX, journaling, commitment control, etc.)
-•	No “black-box” functionality
-•	No ISV product dependencies
-•	Open to ANY potential device and/or service (read front-end), interacting via JSON between the IBM I based solution and the “delivery channel” (read “client”).
-•	Absolutely no OPM (Original Program Model) code constructs will be acceptable.
+-Absolute data-centricity (ALL data rules enforced by DB2 by way of triggers and constraints)
+-ILE
+-No DSPF’s (display files aka 5250)
+-Absolute separation of concerns (MVC)
+-Absolute leveraging of standard, unique IBM i capabilities (*MSGF, work management, *USRSPC, *USRIDX, journaling, commitment control, etc.)
+-No “black-box” functionality
+-No ISV product dependencies
+-Open to ANY potential device and/or service (read front-end), interacting via JSON between the IBM I based solution and the “delivery channel” (read “client”).
+-Absolutely no OPM (Original Program Model) code constructs will be acceptable.
 
 NOTE for all the 0.n ALPHA releases: please FOCUS all your efforts on the CRD000F, DEB000F and CSH000F tables and all their associated components, in order to familiarise yourself with architecture and how all components interrelate. Should you have ANY suggestions on how the “Committee” (intERPrise Architectural and Standards Committee) can improve the architecture, to make it even more “open” and relevant, please forward your detailed suggestions to management@i-nterprise.org.
 
@@ -34,11 +34,11 @@ Getting Started
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 The objective is to ONLY use MODERN coding techniques. Our definition of when you are using ILE and RPG IV the way it should be, it will have most of the following attributes:
-•	*SRVPGM - Functions and Procedures bound into *SRVPGM and *PGM
-•	Activation Groups - NO execution in the DEFAULT (at least QILE named activation group) activation group (in general, bar exceptions)
-•	BIF’s
-•	Single Instance, reusable code components
-•	Separation of concerns (aka MVC, aka “multi-tier” architecture)
+-*SRVPGM - Functions and Procedures bound into *SRVPGM and *PGM
+-Activation Groups - NO execution in the DEFAULT (at least QILE named activation group) activation group (in general, bar exceptions)
+-BIF’s
+-Single Instance, reusable code components
+-Separation of concerns (aka MVC, aka “multi-tier” architecture)
  
 ILE C and ILE Cobol contributions are welcome, but MUST implement single Instance, reusable code components.
 
@@ -108,21 +108,21 @@ Versioning
 Initial Contributors
 
 We thank the following companies who selflessly and kindly made their staff available to participate and donated base intellectual property to get this initiative launched:
-•	[Tembo] (http://www.adsero-optima.com)
-•	[Axiom] (http://www.axiom.co.za)
-•	[e-PFR technologies] (http://www.iwebsrv.com)
-•	[Shield Advanced Solutions] (https://shieldadvanced.com)
+-[Tembo] (http://www.adsero-optima.com)
+-[Axiom] (http://www.axiom.co.za)
+-[e-PFR technologies] (http://www.iwebsrv.com)
+-[Shield Advanced Solutions] (https://shieldadvanced.com)
 
 We also wish to recognise the individual contributions of the following people, who contributed their experience, knowledge, code bases, coding techniques, intellectual capital and guidance to deliver this project:
-•	[Tommy Atkins] (https://www.linkedin.com/in/tommyatkins)
-•	[Gavin Beangstrom] (https://www.linkedin.com/in/gavin-beangstrom-4344a74)
-•	[Matt Henderson] (https://www.linkedin.com/in/matthewphenderson)
-•	[Chris Hird] (https://www.linkedin.com/in/chrishird)
-•	[Les Holcroft] (https://www.linkedin.com/in/lesholcroft)
-•	[Ted Holt] (https://www.linkedin.com/in/ted-holt-14a483)
-•	[Dmitriy Kuznetsov] (https://www.linkedin.com/in/dkuznetsov)
-•	[Mark Rowles] (https://www.linkedin.com/in/mark-rowles-66489916)
-•	[Marinus Van Sandwyk] (https://www.linkedin.com/in/mbogo)
+-[Tommy Atkins] (https://www.linkedin.com/in/tommyatkins)
+-[Gavin Beangstrom] (https://www.linkedin.com/in/gavin-beangstrom-4344a74)
+-[Matt Henderson] (https://www.linkedin.com/in/matthewphenderson)
+-[Chris Hird] (https://www.linkedin.com/in/chrishird)
+-[Les Holcroft] (https://www.linkedin.com/in/lesholcroft)
+-[Ted Holt] (https://www.linkedin.com/in/ted-holt-14a483)
+-[Dmitriy Kuznetsov] (https://www.linkedin.com/in/dkuznetsov)
+-[Mark Rowles] (https://www.linkedin.com/in/mark-rowles-66489916)
+-[Marinus Van Sandwyk] (https://www.linkedin.com/in/mbogo)
 
 See also the list of contributors who participated in this project.
 
