@@ -3,9 +3,9 @@ ILE Based Open Source CRM/ERP offering for the IBM i.
 
 ## intERPrise Base ERP (Debtors, Creditors, Cashbook & GL)
 
-A community driven **open source** initiative, to bring a **modern**, DB2 for i and ILE based, data-centric, multi-tier (MVC), NATIVE (to IBM i) base ERP application **free** to the entire IBM i installed base, subject to the terms of the Apache 2 licensing conditions.
+A community driven [OPEN SOURCE](https://opensource.org/osd) initiative, to bring a MODERN, DB2 for i and ILE based, [data-centric] (to http://datacentricmanifesto.org/principles/), multi-tier (MVC), NATIVE (to IBM i) base ERP application FREE to the entire IBM i installed base, subject to the terms of the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) licensing conditions.
 
-It is especially important to note that this current release is an **alpha** 0.1 release that serves as a foundation to first solidify the architecture, integration points, education and skills requirements for participants and to iron out any issues in the GitHub processes. We strongly advise that you use the initial few distros, to familiarise yourself with the coding paradigm, the standards and the processes.
+It is especially important to note that this current release is an **ALPHA** 0.1 release that serves as a foundation to first solidify the architecture, integration points, education and skills requirements for participants and to iron out any issues in the GitHub processes. We strongly advise that you use the initial few distros, to familiarise yourself with the coding paradigm, the standards and the processes.
 
 Also important to note that the committee are working with Axiom Systems, to delineate which database artefacts and functions fall within the ambit of the "Base ERP" (Debtors, Creditors, Cashbook & GL), and which fall outside. This is relevant due to potential referential (aka foreign key) constraints and the nature of their ERP, which is completely integrated.
 
@@ -15,7 +15,7 @@ Please review [our about page](http://www.i-nterprise.org/about.html) and [our s
 
 ---
 
-The following principles are **fundamental ** to this initiative:
+The following principles are **fundamental** to this initiative:
  
 * Absolute data-centricity (ALL data rules enforced by DB2 by way of triggers and constraints)
 * ILE
@@ -27,9 +27,9 @@ The following principles are **fundamental ** to this initiative:
 * Open to ANY potential device and/or service (read front-end), interacting via JSON between the IBM I based solution and the “delivery channel” (read “client”).
 * Absolutely no OPM (Original Program Model) code constructs will be acceptable.
 
-**NOTE**: for all the 0.n **alpha** releases: please focus all your efforts on the `CRD000F`, `DEB000F` and `CSH000F` tables and all their associated components, in order to familiarise yourself with architecture and how all components interrelate. Should you have **any** suggestions on how the "Committee" (intERPrise Architectural and Standards Committee) can improve the architecture, to make it even more "open" and relevant, please forward your detailed suggestions to `management@i-nterprise.org`.
+**NOTE**: for all the 0.n **ALPHA** releases: please focus all your efforts on the `CRD000F`, `DEB000F` and `CSH000F` tables and all their associated components, in order to familiarise yourself with architecture and how all components interrelate. Should you have **any** suggestions on how the "Committee" (intERPrise Architectural and Standards Committee) can improve the architecture, to make it even more "open" and relevant, please forward your detailed suggestions to `management@i-nterprise.org`.
 
-As soon as we announce the availability of the **alpha** 1.0 release, you can start sharing code contributions. Only code that implements and follow our published standards, will be considered for inclusion in future distros.
+As soon as we announce the availability of the **ALPHA** 1.0 release, you can start sharing code contributions. Only code that implements and follow our published standards, will be considered for inclusion in future distros.
 
 ## Getting Started
 
