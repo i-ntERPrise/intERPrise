@@ -7,7 +7,7 @@ A community driven **open source** initiative, to bring a **modern**, DB2 for i 
 
 It is especially important to note that this current release is an **alpha** 0.1 release that serves as a foundation to first solidify the architecture, integration points, education and skills requirements for participants and to iron out any issues in the GitHub processes. We strongly advise that you use the initial few distros, to familiarise yourself with the coding paradigm, the standards and the processes.
 
-Also important to note that the committee are working with Axiom Systems, to delineate which database artefacts and functions fall within the ambit of the “Base ERP” (Debtors, Creditors, Cashbook & GL), and which fall outside. This is relevant due to potential referential (aka foreign key) constraints and the nature of their ERP, which is completely integrated.
+Also important to note that the committee are working with Axiom Systems, to delineate which database artefacts and functions fall within the ambit of the "Base ERP" (Debtors, Creditors, Cashbook & GL), and which fall outside. This is relevant due to potential referential (aka foreign key) constraints and the nature of their ERP, which is completely integrated.
 
 The committee is also continuously busy to implement our recommended naming conventions on all the database artefacts that were harvested from the S2E models. Currently the complete application consist out of 898 tables.
 
