@@ -3,7 +3,7 @@ ILE Based Open Source CRM/ERP offering for the IBM i.
 
 ## intERPrise Base ERP (Debtors, Creditors, Cashbook & GL)
 
-A community driven [OPEN SOURCE](https://opensource.org/osd) initiative, to bring a MODERN, DB2 for i and ILE based, [data-centric] (to http://datacentricmanifesto.org/principles/), multi-tier (MVC), NATIVE (to IBM i) base ERP application FREE to the entire IBM i installed base, subject to the terms of the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) licensing conditions.
+A community driven [OPEN SOURCE](https://opensource.org/osd) initiative, to bring a MODERN, DB2 for i and ILE based, [data-centric](to http://datacentricmanifesto.org/principles/), multi-tier (MVC), NATIVE (to IBM i) base ERP application FREE to the entire IBM i installed base, subject to the terms of the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) licensing conditions.
 
 It is especially important to note that this current release is an **ALPHA** 0.1 release that serves as a foundation to first solidify the architecture, integration points, education and skills requirements for participants and to iron out any issues in the GitHub processes. We strongly advise that you use the initial few distros, to familiarise yourself with the coding paradigm, the standards and the processes.
 
