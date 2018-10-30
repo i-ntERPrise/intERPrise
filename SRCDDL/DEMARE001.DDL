@@ -27,7 +27,7 @@
 -- =======================================================================================
 CREATE TABLE DEMARE001 (
     DAS1069 CHAR(11) NOT NULL DEFAULT '' ,
-    DEREMA001 CHAR(11) NOT NULL DEFAULT '' ,
+    DEREMA001 CHAR(11) NOT NULL DEFAULT '' )
     RCDFMT DEMARE001R;
 LABEL ON TABLE DEMARE001 IS 'Debtor Master Reprint';
 LABEL ON COLUMN DEMARE001 (

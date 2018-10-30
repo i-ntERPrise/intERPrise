@@ -27,7 +27,7 @@
 -- =======================================================================================
 CREATE TABLE CRHIWO001 (
     FCDS1052 CHAR(11) NOT NULL DEFAULT '' ,
-    CRHSWO001 CHAR(11) NOT NULL DEFAULT '' ,
+    CRHSWO001 CHAR(11) NOT NULL DEFAULT '' )
     RCDFMT CRHIWO001R;
 LABEL ON TABLE CRHIWO001 IS 'Creditor History Work';
 LABEL ON COLUMN CRHIWO001 (

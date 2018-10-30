@@ -27,7 +27,7 @@
 -- =======================================================================================
 CREATE TABLE DEBREG001 (
     DAVS1042 CHAR(11) NOT NULL DEFAULT '' ,
-    DERECO002 CHAR(3) NOT NULL DEFAULT '' ,
+    DERECO002 CHAR(3) NOT NULL DEFAULT '' )
     RCDFMT DEBREG001R;
 LABEL ON TABLE DEBREG001 IS 'Debtor Region';
 LABEL ON COLUMN DEBREG001 (

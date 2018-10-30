@@ -27,7 +27,7 @@
 -- =======================================================================================
 CREATE TABLE DEMAMO001 (
     DAS1048 CHAR(11) NOT NULL DEFAULT '' ,
-    DRMSMO001 CHAR(11) NOT NULL DEFAULT '' ,
+    DRMSMO001 CHAR(11) NOT NULL DEFAULT '' )
     RCDFMT DEMAMO001R;
 LABEL ON TABLE DEMAMO001 IS 'Debtor Master Movement';
 LABEL ON COLUMN DEMAMO001 (

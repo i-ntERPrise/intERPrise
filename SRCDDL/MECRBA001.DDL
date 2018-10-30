@@ -27,7 +27,7 @@
 -- =======================================================================================
 CREATE TABLE MECRBA001 (
     FCDS1059 CHAR(11) NOT NULL DEFAULT '' ,
-    MECRBA002 NUMERIC(6,0) NOT NULL DEFAULT 0 ,
+    MECRBA002 NUMERIC(6,0) NOT NULL DEFAULT 0 )
     RCDFMT MECRBA001R;
 LABEL ON TABLE MECRBA001 IS 'ME Creditor Balance';
 LABEL ON COLUMN MECRBA001 (

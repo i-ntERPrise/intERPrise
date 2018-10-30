@@ -27,7 +27,7 @@
 -- =======================================================================================
 CREATE TABLE DEBMER001 (
     DAVS1056 CHAR(11) NOT NULL DEFAULT '' ,
-    MERDES001 CHAR(40) NOT NULL DEFAULT '' ,
+    MERDES001 CHAR(40) NOT NULL DEFAULT '' )
     RCDFMT DEBMER001R;
 LABEL ON TABLE DEBMER001 IS 'Debtor Merchandiser';
 LABEL ON COLUMN DEBMER001 (
