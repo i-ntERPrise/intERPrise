@@ -27,7 +27,7 @@
 -- =======================================================================================
 CREATE TABLE DECGDE001 (
     DAVS1054 CHAR(11) NOT NULL DEFAULT '' ,
-    DECGCO001 CHAR(3) NOT NULL DEFAULT '' ,
+    DECGCO001 CHAR(3) NOT NULL DEFAULT '' )
     RCDFMT DECGDE001R;
 LABEL ON TABLE DECGDE001 IS 'Debtor CGIC Definition';
 LABEL ON COLUMN DECGDE001 (

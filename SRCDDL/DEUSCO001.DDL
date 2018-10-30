@@ -26,7 +26,7 @@
 --                                                                                       -
 -- =======================================================================================
 CREATE TABLE DEUSCO001 (
-    DEUSPR001 CHAR(60) NOT NULL DEFAULT '' ,
+    DEUSPR001 CHAR(60) NOT NULL DEFAULT '' )
     RCDFMT DEUSCO001R;
 LABEL ON TABLE DEUSCO001 IS 'Debtor User Control';
 LABEL ON COLUMN DEUSCO001 (

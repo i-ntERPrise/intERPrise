@@ -26,7 +26,7 @@
 --                                                                                       -
 -- =======================================================================================
 CREATE TABLE ZZDEAD001 (
-    ZZDECO002 CHAR(10) NOT NULL DEFAULT '' ,
+    ZZDECO002 CHAR(10) NOT NULL DEFAULT '' )
     RCDFMT ZZDEAD001R;
 LABEL ON TABLE ZZDEAD001 IS 'ZZ Debtor Address';
 LABEL ON COLUMN ZZDEAD001 (

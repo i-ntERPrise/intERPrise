@@ -27,7 +27,7 @@
 -- =======================================================================================
 CREATE TABLE CRTRCL002 (
     FCDS1051 CHAR(11) NOT NULL DEFAULT '' ,
-    CRTRCL003 CHAR(11) NOT NULL DEFAULT '' ,
+    CRTRCL003 CHAR(11) NOT NULL DEFAULT '' )
     RCDFMT CRTRCL002R;
 LABEL ON TABLE CRTRCL002 IS 'Creditor Trn Claims';
 LABEL ON COLUMN CRTRCL002 (

@@ -26,7 +26,7 @@
 --                                                                                       -
 -- =======================================================================================
 CREATE TABLE ZZCRDE001 (
-    ZZDEPR001 CHAR(1) NOT NULL DEFAULT '' ,
+    ZZDEPR001 CHAR(1) NOT NULL DEFAULT '' )
     RCDFMT ZZCRDE001R;
 LABEL ON TABLE ZZCRDE001 IS 'ZZ Create Debtor';
 LABEL ON COLUMN ZZCRDE001 (

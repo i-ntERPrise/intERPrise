@@ -27,7 +27,7 @@
 -- =======================================================================================
 CREATE TABLE DEMAED001 (
     DAVS1059 CHAR(11) NOT NULL DEFAULT '' ,
-    DRMSED002 CHAR(3) NOT NULL DEFAULT '' ,
+    DRMSED002 CHAR(3) NOT NULL DEFAULT '' )
     RCDFMT DEMAED001R;
 LABEL ON TABLE DEMAED001 IS 'Debtor Master EDI Ref';
 LABEL ON COLUMN DEMAED001 (

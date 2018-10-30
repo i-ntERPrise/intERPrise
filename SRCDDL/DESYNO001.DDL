@@ -27,7 +27,7 @@
 -- =======================================================================================
 CREATE TABLE DESYNO001 (
     DAS1032 CHAR(11) NOT NULL DEFAULT '' ,
-    DESYNO002 DECIMAL(3,0) NOT NULL DEFAULT 0 ,
+    DESYNO002 DECIMAL(3,0) NOT NULL DEFAULT 0 )
     RCDFMT DESYNO001R;
 LABEL ON TABLE DESYNO001 IS 'Debtor System Notes';
 LABEL ON COLUMN DESYNO001 (

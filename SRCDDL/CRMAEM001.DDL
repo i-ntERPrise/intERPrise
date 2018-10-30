@@ -27,7 +27,7 @@
 -- =======================================================================================
 CREATE TABLE CRMAEM001 (
     FCDS1056 CHAR(11) NOT NULL DEFAULT '' ,
-    CRMSEM003 CHAR(60) NOT NULL DEFAULT '' ,
+    CRMSEM003 CHAR(60) NOT NULL DEFAULT '' )
     RCDFMT CRMAEM001R;
 LABEL ON TABLE CRMAEM001 IS 'Creditor Master Email';
 LABEL ON COLUMN CRMAEM001 (
