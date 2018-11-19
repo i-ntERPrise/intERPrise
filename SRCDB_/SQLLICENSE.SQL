@@ -1,4 +1,4 @@
-==========================================================================================
+--========================================================================================
 --                                                                                       -
 -- Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.                               -
 -- Created by AO Foundation - www.adsero-optima.com                                      -
@@ -22,6 +22,6 @@
 -- The above copyright notice and this permission notice shall be included in all copies -
 -- or substantial portions of the Software.                                              -
 --                                                                                       -
---                               http://www.i-nterprise.org/                             -
+--                             http://www.i-nterprise.org/                               -
 --                                                                                       -
 -- =======================================================================================

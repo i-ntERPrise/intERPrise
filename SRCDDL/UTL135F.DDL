@@ -25,3 +25,26 @@
 --                             http://www.i-nterprise.org/                               -
 --                                                                                       -
 -- =======================================================================================
+CREATE TABLE UTL135F (
+"User_ID" FOR
+    USRID CHAR(8) NOT NULL DEFAULT '' ,
+"User_ID_Number" FOR
+    USRID# CHAR(15) NOT NULL DEFAULT '' ,
+"User_ID_Name" FOR
+    USRNAM CHAR(25) NOT NULL DEFAULT '' ,
+    CONSTRAINT UTL135F_P PRIMARY KEY(
+     USRID))
+    RCDFMT UTL135FR;
+LABEL ON TABLE UTL135F IS 'intERPrise User Identification';
+LABEL ON COLUMN UTL135F (
+    USRID        IS 'User                ID',
+    USRID#       IS 'User ID Number',
+    USRNAM       IS 'User ID Name');
+LABEL ON COLUMN UTL135F (
+    USRID        TEXT IS 'User ID',
+    USRID#       TEXT IS 'User ID Number',
+    USRNAM       TEXT IS 'User ID Name');
+CL:ADDPFTRG FILE(UTL135F) TRGTIME(*BEFORE) TRGEVENT(*INSERT) PGM(UTL135F_B0)
+TRG(UTL135F_BI00) ALWREPCHG(*YES)
+CL:ADDPFTRG FILE(UTL135F) TRGTIME(*BEFORE) TRGEVENT(*UPDATE) PGM(UTL135F_B0)
+TRG(UTL135F_BU00) ALWREPCHG(*YES)

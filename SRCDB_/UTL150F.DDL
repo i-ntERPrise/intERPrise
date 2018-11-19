@@ -25,3 +25,46 @@
 --                             http://www.i-nterprise.org/                               -
 --                                                                                       -
 -- =======================================================================================
+CREATE TABLE UTL150F (
+"Menu_ID" FOR
+    MNUID CHAR(10) NOT NULL DEFAULT '' ,
+"Option" FOR
+    "OPTION" CHAR(2) NOT NULL DEFAULT '' ,
+"Description" FOR
+    DESCR CHAR(40) NOT NULL DEFAULT '' ,
+"User_ID" FOR
+    USRID CHAR(8) NOT NULL DEFAULT '' ,
+"User_Log_TimeStamp" FOR
+    USRLDTS TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+    CONSTRAINT UTL150F_P PRIMARY KEY(
+     USRID,MNUID))
+    RCDFMT UTL150FR;
+LABEL ON TABLE UTL150F IS 'intERPrise User Log';
+LABEL ON COLUMN UTL150F (
+    MNUID        IS 'Menu                ID',
+    "OPTION"     IS 'Option',
+    DESCR        IS 'Description',
+    USRID        IS 'User                ID',
+    USRLDTS      IS 'User Log TimeStamp');
+LABEL ON COLUMN UTL150F (
+    MNUID        TEXT IS 'Menu ID',
+    "OPTION"     TEXT IS 'Option',
+    DESCR        TEXT IS 'Description',
+    USRID        TEXT IS 'User ID',
+    USRLDTS      TEXT IS 'User Log TimeStamp');
+ALTER TABLE UTL150F ADD CONSTRAINT UTL150F_R0 FOREIGN KEY(
+USRID)
+REFERENCES UTL135F (
+USRID)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION;
+ALTER TABLE UTL150F ADD CONSTRAINT UTL150F_R1 FOREIGN KEY(
+MNUID)
+REFERENCES UTL100F (
+MNUID)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION;
+CL:ADDPFTRG FILE(UTL150F) TRGTIME(*BEFORE) TRGEVENT(*INSERT) PGM(UTL150F_B0)
+TRG(UTL150F_BI00) ALWREPCHG(*YES)
+CL:ADDPFTRG FILE(UTL150F) TRGTIME(*BEFORE) TRGEVENT(*UPDATE) PGM(UTL150F_B0)
+TRG(UTL150F_BU00) ALWREPCHG(*YES)

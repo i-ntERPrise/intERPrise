@@ -1,5 +1,5 @@
              pgm
-             CRTMSGF    MSGF(IRP/ERRMSGF)
+             CRTMSGF    MSGF(IRPGIT/ERRMSGF)
              ADDMSGD    MSGID(ALM0050) MSGF(IRP_D/ERRMSGF) MSG('Imported Files exceeds the licensed
                           SECLVL('This message indicates that the number of files "Imported" into th
                           database has exceeded the licensed maximum allowed for feature 5001.') SEV

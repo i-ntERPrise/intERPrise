@@ -1,0 +1,6 @@
+      */copy Business Rule for "Program Description" Validation [PGMDSCR]
+      */copy SRCCPY,$A069A2                       $PGMDSCR(Event:Orig:New);
+     d $PGMDSCR        pr
+     d  Event                         1
+     d  oPGMDSCR                     40
+     d  nPGMDSCR                     40

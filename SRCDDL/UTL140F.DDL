@@ -25,3 +25,32 @@
 --                             http://www.i-nterprise.org/                               -
 --                                                                                       -
 -- =======================================================================================
+CREATE TABLE UTL140F (
+"User_ID" FOR
+    USRID CHAR(8) NOT NULL DEFAULT '' ,
+"User_ID_Number" FOR
+    USRID# CHAR(15) NOT NULL DEFAULT '' ,
+"User_ID_Date_First_Access" FOR
+    USRIDFA TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+    CONSTRAINT UTL140F_P PRIMARY KEY(
+     USRID))
+    RCDFMT UTL140FR;
+LABEL ON TABLE UTL140F IS 'intERPrise User Logon History';
+LABEL ON COLUMN UTL140F (
+    USRID        IS 'User                ID',
+    USRID#       IS 'User ID Number',
+    USRIDFA      IS 'User ID Date First  Access');
+LABEL ON COLUMN UTL140F (
+    USRID        TEXT IS 'User ID',
+    USRID#       TEXT IS 'User ID Number',
+    USRIDFA      TEXT IS 'User ID Date First Access');
+ALTER TABLE UTL140F ADD CONSTRAINT UTL140F_R0 FOREIGN KEY(
+USRID)
+REFERENCES UTL135F (
+USRID)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION;
+CL:ADDPFTRG FILE(UTL140F) TRGTIME(*BEFORE) TRGEVENT(*INSERT) PGM(UTL140F_B0)
+TRG(UTL140F_BI00) ALWREPCHG(*YES)
+CL:ADDPFTRG FILE(UTL140F) TRGTIME(*BEFORE) TRGEVENT(*UPDATE) PGM(UTL140F_B0)
+TRG(UTL140F_BU00) ALWREPCHG(*YES)
