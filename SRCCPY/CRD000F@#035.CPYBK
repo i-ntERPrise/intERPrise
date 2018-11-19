@@ -1,9 +1,0 @@
-      */copy SRCCPY,CRD000F@#                     IOS [PLKR] import
-     d CRD000F@        pr              n
-     d  Action                        5    const
-     d  RecKey                             const options(*nopass) like(CRD000FK)
-     d CRD000FP        s               *   import
-     d CRD000FL        s             10I 0 inz(%size(CRD000FR))
-     d CRD000FK      e ds                    extname(CRD000F:*KEY) qualified
-     d CRD000FR      e ds                    extname(CRD000F)      qualified
-     d                                         based(CRD000FP)

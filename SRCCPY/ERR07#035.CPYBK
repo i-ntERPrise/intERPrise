@@ -1,4 +1,0 @@
-      */copy SRCCPY,ERR07#                        Boolean=Rcv. *LAST Msg.Id.+Text(*REMOVE)
-     d ERR07           pr              n
-     d  MsgId                         7
-     d  MsgText                     132

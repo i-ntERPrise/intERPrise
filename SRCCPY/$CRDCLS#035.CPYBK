@@ -1,5 +1,0 @@
-      */copy SRCCPY,$CRDCLS#                      CRDCLS   : Creditor Class validations
-     d $CRDCLS         pr
-     d  Event                         1
-     d  oCRDCLS                       3
-     d  nCRDCLS                       3

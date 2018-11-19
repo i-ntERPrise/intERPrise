@@ -1,4 +1,0 @@
-      */copy SRCCPY,ERR50#                        Convert SQLSTATE to ERHor Message
-     d CAPtr           s               *   inz(%addr(SQLCA))
-     d ERR50           pr              n   extproc('ERH50')
-     d  CAPtr                          *   const

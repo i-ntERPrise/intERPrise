@@ -1,4 +1,0 @@
-      */copy SRCCPY,ERR072#                       0/1=Rcv. *LAST Msg.Id.+Text(*REMOVE)-2
-     d ERR072          pr              n
-     d  MsgId                         7
-     d  MsgText                     132
