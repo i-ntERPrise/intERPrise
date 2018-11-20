@@ -1,15 +1,17 @@
-# intERPrise
-ILE Based Open Source CRM/ERP offering for the IBM i. 
+# intERPrise – ALPHA 0.2 Disto
+ILE Based, data centric Open Source ERP offering for the IBM i. 
 
-## intERPrise Base ERP (Debtors, Creditors, Cashbook & GL)
+## intERPrise Base ERP (Debtors { Accounts Receivables or Receivables}, Creditors { Accounts Payable or Payables}, Cashbook {Cash Management} & General Ledger)
 
 A community driven [OPEN SOURCE](https://opensource.org/osd) initiative, to bring a MODERN, DB2 for i and ILE based, [data-centric](http://datacentricmanifesto.org/principles/), multi-tier (MVC), NATIVE (to IBM i) base ERP application FREE to the entire IBM i installed base, subject to the terms of the [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) licensing conditions.
 
-It is especially important to note that this current release is an **ALPHA** 0.1 release that serves as a foundation to first solidify the architecture, integration points, education and skills requirements for participants and to iron out any issues in the GitHub processes. We strongly advise that you use the initial few distros, to familiarise yourself with the coding paradigm, the standards and the processes.
+It is especially important to note that this current release is now the ALPHA 0.2 release that serves as a foundation to first solidify the architecture, serve as basis for discussion of the proposed coding standards and naming conventions, integration points, education and skills requirements for participants and to iron out any issues in the GitHub processes. 
+
+We strongly advise that you use the initial few distros, to familiarise yourself with the coding paradigm, the standards and the processes.
 
 Also important to note that the committee are working with Axiom Systems, to delineate which database artefacts and functions fall within the ambit of the "Base ERP" (Debtors, Creditors, Cashbook & GL), and which fall outside. This is relevant due to potential referential (aka foreign key) constraints and the nature of their ERP, which is completely integrated.
 
-The committee is also continuously busy to implement our recommended naming conventions on all the database artefacts that were harvested from the S2E models. Currently the complete application consist out of 898 tables.
+The committee is also continuously busy to implement our recommended naming conventions on all the database artefacts that were harvested from the S2E models. Currently the complete application consist out of 898 tables. This will also be subject to refinement and its own modernization and review process, as this application model, although current, is also about thirty YEARS old.
 
 Please review [our about page](http://www.i-nterprise.org/about.html) and [our standards](http://www.i-nterprise.org/standards---conventions.html) occasionally as this initiative evolves?
 
@@ -27,13 +29,15 @@ The following principles are **fundamental** to this initiative:
 * Open to ANY potential device and/or service (read front-end), interacting via JSON between the IBM I based solution and the “delivery channel” (read “client”).
 * Absolutely no OPM (Original Program Model) code constructs will be acceptable.
 
-**NOTE**: for all the 0.n **ALPHA** releases: please focus all your efforts on the `CRD000F`, `DEB000F` and `CSH000F` tables and all their associated components, in order to familiarise yourself with architecture and how all components interrelate. Should you have **any** suggestions on how the "Committee" (intERPrise Architectural and Standards Committee) can improve the architecture, to make it even more "open" and relevant, please forward your detailed suggestions to `management@i-nterprise.org`.
+**NOTE**for all the 0.n **ALPHA** releases: please focus all your efforts on the completed (for purposes of the architecture and naming conventions & standards discussion) tables and all their associated components (triggers, constraints, copybooks, IO Services, Enterprise Services, Transport Services, SRVPGM’s, BNDDIR, etc.) in order to familiarise yourself with architecture and how all components interrelate. 
+
+Should you have **any** suggestions on how the "Committee" (intERPrise Architectural and Standards Committee) can improve the architecture, to make it even more "open" and relevant, please forward your detailed suggestions to `management@i-nterprise.org`.
 
 As soon as we announce the availability of the **ALPHA** 1.0 release, you can start sharing code contributions. Only code that implements and follow our published standards, will be considered for inclusion in future distros.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system. (We will soon provide an utility that will build the complete product for you on your development machine).
 
 The objective is to **only** use modern coding techniques. Our definition of when you are using ILE and RPG IV the way it should be, it will have most of the following attributes:
 * `*SRVPGM` - Functions and Procedures bound into *SRVPGM and *PGM
@@ -59,48 +63,7 @@ It is especially important that you are familiar and adopt with the ILE developm
 
 ## Installing
 
-Please Note this is the initial test, we will be providing CLP to carry out the build in the near future.
-
-1.	Create Application Schemas
-2.	`IRP_DB_P` (intERPrise Database Schema)
-3.	Create Schema
-4.	Create the schema using the IBM i command `CRTLIB`, not the `SQL CREATE SCHEMA` statement.
-5.	Create a Journal Receiver. Recommended name is the standard for all schemas – `JRNRCV0001`.
-6.	Create a Journal for the receiver. The standard name for all schemas is `JRN`.
-7.	Start journaling for the schema using `STRJRNLIB`
-8.	`IRP_P` (intERPrise Application Schema)
-9.	Create Schema
-10.	Create the schema using the IBM i command `CRTLIB`, not the `SQL CREATE SCHEMA` statement.
-11.	This schema typically does not contain files and therefore journaling is not necessary. 
-12.	Create the Binding Directory (`IRPSRV`)
-13.	Create a single binding directory in the `IRP_P` schema calling it `IRPSRV`.
-14.	Build the Error Handling Service Program (`ERRSRV@@`)
-15.	Compile the 5 error handling `*MODULE`’s, `ERRSRV@01` through `05`.
-16.	Then compile the service program builder `ERRSRV@@`. Once this has compiled successfully then call it from a command line to create the service program `ERRSRV@@`. 
-17.	Register the `ERRSRV@@` service program in the `IRPSRV` binding directory. 
-18.	Creating the Table Files
-19.	To generate the table files, run the "Run SQL Statements (RUNSQLSTM)" command.
-20.	Ensure the following parameters are properly set. `MARGINS(100)` and `DFTRDBCOL(IRP_DB_P)` 
-21.	Repeat the above for each of the file source members.
-22.	Creating the File I/O Server Modules/Procedures
-23.	Compile the I/O Server modules for each file.
-24.	Create the I/O Service Programs
-25.	Compile the I/O Service program builder (`*@@.CLLE`) for each I/O Service Program.
-26.	Change the `*CURLIB` to `IRP_DB_P` to build the `*SRVPGM`’s in the `IRP_DB_P` schema.
-27.	Run each of these Service Program builders to create the I/O Service Programs for each of the datasets.
-28.	Register each of the `*SRVPGM`’s created in the `IRPSRV` binding directory.
-29.	Create the Error Message File
-30.	Create an error message file (`ERRMSGF`) in the `IRP_P` schema
-31.	Create the Validation Rules Modules/Procedures
-32.	Compile the `IRPVRXXX@0` module. This module contains all the validation procedures for each individual field in the file needing to be validated.
-33.	Create the Validation Rules Service Programs
-34.	Compile the `IRPVRXXX@@` service program builder
-35.	Change the `*CURLIB` to `IRP_DB_P` to build the `*SRVPGM` in the `IRP_DB_P` schema.
-36.	Run the `IRPVRXXX@@` to create the service program.
-37.	Register `IRPVRXXX@@` `*SRVPGM` created in the `IRPSRV` binding directory.
-38.	Create Trigger Programs for Files
-39.	Compile the trigger programs for each of the files provided.
-40.	Attach each trigger program to the `*BEFORE`/`*INSERT` and `*BEFORE`/`*UPDATE` events of it’s related file using the `ADDPFTRG` command. 
+Kindly send an email to management@i-nterprise.org for a manual, step-by-step build instruction, should you want to build the current objects before the automated build utility is provided.
 
 ## Contributing
 
