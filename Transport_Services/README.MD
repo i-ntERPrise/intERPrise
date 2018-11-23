@@ -2,7 +2,6 @@
 A Server for receiving and responding to remote requests using JSON.
 
 ## Build Instructions
-<<<<<<< HEAD
 *Copy the source code to the IRPT Library.
 *Compile the CRTOBJS command and CRTOBJS CLLE Program into a suitable library. (suggest IRPT)
 *Run the command CRTOBJS with defaults to build the content into library IRPT_OBJ and IRPT_DTA.
@@ -18,7 +17,6 @@ We have provided a simple test program and command that will allow you to run te
 the TESTSVR objects from the SRCC and SRCCMD files. The programs will use the same configuration file used for the Server start up so you do not need to pass in any configuration
 information. Once the objects are compiled run the command from a command line, you need to press enter on the resulting screen to progress through the tests.
 
-=======
 * Copy the source code to the IRPT Library.
 * Compile the CRTOBJS command and CRTOBJS CLLE Program into a suitable library. (suggest IRPT)
 * Run the command CRTOBJS with defaults to build the content into library IRPT_OBJ and IRPT_DTA.
@@ -33,8 +31,4 @@ Menus and Panel Groups are provided to work with the server config. The default 
 We have provided a simple test program and command that will allow you to run tests against the server. To build the test commands and programs you will need to compile
 the TESTSVR objects from the SRCC and SRCCMD files. The programs will use the same configuration file used for the Server start up so you do not need to pass in any configuration
 information. Once the objects are compiled run the command from a command line, you need to press enter on the resulting screen to progress through the tests.
-<<<<<<< HEAD
->>>>>>> branch 'master' of https://github.com/ChrisHird/intERPrise
-=======
 
->>>>>>> refs/remotes/origin/master
