@@ -27,18 +27,20 @@
 :ECLASS.
 :CLASS   NAME=chr20cls   BASETYPE='CHAR 20'.
 :ECLASS.
-:CLASS   NAME=bin32cls   BASETYPE='BIN 32'.
+:CLASS   NAME=bin15cls   BASETYPE='BIN 15'.
+:ECLASS.
+:CLASS   NAME=bin31cls   BASETYPE='BIN 31'.
 :ECLASS.
 .*
 :VAR  NAME=csrvar    CLASS=chr10cls.
 :VAR  NAME=expgm     CLASS=chr20cls.
-:VAR  NAME=numsvr    CLASS=bin32cls.
-:VAR  NAME=svrport   CLASS=bin32cls.
-:VAR  NAME=sesstimo  CLASS=bin32cls.
+:VAR  NAME=numsvr    CLASS=bin15cls.
+:VAR  NAME=svrport   CLASS=bin31cls.
+:VAR  NAME=sesstimo  CLASS=bin31cls.
 .*
 :VARRCD  NAME=cursor    VARS='csrvar'.
 :VARRCD  NAME=exitpgm   VARS='expgm'.
-:VARRCD  NAME=irptinfo  VARS='numsvr svrport'.
+:VARRCD  NAME=irptinfo  VARS='numsvr svrport sesstimo'.
 .*
 :KEYL  NAME=basickeys   HELP=fkeys.
 :KEYI  KEY=F1        HELP=helpf1

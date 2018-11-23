@@ -35,6 +35,7 @@ char applHandle[8];                              // UIM Handle
 Os_EC_t errorCode = {0};                         // Error code data
 
 errorCode.EC.Bytes_Provided = _ERR_REC;
+Func_Req = &Function_Requested;
 // Open the Config File
 if((fp =_Ropen("IRPTCFG","rr+")) == NULL) {
    snd_msg("F000000","IRPTCFG   *LIBL     ",20);
@@ -58,7 +59,7 @@ if(errorCode.EC.Bytes_Available > 0) {
    _Rclose(fp);
    return -1;
    }
-// psuh up the current configuration
+// push up the current configuration
 QUIPUTV(applHandle,
         &CfgRec,
         _CFG_REC,
