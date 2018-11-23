@@ -17,9 +17,9 @@
  Drop Table IRPT_DTA/IRPTCFG;
 
  Create Table IRPT_DTA/IRPTCFG (
-        numsvr smallint NOT NULL WITH DEFAULT 5,
-        svrport integer NOT NULL WITH DEFAULT 23456,
-        sesstimeo integer NOT NULL WITH DEFAULT 10)
+        numsvr smallint NOT NULL,
+        svrport integer NOT NULL,
+        sesstimeo integer NOT NULL)
  rcdfmt CFGREC;
  LABEL ON TABLE IRPT_DTA/IRPTCFG is 'Transport Service Cfg';
  LABEL ON
@@ -31,3 +31,6 @@
         NUMSVR Text IS 'Number Listening Jobs',
         SVRPORT Text IS 'Server Listens on',
         SESSTIMEO Text IS 'Session Time out Minutes');
+ INSERT INTO IRPT_DTA/IRPTCFG (numsvr, svrport, sesstimeo)
+        VALUES(5,23456,10);
+

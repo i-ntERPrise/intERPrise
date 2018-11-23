@@ -163,6 +163,7 @@ return 1;
 
 int Handle_0002(int accept_sd,
                 char *convBuf,
+                char *CurHndl,
                 iconv_t e_a_ccsid) {
 int msgLen = 0;                                  // message length
 char sessId[17];                                 // session ID
@@ -170,7 +171,9 @@ char msg_dta[_MAX_MSG];                          // message buffer
 char tmpBuf[_MAX_MSG];                           // temp buffer
 char *tmp;                                       // temp ptr
 sessInfo_t sessInf;                              // IDX struct
+Os_EC_t errorCode = {0};                         // Error code data
 
+errorCode.EC.Bytes_Provided = _ERR_REC;
 // get the session ID 0002{"sessid":"SESSIONID","msg":"MSG"}
 tmp = convBuf;
 // skip the key
@@ -185,6 +188,26 @@ if(rtv_session(&sessInf,sessId) != 1) {
    close(accept_sd);
    return -1;
    }
+// use the session info to set the user handle
+QsySetToProfileHandle(sessInf.UsrHndl,
+                      &errorCode);
+if(errorCode.EC.Bytes_Available > 0) {
+   snd_error_msg(errorCode);
+   }
+// send the message
+if(extract_value(tmp,2,msg_dta) != 1) {
+   send_client_error(accept_sd,_MSG0000,e_a_ccsid);
+   close(accept_sd);
+   return -1;
+   }
+snd_msg("GEN0001",msg_dta,strlen(msg_dta));
+// switch back to the original user handle
+QsySetToProfileHandle(CurHndl,
+                      &errorCode);
+if(errorCode.EC.Bytes_Available > 0) {
+   snd_error_msg(errorCode);
+   }
+// return to the client
 sprintf(msg_dta,"{\"OK\":\"%s\"}",sessId);
 // convert to ASCII
 msgLen = strlen(msg_dta) + 1;
