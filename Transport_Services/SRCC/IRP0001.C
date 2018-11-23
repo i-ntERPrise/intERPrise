@@ -36,6 +36,8 @@ int listen_sd = 0;                               // socket descriptor
 int accept_sd = 0;                               // socket descriptor
 int rc = 0;                                      // return count
 char CurHndl[12];                                // Current profile handle
+char cip[14];                                    // client IP adress
+char allowedIP[14] = "*ANY";                     // allowed IP address
 char recvBuf[_32K];                              // recv buffer
 char convBuf[_32K];                              // conversion buffer
 char msg_dta[_MAX_MSG];                          // message buffer
@@ -90,6 +92,15 @@ do {
       close(listen_sd);
       return -1;
       }
+   // we can restrict the access by IP address using this code.
+   if(memcmp(allowedIP,"*ANY",4) != 0) {
+      if(inet_ntop(AF_INET,&caddr.sin_addr,cip,INET_ADDRSTRLEN) != NULL) {
+         if(memcmp(cip,allowedIP,strlen(cip)) != 0) {
+            sprintf(msg_dta,"Connected refused from %s:%d",caddr,ntohs(caddr.sin_port));
+            snd_msg("GEN0001",msg_dta,strlen(msg_dta));
+            }
+         }
+      }
    // socket options
    setsockopt(accept_sd,SOL_SOCKET,SO_RCVBUF,CHAR_32K,sizeof(CHAR_32K));
    memset(recvBuf,'\0',_32K);
@@ -110,7 +121,7 @@ do {
          break;
          }
       case  2 : { // get some data
-         Handle_0002(accept_sd,convBuf,e_a_ccsid);
+         Handle_0002(accept_sd,convBuf,CurHndl,e_a_ccsid);
          break;
          }
       default : {

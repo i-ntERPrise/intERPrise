@@ -52,7 +52,7 @@
 
    int Handle_SO(int,char *,iconv_t);
    int Handle_LO(int,char *,iconv_t);
-   int Handle_0002(int,char *,iconv_t);
+   int Handle_0002(int,char *,char *,iconv_t);
    int convert_buffer(char *,char *,int,int,iconv_t);
    int crt_sessidx(char *);
    int store_session(sessInfo_t *);

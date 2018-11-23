@@ -27,4 +27,5 @@
    #define _SSN0001 "Failed to store session information. Contact support."
    #define _SSN0002 "Failed to remove session information from store. Contact support."
    #define _SSN0003 "Failed to retrieve session information from store. Contact support."
+   #define _MSG0000 "Failed to extract message data."
    #endif
