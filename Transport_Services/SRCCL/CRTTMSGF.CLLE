@@ -35,5 +35,6 @@
                           SEV(30) FMT((*CHAR 20))
              ADDMSGD    MSGID(IDX0000) MSGF(&LIB/&MSGF) MSG('&1 entries removed from UserIDX') SECLVL('&1 entries have been prged +
                           from the User Index due to exceeding the config time out value.') SEV(30) FMT((*BIN 4))
+             ADDMSGD    MSGID(LST0000) MSGF(&LIB/&MSGF) MSG('No List entries') SEV(10)
              ENDPGM
 

@@ -41,6 +41,7 @@ char Pwd[128] = {' '};                           // password length
 char msg_dta[_MAX_MSG];                          // message buffer
 char tmpBuf[_MAX_MSG];                           // temp buffer
 char value[128] = {0};                           // returned value
+char UsrHndl[12];                                // handle returned
 char *tmp;                                       // temp ptr
 sessInfo_t sessInf;                              // IDX struct
 Os_EC_t errorCode = {0};                         // Error code data
@@ -57,7 +58,8 @@ if(extract_value(tmp,1,value) != 1) {
    close(accept_sd);
    return -1;
    }
-memcpy(Profile,value,strlen(value));
+memset(sessInf.UsrPrf,' ',10);
+memcpy(sessInf.UsrPrf,value,strlen(value));
 if(extract_value(tmp,2,value) != 1) {
    send_client_error(accept_sd,_PRF0001,e_a_ccsid);
    close(accept_sd);
@@ -65,9 +67,9 @@ if(extract_value(tmp,2,value) != 1) {
    }
 pwdLen = strlen(value);
 memcpy(Pwd,value,pwdLen);
-// get the profile handle
-QsyGetProfileHandle(sessInf.UsrHndl,
-                    Profile,
+// get the profile handle, this validates the Profile/Pwd
+QsyGetProfileHandle(UsrHndl,
+                    sessInf.UsrPrf,
                     Pwd,
                     pwdLen,
                     0,
@@ -169,6 +171,7 @@ int msgLen = 0;                                  // message length
 char sessId[17];                                 // session ID
 char msg_dta[_MAX_MSG];                          // message buffer
 char tmpBuf[_MAX_MSG];                           // temp buffer
+char UsrHndl[12];                                // usr handle
 char *tmp;                                       // temp ptr
 sessInfo_t sessInf;                              // IDX struct
 Os_EC_t errorCode = {0};                         // Error code data
@@ -188,8 +191,19 @@ if(rtv_session(&sessInf,sessId) != 1) {
    close(accept_sd);
    return -1;
    }
+// profile has to be enabled etc and not system profile
+QsyGetProfileHandleNoPwd(UsrHndl,
+                         sessInf.UsrPrf,
+                         "*NOPWD",
+                         &errorCode);
+if(errorCode.EC.Bytes_Available) {
+   snd_error_msg(errorCode);
+   send_client_error(accept_sd,_PRF0002,e_a_ccsid);
+   close(accept_sd);
+   return -1;
+   }
 // use the session info to set the user handle
-QsySetToProfileHandle(sessInf.UsrHndl,
+QsySetToProfileHandle(UsrHndl,
                       &errorCode);
 if(errorCode.EC.Bytes_Available > 0) {
    snd_error_msg(errorCode);
@@ -409,7 +423,7 @@ if(errorCode.EC.Bytes_Available > 0) {
    }
 memcpy(sessInf->sessId,ptr->sessId,16);
 memcpy(sessInf->lastAct,timeStamp,16);
-memcpy(sessInf->UsrHndl,ptr->UsrHndl,12);
+memcpy(sessInf->UsrPrf,ptr->UsrPrf,10);
 store_session(sessInf);
 return 1;
 }

@@ -43,7 +43,7 @@
    typedef _Packed struct sessInfo_x {
                           char sessId[16];
                           char lastAct[16];
-                          char UsrHndl[12];
+                          char UsrPrf[10];
                           } sessInfo_t;
 
    #define _IDX_ENT_LEN sizeof(_Packed struct sessInfo_x)

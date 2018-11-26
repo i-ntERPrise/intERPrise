@@ -111,6 +111,11 @@ Start server
           HELP='menu/option2'.
 End server
 .*
+:MENUI    OPTION=3
+          ACTION='CMD CALL IRP0004'
+          HELP='menu/option3'.
+Work with SessionID's
+.*
 :MENUI    OPTION=5
           ACTION='CMD WRKACTJOB SBS(IRPTSBS)'
           HELP='menu/option5'.
@@ -273,6 +278,13 @@ Option 2 - Help
 :XH3.Option 2. End Server
 :P.
 Select this option to end the server and the worker jobs.
+:EHELP.
+.*
+:HELP     NAME='menu/option3'.
+Option 3 - Help
+:XH3.Option 3. Work with SessionID's
+:P.
+Select this option to work with the stored session ID's which are stored from the server jobs.
 :EHELP.
 .*
 :HELP     NAME='menu/option5'.
