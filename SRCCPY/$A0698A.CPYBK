@@ -1,6 +1,0 @@
-      */copy Business Rule for "Menu Option" Validation [OPTION]
-      */copy SRCCPY,$A0698A                       $OPTION(Event:Orig:New);
-     d $OPTION         pr
-     d  Event                         1
-     d  oOPTION                       2
-     d  nOPTION                       2
