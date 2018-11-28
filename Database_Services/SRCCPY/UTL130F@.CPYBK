@@ -1,0 +1,9 @@
+      */copy SRCCPY,UTL130F@                      IOS+[PLKR] P = Import
+     d UTL130F@        pr              n
+     d  Action                        5    const
+     d  RecKey                             const options(*nopass) like(UTL130FK)
+     d UTL130FP        s               *   import
+     d UTL130FL        s             10I 0 inz(%size(UTL130FR))
+     d UTL130FK      e ds                    extname(UTL130F:*KEY) qualified
+     d UTL130FR      e ds                    extname(UTL130F)      qualified
+     d                                         based(UTL130FP)
