@@ -23,6 +23,9 @@
 (c)         Copyright Shield Advanced Solutions Ltd.       1997-2018
 :IMPORT  NAME='*'  PNLGRP=irpthlp.
 .*
+:CLASS   NAME=ynclsu    BASETYPE='CHAR 1' CASE=UPPER.
+:CHECK VALUES='"Y" "N"' MSGID=ERR0006.
+:ECLASS.
 :CLASS   NAME=chr10cls   BASETYPE='CHAR 10'.
 :ECLASS.
 :CLASS   NAME=chr20cls   BASETYPE='CHAR 20'.
@@ -37,10 +40,11 @@
 :VAR  NAME=numsvr    CLASS=bin15cls.
 :VAR  NAME=svrport   CLASS=bin31cls.
 :VAR  NAME=sesstimo  CLASS=bin31cls.
+:VAR  NAME=secsvr    CLASS=ynclsu.
 .*
 :VARRCD  NAME=cursor    VARS='csrvar'.
 :VARRCD  NAME=exitpgm   VARS='expgm'.
-:VARRCD  NAME=irptinfo  VARS='numsvr svrport sesstimo'.
+:VARRCD  NAME=irptinfo  VARS='numsvr svrport sesstimo secsvr'.
 .*
 :KEYL  NAME=basickeys   HELP=fkeys.
 :KEYI  KEY=F1        HELP=helpf1
@@ -57,8 +61,6 @@ F12=Cancel
        ACTION=ENTER.
 :KEYI  KEY=HELP      HELP=help
        ACTION=HELP.
-:KEYI  KEY=PRINT     HELP=print
-       ACTION=PRINT.
 :EKEYL.
 .*
 :PANEL  NAME=IRPTCFG HELP='cfgpnlh'
@@ -86,6 +88,10 @@ Number of Server Jobs
           HELP='cfgpnl/sesstimoh'
           USAGE=INOUT.
 Session Time out Interval
+:DATAI    VAR=secsvr
+          HELP='cfgpnl/secsvrh'
+          USAGE=INOUT.
+Secure Server
 :EDATA.
 :EPANEL.
 .*

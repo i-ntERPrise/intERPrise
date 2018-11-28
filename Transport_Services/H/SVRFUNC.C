@@ -19,6 +19,7 @@
 #ifndef SVRFUNC_h
    #define SVRFUNC_h
    #include <H/FILEDEF>                          // file definitions
+   #include <H/GSKFUNC>                          // GSK hdr
    #include <qwccvtdt.h>                         // date and time
    #include <qusrmvui.h>                         // rmv usridx
    #include <quscrtui.h>                         // create usridx
@@ -50,15 +51,15 @@
    #define _IDX_KEY_LEN 16
    #define _SESS_IDX "SESSIDX   IRPT_OBJ  "
 
-   int Handle_SO(int,char *,iconv_t);
-   int Handle_LO(int,char *,iconv_t);
-   int Handle_0002(int,char *,char *,iconv_t);
+   int Handle_SO(int,char *,iconv_t,int,gsk_handle);
+   int Handle_LO(int,char *,iconv_t,int,gsk_handle);
+   int Handle_0002(int,char *,char *,iconv_t,int,gsk_handle);
    int convert_buffer(char *,char *,int,int,iconv_t);
    int crt_sessidx(char *);
    int store_session(sessInfo_t *);
    int rtv_session(sessInfo_t *,char *);
    int rmv_session(char *);
    int extract_value(char *,int,char *);
-   int send_client_error(int,char *,iconv_t);
+   int send_client_error(int,char *,iconv_t,int,gsk_handle);
    int expire_sessid(CFGREC *);
    #endif

@@ -19,6 +19,7 @@
 #include <H/COMMON>                              // common header
 #include <H/MSGFUNC>                             // message functions
 #include <H/SVRFUNC>                             // message functions
+#include <H/GSKFUNC>                             // General Security Kit
 
 // Signal catcher
 
@@ -35,6 +36,8 @@ int addrLen = 0;                                 // address struct len
 int listen_sd = 0;                               // socket descriptor
 int accept_sd = 0;                               // socket descriptor
 int rc = 0;                                      // return count
+int secure = 0;                                  // secure server flag
+int amtRead = 0;                                 // secure read bytes
 char CurHndl[12];                                // Current profile handle
 char cip[14];                                    // client IP adress
 char allowedIP[14] = "*ANY";                     // allowed IP address
@@ -48,6 +51,8 @@ QtqCode_T asciiCode = {819,0,0,0,0,0};           // (ASCII) CCSID from struct
 iconv_t a_e_ccsid;                               // convert table struct
 iconv_t e_a_ccsid;                               // convert table struct
 struct sockaddr_in caddr;                        // Client socket info
+gsk_handle envHndl = NULL;                       // secure socket kit handle
+gsk_handle sessHndl = NULL;                      // secure socket kit handle
 Os_EC_t errorCode = {0};                         // Error code data
 
 errorCode.EC.Bytes_Provided = _ERR_REC;
@@ -81,15 +86,34 @@ if(errorCode.EC.Bytes_Available) {
    snd_error_msg(errorCode);
    return -1;
    }
+// check if secure Server
+if(memcmp(argv[2],"Y",1) == 0) {
+   if(crt_secure_env(&envHndl,_IRPT_APPID) != 1) {
+      // close as cannot connect
+      snd_msg("SEC0000"," ",0);
+      gsk_clean(&envHndl,&sessHndl);
+      }
+   secure = 1;
+   }
 // connect to the socket passed as argv[1]
 listen_sd = atoi(argv[1]);
 addrLen = sizeof(caddr);
+if(secure == 1) {
+   if(rc = gsk_secure_soc_open(envHndl,&sessHndl) != GSK_OK) {
+      sprintf(msg_dta,"%s : %d - %s.",_GSK0004,rc,gsk_strerror(rc));
+      snd_msg("GEN0001",msg_dta,strlen(msg_dta));
+      gsk_clean(&envHndl,&sessHndl);
+      close(listen_sd);
+      return -1;
+      }
+   }
 do {
    accept_sd = accept(listen_sd,(struct sockaddr *)&caddr,&addrLen);
    if(accept_sd < 0) {
       sprintf(msg_dta,"accept() failed",strerror(errno));
       snd_msg("GEN0001",msg_dta,strlen(msg_dta));
       close(listen_sd);
+      gsk_clean(&envHndl,&sessHndl);
       return -1;
       }
    // we can restrict the access by IP address using this code.
@@ -101,33 +125,65 @@ do {
             }
          }
       }
-   // socket options
-   setsockopt(accept_sd,SOL_SOCKET,SO_RCVBUF,CHAR_32K,sizeof(CHAR_32K));
-   memset(recvBuf,'\0',_32K);
-   rc = recv(accept_sd, recvBuf, _32K, 0);
-   // should be ASCII so convert and keep null terminator
-   if(convert_buffer(recvBuf,convBuf,rc+1,_32K,a_e_ccsid) != 1) {
-      sprintf(msg_dta,"Failed to convert\n");
-      }
-   memcpy(key,convBuf,4);
-   req = atoi(key);
-   switch(req) {
-      case  0 : { // logon request
-         Handle_SO(accept_sd,convBuf,e_a_ccsid);
-         break;
+   else {
+      memset(recvBuf,'\0',_32K);
+      if(secure  == 1) {
+         // set up the secure session
+         if(rc = gsk_attribute_set_numeric_value(sessHndl,GSK_FD,accept_sd) != GSK_OK) {
+            sprintf(msg_dta,"%s : %d - %s.",_GSK0005,rc,gsk_strerror(rc));
+            snd_msg("GEN0001",msg_dta,strlen(msg_dta));
+            gsk_clean(&envHndl,&sessHndl);
+            close(listen_sd);
+            return -1;
+            }
+         if(rc = gsk_secure_soc_init(sessHndl) != GSK_OK) {
+            sprintf(msg_dta,"%s : %d - %s.",_GSK0006,rc,gsk_strerror(rc));
+            snd_msg("GEN0001",msg_dta,strlen(msg_dta));
+            gsk_clean(&envHndl,&sessHndl);
+            close(listen_sd);
+            return -1;
+            }
+         rc = gsk_secure_soc_read(sessHndl,recvBuf,_32K, &amtRead);
+         if(convert_buffer(recvBuf,convBuf,amtRead,_32K,a_e_ccsid) != 1) {
+            sprintf(msg_dta,"Failed to convert\n");
+            gsk_clean(&envHndl,&sessHndl);
+            close(listen_sd);
+            return -1;
+            }
          }
-      case  1 : { //sign off request
-         Handle_LO(accept_sd,convBuf,e_a_ccsid);
-         break;
+      else {
+         rc = recv(accept_sd, recvBuf, _32K, 0);
+         // should be ASCII so convert and keep null terminator
+         if(convert_buffer(recvBuf,convBuf,rc+1,_32K,a_e_ccsid) != 1) {
+            sprintf(msg_dta,"Failed to convert\n");
+            close(listen_sd);
+            return -1;
+            }
          }
-      case  2 : { // get some data
-         Handle_0002(accept_sd,convBuf,CurHndl,e_a_ccsid);
-         break;
+      memcpy(key,convBuf,4);
+      req = atoi(key);
+      switch(req) {
+         case  0 : { // logon request
+            Handle_SO(accept_sd,convBuf,e_a_ccsid,secure,sessHndl);
+            break;
+            }
+         case  1 : { //sign off request
+            Handle_LO(accept_sd,convBuf,e_a_ccsid,secure,sessHndl);
+            break;
+            }
+         case  2 : { // get some data
+            Handle_0002(accept_sd,convBuf,CurHndl,e_a_ccsid,secure,sessHndl);
+            break;
+            }
+         default : {
+            break;
+            }
          }
-      default : {
-         break;
-         }
+      // clean up the secure environments
+      gsk_clean(&envHndl,&sessHndl);
       }
    }while (stop == 0);
+gsk_clean(&envHndl,&sessHndl);
+close(listen_sd);
 return 0;
 }
