@@ -14,7 +14,7 @@ Menus and Panel Groups are provided to work with the server config. The default 
 *Go to the operations menu and select option 1 to start the Servers.
 ## Testing the Server
 We have provided a simple test program and command that will allow you to run tests against the server. To build the test commands and programs you will need to compile
-the TESTSVR objects from the SRCC and SRCCMD files. The programs will use the same configuration file used for the Server start up so you do not need to pass in any configuration
+the SVRTEST objects from the SRCC and SRCCMD files. The programs will use the same configuration file used for the Server start up so you do not need to pass in any configuration
 information. Once the objects are compiled run the command from a command line, you need to press enter on the resulting screen to progress through the tests.
 
 * Copy the source code to the IRPT Library.
@@ -29,6 +29,6 @@ Menus and Panel Groups are provided to work with the server config. The default 
 * Go to the operations menu and select option 1 to start the Servers.
 ## Testing the Server
 We have provided a simple test program and command that will allow you to run tests against the server. To build the test commands and programs you will need to compile
-the TESTSVR objects from the SRCC and SRCCMD files. The programs will use the same configuration file used for the Server start up so you do not need to pass in any configuration
+the SVRTEST objects from the SRCC and SRCCMD files. The programs will use the same configuration file used for the Server start up so you do not need to pass in any configuration
 information. Once the objects are compiled run the command from a command line, you need to press enter on the resulting screen to progress through the tests.
 

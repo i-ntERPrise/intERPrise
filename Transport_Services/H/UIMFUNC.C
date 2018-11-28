@@ -23,6 +23,11 @@
    #include <quiputv.h>                          // put variable
    #include <quiopnda.h>                         // open display app
    #include <quigetv.h>                          // get variable rec
+   #include <quiaddle.h>                         // add list entry
+   #include <quisetla.h>                         // set List Attr
+   #include <quidltl.h>                          // delete list
+   #include <quigetle.h>                         // get list entry
+   #include <quirmvle.h>                         // remove list entry
    #include <euiafex.h>                          // app formatted data exit pgm
    #include <euialcl.h>                          // Act Lst Opt/Pull down  call
    #include <euialex.h>                          // act LstOpt /Pulldownepgm

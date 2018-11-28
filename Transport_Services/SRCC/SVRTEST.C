@@ -18,9 +18,13 @@
 #include <H/COMMON>                              // common header file
 #include <H/MSGFUNC>                             // msg header file
 #include <H/SVRFUNC>                             // Server header file
+#include <H/GSKFUNC>                             // GSK header file
+#include <H/GENFUNC>                             // Gen header file
 #include <H/FILEDEF>                             // File definitions header file
 
-//
+#define _IRPT_CAPPID "IRPTSVRTST_APP"
+#define _IRPT_CAPPID_DESC "intERPrise Server Test"
+
 // function Get_Host_Addr()
 // Purpose: get the Host address.
 // @parms
@@ -50,12 +54,12 @@ if((addr->sin_addr.s_addr  = inet_addr(server)) == (unsigned long) INADDR_NONE) 
 return 1;
 }
 
-
 // (function) rmt_connect
 // Connect to the remote system
 // @parms
-//     Configuration record
-//                       socket decriptor
+//     server IP address
+//     server port
+//     socket decriptor
 // returns 1 connected, socket set to connection
 
 int rmt_connect(char *server,
@@ -88,6 +92,34 @@ if(rc < 0) {
 return 1;
 }
 
+// function crt_secure_session()
+// purpose to create a secure session from envHndl and socket
+// @parms
+//      envHndl
+//      sessHndl
+//      socket
+// returns 1
+
+int crt_secure_session(gsk_handle *envHndl,
+                       gsk_handle *sessHndl,
+                       int *sockfd) {
+int rc = 0;                                      // return code
+
+if(rc = gsk_secure_soc_open(envHndl,&sessHndl) != GSK_OK) {
+   printf("Failed to open secure socket : %d - %s\n",rc,gsk_strerror(rc));
+   return -1;
+   }
+if(rc = gsk_attribute_set_numeric_value(sessHndl,GSK_FD,*sockfd) != GSK_OK) {
+   printf("Failed to set socket : %d - %s.\n",rc,gsk_strerror(rc));
+   return -1;
+   }
+if(rc = gsk_secure_soc_init(sessHndl) != GSK_OK) {
+   printf("Failed to initialize session : %d - %s.",rc,gsk_strerror(rc));
+   return -1;
+   }
+return 1;
+}
+
 int main(int argc,char **argv) {
 _RFILE *fp;                                      // file ptr
 _RIOFB_T *fdbk;                                  // feed back
@@ -97,6 +129,9 @@ int serverPort = 0;                              // connection port
 int msgLen = 1;                                  // msg Length
 int rc = 0;                                      // return count
 int i = 0;                                       // counter
+int secure = 0;                                  // secure flag
+int amtSent = 0;                                 // amount of data sent secure socket
+int amtRead = 0;                                 // amount of data read secure socket
 char msg_dta[_MAX_MSG];                          // msg buffer
 char tmpBuf[_MAX_MSG];                           // conversion buffer
 char recvBuf[_MAX_MSG];                          // recv buffer
@@ -107,6 +142,8 @@ QtqCode_T jobCode = {0,0,0,0,0,0};               // (Job) CCSID to struct
 QtqCode_T asciiCode = {819,0,0,0,0,0};           // (ASCII) CCSID from struct
 iconv_t a_e_ccsid;                               // convert table struct
 iconv_t e_a_ccsid;                               // convert table struct
+gsk_handle envHndl = NULL;                       // environment handle
+gsk_handle sessHndl = NULL;                      // session handle
 
 a_e_ccsid = QtqIconvOpen(&jobCode,&asciiCode);
 if(a_e_ccsid.return_value == -1) {
@@ -140,20 +177,65 @@ if(fdbk->num_bytes == EOF) {
    }
 _Rclose(fp);
 serverPort = CfgRec.SVRPORT;
-// connect to the remote Server
+if(*CfgRec.SECSVR == 'Y') {
+   if(get_lpp_status("5770SS1","*CUR  ","0034") != 1) {
+      printf("Requires DCM to be installed for Secure Sockets connections\n");
+      return -1;
+      }
+   // register the application ID as a client
+   if(reg_appid(_IRPT_CAPPID,_IRPT_CAPPID_DESC,'0') != 1) {
+      printf("Failed to register the Client application\n");
+      return -1;
+      }
+   if(crt_secure_env(&envHndl,_IRPT_APPID) != 1) {
+      gsk_clean(&envHndl,&sessHndl);
+      printf("Failed to create the secure environment\n");
+      return -1;
+      }
+   secure = 1;
+   }
+// connect to the remote Server standard port open OK even if secure
 if(rmt_connect(argv[1],serverPort,&sockfd) != 1) {
   return -1;
   }
+if(secure == 1) {
+   // create secure session handle and link with socket
+   if(crt_secure_session(&envHndl,&sessHndl,&sockfd) != 1) {
+      gsk_clean(&envHndl,&sessHndl);
+      close(sockfd);
+      return -1;
+      }
+   }
 // need to send as EBCDIC so will convert each time
 // first lets sign on
 sprintf(msg_dta,"0000{\"profile\":\"%s\",\"passwd\":\"%s\"}",prf,pwd);
 printf("JSON to be sent %s\n",msg_dta);
 msgLen = strlen(msg_dta) + 1;
 convert_buffer(msg_dta,tmpBuf,msgLen,_MAX_MSG,e_a_ccsid);
-send(sockfd,tmpBuf,msgLen,0);
+if(secure == 1) {
+   if(rc = gsk_secure_soc_write(sessHndl,tmpBuf,msgLen,&amtSent) != GSK_OK) {
+      printf("Failed to send data over secure socket : %d - %s.\n",rc,gsk_strerror(rc));
+      gsk_clean(&envHndl,&sessHndl);
+      close(sockfd);
+      return -1;
+      }
+   }
+else {
+   amtSent = send(sockfd,tmpBuf,msgLen,0);
+   }
 // get the response
-rc = recv(sockfd,recvBuf,_MAX_MSG,0);
-convert_buffer(recvBuf,tmpBuf,rc,_MAX_MSG,a_e_ccsid);
+if(secure == 1) {
+   if(rc = gsk_secure_soc_read(sessHndl,recvBuf,_32K, &amtRead) != GSK_OK) {
+      printf("Failed to receive data over secure socket : %d - %s.\n",rc,gsk_strerror(rc));
+      gsk_clean(&envHndl,&sessHndl);
+      close(sockfd);
+      return -1;
+      }
+   }
+else {
+   amtRead = recv(sockfd,recvBuf,_MAX_MSG,0);
+   }
+convert_buffer(recvBuf,tmpBuf,amtRead,_MAX_MSG,a_e_ccsid);
 printf("Sign on response %s\n",tmpBuf);
 // need to close and reconnect
 close(sockfd);
@@ -168,14 +250,41 @@ extract_value(tmpBuf,1,sessId);
 sprintf(msg_dta,"0002{\"sessid\":\"%s\",\"msg\":\"Hello World\"}",sessId);
 printf("JSON to be sent %s\n",msg_dta);
 msgLen = strlen(msg_dta) + 1;
+convert_buffer(msg_dta,tmpBuf,msgLen,_MAX_MSG,e_a_ccsid);
 if(rmt_connect(argv[1],serverPort,&sockfd) != 1) {
   return -1;
   }
-convert_buffer(msg_dta,tmpBuf,msgLen,_MAX_MSG,e_a_ccsid);
-send(sockfd,tmpBuf,msgLen,0);
+// need to set up the session handle again as this is new connection
+if(secure == 1) {
+   // create secure session handle and link with socket
+   if(crt_secure_session(&envHndl,&sessHndl,&sockfd) != 1) {
+      gsk_clean(&envHndl,&sessHndl);
+      close(sockfd);
+      return -1;
+      }
+   if(rc = gsk_secure_soc_write(sessHndl,tmpBuf,msgLen,&amtSent) != GSK_OK) {
+      printf("Failed to send data secure socket : %d - %s.\n",rc,gsk_strerror(rc));
+      gsk_clean(&envHndl,&sessHndl);
+      close(sockfd);
+      return -1;
+      }
+   }
+else {
+   amtSent = send(sockfd,tmpBuf,msgLen,0);
+   }
 // get the response
-rc = recv(sockfd,recvBuf,_MAX_MSG,0);
-convert_buffer(recvBuf,tmpBuf,rc,_MAX_MSG,a_e_ccsid);
+if(secure == 1) {
+   if(rc = gsk_secure_soc_read(sessHndl,recvBuf,_32K, &amtRead) != GSK_OK) {
+      printf("Failed to receive data over secure socket : %d - %s.\n",rc,gsk_strerror(rc));
+      gsk_clean(&envHndl,&sessHndl);
+      close(sockfd);
+      return -1;
+      }
+   }
+else {
+   amtRead = recv(sockfd,recvBuf,_MAX_MSG,0);
+   }
+convert_buffer(recvBuf,tmpBuf,amtRead,_MAX_MSG,a_e_ccsid);
 printf("0002 response %s\n",tmpBuf);
 // need to close and reconnect
 close(sockfd);
@@ -184,14 +293,41 @@ getchar();
 sprintf(msg_dta,"0001{\"sessid\":\"%s\"}",sessId);
 printf("JSON to be sent %s\n",msg_dta);
 msgLen = strlen(msg_dta) + 1;
+convert_buffer(msg_dta,tmpBuf,msgLen,_MAX_MSG,e_a_ccsid);
 if(rmt_connect(argv[1],serverPort,&sockfd) != 1) {
   return -1;
   }
-convert_buffer(msg_dta,tmpBuf,msgLen,_MAX_MSG,e_a_ccsid);
-send(sockfd,tmpBuf,msgLen,0);
+// need to set up the session handle again as this is new connection
+if(secure == 1) {
+   // create secure session handle and link with socket
+   if(crt_secure_session(&envHndl,&sessHndl,&sockfd) != 1) {
+      gsk_clean(&envHndl,&sessHndl);
+      close(sockfd);
+      return -1;
+      }
+   if(rc = gsk_secure_soc_write(sessHndl,tmpBuf,msgLen,&amtSent) != GSK_OK) {
+      printf("Failed to send data secure socket : %d - %s.\n",rc,gsk_strerror(rc));
+      gsk_clean(&envHndl,&sessHndl);
+      close(sockfd);
+      return -1;
+      }
+   }
+else {
+   amtSent = send(sockfd,tmpBuf,msgLen,0);
+   }
 // get the response
-rc = recv(sockfd,recvBuf,_MAX_MSG,0);
-convert_buffer(recvBuf,tmpBuf,rc,_MAX_MSG,a_e_ccsid);
+if(secure == 1) {
+   if(rc = gsk_secure_soc_read(sessHndl,recvBuf,_32K, &amtRead) != GSK_OK) {
+      printf("Failed to receive data over secure socket : %d - %s.\n",rc,gsk_strerror(rc));
+      gsk_clean(&envHndl,&sessHndl);
+      close(sockfd);
+      return -1;
+      }
+   }
+else {
+   amtRead = recv(sockfd,recvBuf,_MAX_MSG,0);
+   }
+convert_buffer(recvBuf,tmpBuf,amtRead,_MAX_MSG,a_e_ccsid);
 printf("Sign off response %s\n",tmpBuf);
 // need to close and reconnect
 close(sockfd);

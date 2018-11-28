@@ -26,6 +26,8 @@
                           which can be configured &2 exceeded in the configuration file.') SEV(30) FMT((*BIN 4) (*BIN 4))
              ADDMSGD    MSGID(CFG0001) MSGF(&LIB/&MSGF) MSG('Maximum number of Worker jobs already loaded.') SECLVL('No further +
                           worker jobs will be loaded') SEV(10)
+             ADDMSGD    MSGID(ERR0000) MSGF(&LIB/&MSGF) MSG('Incorrect Value Entered,enter Y or N.') SECLVL('The value entered is +
+                          not acceptable') SEV(10)
              ADDMSGD    MSGID(F000000) MSGF(&LIB/&MSGF) MSG('Failed to open file &1') SECLVL('Failed to open the file, check the job +
                           log for more details') SEV(30) FMT((*CHAR 20))
              ADDMSGD    MSGID(F000001) MSGF(&LIB/&MSGF) MSG('No Data in file &1') SECLVL('The file has no data and cannot be sent to +
@@ -35,5 +37,12 @@
                           SEV(30) FMT((*CHAR 20))
              ADDMSGD    MSGID(IDX0000) MSGF(&LIB/&MSGF) MSG('&1 entries removed from UserIDX') SECLVL('&1 entries have been prged +
                           from the User Index due to exceeding the config time out value.') SEV(30) FMT((*BIN 4))
+             ADDMSGD    MSGID(LST0000) MSGF(&LIB/&MSGF) MSG('No List entries') SEV(10)
+             ADDMSGD    MSGID(SEC0000) MSGF(&LIB/&MSGF) MSG('Failed to create secure environment') SECLVL('Cannot start a secure +
+                          environment. Check the joblog, resolve any issues and retry server start.') SEV(30)
+             ADDMSGD    MSGID(SEC0001) MSGF(&LIB/&MSGF) MSG('DCM not installed cannot start secure server') SECLVL('Cannot start a +
+                          secure server without DCM being installed.') SEV(30)
+             ADDMSGD    MSGID(SEC0002) MSGF(&LIB/&MSGF) MSG('Failed to Register Application') SECLVL('Failed to register the +
+                          application with DCM.') SEV(30)
              ENDPGM
 

@@ -28,4 +28,11 @@
    #define _SSN0002 "Failed to remove session information from store. Contact support."
    #define _SSN0003 "Failed to retrieve session information from store. Contact support."
    #define _MSG0000 "Failed to extract message data."
+   #define _GSK0000 "gsk_environment_open() failed with rc ="
+   #define _GSK0001 "gsk_attribute_set_buffer() failed with rc ="
+   #define _GSK0002 "gsk_attribute_set_enum() failed with rc ="
+   #define _GSK0003 "gsk_environment_init() failed with rc ="
+   #define _GSK0004 "gsk_secure_soc_open() failed with rc ="
+   #define _GSK0005 "gsk_attribute_set_numeric_value() failed with rc ="
+   #define _GSK0006 "gsk_secure_soc_init() failed with rc ="
    #endif

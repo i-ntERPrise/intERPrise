@@ -30,10 +30,13 @@
 
 int Handle_SO(int accept_sd,
               char *convBuf,
-              iconv_t e_a_ccsid) {
+              iconv_t e_a_ccsid,
+              int secure,
+              gsk_handle sessHndl) {
 int pwdLen = 0;                                  // password length
 int msgLen = 0;                                  // Message length
 int rc = 0;                                      // return value
+int amtSent = 0;                                 // amount sent
 char outputFmt[10] = "*YMD      ";               // Time stamp input fmt
 char timeStamp[18];                              // time stamp
 char Profile[10] = {' '};                        // profile name
@@ -41,6 +44,7 @@ char Pwd[128] = {' '};                           // password length
 char msg_dta[_MAX_MSG];                          // message buffer
 char tmpBuf[_MAX_MSG];                           // temp buffer
 char value[128] = {0};                           // returned value
+char UsrHndl[12];                                // handle returned
 char *tmp;                                       // temp ptr
 sessInfo_t sessInf;                              // IDX struct
 Os_EC_t errorCode = {0};                         // Error code data
@@ -53,28 +57,29 @@ tmp = convBuf;
 // skip the request key
 tmp += 4;
 if(extract_value(tmp,1,value) != 1) {
-   send_client_error(accept_sd,_PRF0000,e_a_ccsid);
+   send_client_error(accept_sd,_PRF0000,e_a_ccsid,secure,sessHndl);
    close(accept_sd);
    return -1;
    }
-memcpy(Profile,value,strlen(value));
+memset(sessInf.UsrPrf,' ',10);
+memcpy(sessInf.UsrPrf,value,strlen(value));
 if(extract_value(tmp,2,value) != 1) {
-   send_client_error(accept_sd,_PRF0001,e_a_ccsid);
+   send_client_error(accept_sd,_PRF0001,e_a_ccsid,secure,sessHndl);
    close(accept_sd);
    return -1;
    }
 pwdLen = strlen(value);
 memcpy(Pwd,value,pwdLen);
-// get the profile handle
-QsyGetProfileHandle(sessInf.UsrHndl,
-                    Profile,
+// get the profile handle, this validates the Profile/Pwd
+QsyGetProfileHandle(UsrHndl,
+                    sessInf.UsrPrf,
                     Pwd,
                     pwdLen,
                     0,
                     &errorCode);
 if(errorCode.EC.Bytes_Available) {
    snd_error_msg(errorCode);
-   send_client_error(accept_sd,_PRF0002,e_a_ccsid);
+   send_client_error(accept_sd,_PRF0002,e_a_ccsid,secure,sessHndl);
    close(accept_sd);
    return -1;
    }
@@ -86,7 +91,7 @@ QWCCVTDT("*CURRENT  ",
          &errorCode);
 if(errorCode.EC.Bytes_Available > 0) {
    snd_error_msg(errorCode);
-   send_client_error(accept_sd,_ERR0000,e_a_ccsid);
+   send_client_error(accept_sd,_ERR0000,e_a_ccsid,secure,sessHndl);
    close(accept_sd);
    return -1;
    }
@@ -95,7 +100,7 @@ memcpy(sessInf.sessId,timeStamp,16);
 memcpy(sessInf.lastAct,timeStamp,16);
 // store session ID with Profile Handle
 if(store_session(&sessInf) != 1) {
-   send_client_error(accept_sd,_SSN0001,e_a_ccsid);
+   send_client_error(accept_sd,_SSN0001,e_a_ccsid,secure,sessHndl);
    close(accept_sd);
    return -1;
    }
@@ -104,7 +109,12 @@ sprintf(msg_dta,"{\"SESSIONID\":\"%s\"}",timeStamp);
 // length needs to include NLL terminator
 msgLen = strlen(msg_dta) + 1;
 convert_buffer(msg_dta,tmpBuf,msgLen,_MAX_MSG,e_a_ccsid);
-rc = send(accept_sd,tmpBuf,msgLen,0);
+if(secure == 1) {
+   rc = gsk_secure_soc_write(sessHndl,tmpBuf,msgLen,&amtSent);
+   }
+else {
+   rc = send(accept_sd,tmpBuf,msgLen,0);
+   }
 // this is stateless so close the socket
 close(accept_sd);
 return 1;
@@ -121,8 +131,12 @@ return 1;
 
 int Handle_LO(int accept_sd,
               char *convBuf,
-              iconv_t e_a_ccsid) {
+              iconv_t e_a_ccsid,
+              int secure,
+              gsk_handle sessHndl) {
 int msgLen = 0;                                  // message length
+int amtSent = 0;                                 // secure write
+int rc = 0;                                      // return count
 char sessId[17];                                 // session ID
 char msg_dta[_MAX_MSG];                          // message buffer
 char tmpBuf[_MAX_MSG];                           // temp buffer
@@ -133,13 +147,13 @@ tmp = convBuf;
 // skip the key
 tmp += 4;
 if(extract_value(tmp,1,sessId) != 1) {
-   send_client_error(accept_sd,_SSN0000,e_a_ccsid);
+   send_client_error(accept_sd,_SSN0000,e_a_ccsid,secure,sessHndl);
    close(accept_sd);
    return -1;
    }
 // remove from the User Index
 if(rmv_session(sessId) != 1) {
-   send_client_error(accept_sd,_SSN0000,e_a_ccsid);
+   send_client_error(accept_sd,_SSN0000,e_a_ccsid,secure,sessHndl);
    close(accept_sd);
    return -1;
    }
@@ -147,7 +161,12 @@ sprintf(msg_dta,"{\"OK\":\"%s\"}",sessId);
 // convert to ASCII
 msgLen = strlen(msg_dta) + 1;
 convert_buffer(msg_dta,tmpBuf,msgLen,_MAX_MSG,e_a_ccsid);
-send(accept_sd,tmpBuf,msgLen,0);
+if(secure == 1) {
+   rc = gsk_secure_soc_write(sessHndl,tmpBuf,msgLen,&amtSent);
+   }
+else {
+   rc = send(accept_sd,tmpBuf,msgLen,0);
+   }
 close(accept_sd);
 return 1;
 }
@@ -164,11 +183,16 @@ return 1;
 int Handle_0002(int accept_sd,
                 char *convBuf,
                 char *CurHndl,
-                iconv_t e_a_ccsid) {
+                iconv_t e_a_ccsid,
+                int secure,
+                gsk_handle sessHndl) {
 int msgLen = 0;                                  // message length
+int amtSent = 0;                                 // secure write
+int rc = 0;                                      // return count
 char sessId[17];                                 // session ID
 char msg_dta[_MAX_MSG];                          // message buffer
 char tmpBuf[_MAX_MSG];                           // temp buffer
+char UsrHndl[12];                                // usr handle
 char *tmp;                                       // temp ptr
 sessInfo_t sessInf;                              // IDX struct
 Os_EC_t errorCode = {0};                         // Error code data
@@ -179,24 +203,35 @@ tmp = convBuf;
 // skip the key
 tmp += 4;
 if(extract_value(tmp,1,sessId) != 1) {
-   send_client_error(accept_sd,_SSN0000,e_a_ccsid);
+   send_client_error(accept_sd,_SSN0000,e_a_ccsid,secure,sessHndl);
    close(accept_sd);
    return -1;
    }
 if(rtv_session(&sessInf,sessId) != 1) {
-   send_client_error(accept_sd,_SSN0003,e_a_ccsid);
+   send_client_error(accept_sd,_SSN0003,e_a_ccsid,secure,sessHndl);
+   close(accept_sd);
+   return -1;
+   }
+// profile has to be enabled etc and not system profile
+QsyGetProfileHandleNoPwd(UsrHndl,
+                         sessInf.UsrPrf,
+                         "*NOPWD",
+                         &errorCode);
+if(errorCode.EC.Bytes_Available) {
+   snd_error_msg(errorCode);
+   send_client_error(accept_sd,_PRF0002,e_a_ccsid,secure,sessHndl);
    close(accept_sd);
    return -1;
    }
 // use the session info to set the user handle
-QsySetToProfileHandle(sessInf.UsrHndl,
+QsySetToProfileHandle(UsrHndl,
                       &errorCode);
 if(errorCode.EC.Bytes_Available > 0) {
    snd_error_msg(errorCode);
    }
 // send the message
 if(extract_value(tmp,2,msg_dta) != 1) {
-   send_client_error(accept_sd,_MSG0000,e_a_ccsid);
+   send_client_error(accept_sd,_MSG0000,e_a_ccsid,secure,sessHndl);
    close(accept_sd);
    return -1;
    }
@@ -212,7 +247,12 @@ sprintf(msg_dta,"{\"OK\":\"%s\"}",sessId);
 // convert to ASCII
 msgLen = strlen(msg_dta) + 1;
 convert_buffer(msg_dta,tmpBuf,msgLen,_MAX_MSG,e_a_ccsid);
-send(accept_sd,tmpBuf,msgLen,0);
+if(secure == 1) {
+   rc = gsk_secure_soc_write(sessHndl,tmpBuf,msgLen,&amtSent);
+   }
+else {
+   rc = send(accept_sd,tmpBuf,msgLen,0);
+   }
 close(accept_sd);
 return 1;
 }
@@ -409,7 +449,7 @@ if(errorCode.EC.Bytes_Available > 0) {
    }
 memcpy(sessInf->sessId,ptr->sessId,16);
 memcpy(sessInf->lastAct,timeStamp,16);
-memcpy(sessInf->UsrHndl,ptr->UsrHndl,12);
+memcpy(sessInf->UsrPrf,ptr->UsrPrf,10);
 store_session(sessInf);
 return 1;
 }
@@ -510,8 +550,12 @@ return 1;
 
 int send_client_error(int accept_sd,
                       char *msg,
-                      iconv_t e_a_ccsid) {
+                      iconv_t e_a_ccsid,
+                      int secure,
+                      gsk_handle sessHndl) {
 int msgLen = 0;                                  // message length
+int amtSent = 0;                                 // secure write
+int rc = 0;                                      // return count
 char msg_dta[_MAX_MSG];                          // message buffer
 char tmpBuf[_MAX_MSG];                           // temp buffer
 
@@ -519,7 +563,12 @@ char tmpBuf[_MAX_MSG];                           // temp buffer
 sprintf(msg_dta,"{\"ERROR\":\"%s\"}",msg);
 msgLen = strlen(msg_dta) + 1;
 convert_buffer(msg_dta,tmpBuf,msgLen,_MAX_MSG,e_a_ccsid);
-send(accept_sd,tmpBuf,msgLen,0);
+if(secure == 1) {
+   rc = gsk_secure_soc_write(sessHndl,tmpBuf,msgLen,&amtSent);
+   }
+else {
+   rc = send(accept_sd,tmpBuf,msgLen,0);
+   }
 return 1;
 }
 

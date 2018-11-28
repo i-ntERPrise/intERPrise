@@ -19,18 +19,21 @@
  Create Table IRPT_DTA/IRPTCFG (
         numsvr smallint NOT NULL,
         svrport integer NOT NULL,
-        sesstimeo integer NOT NULL)
+        sesstimeo integer NOT NULL,
+        secsvr char  NOT NULL)
  rcdfmt CFGREC;
  LABEL ON TABLE IRPT_DTA/IRPTCFG is 'Transport Service Cfg';
  LABEL ON
         COLUMN IRPT_DTA/IRPTCFG(
         NUMSVR IS 'Number Workers',
         SVRPORT IS 'Listening Port',
-        SESSTIMEO IS 'Session Time Out');
+        SESSTIMEO IS 'Session Time Out',
+        SECSVR IS 'Secure Server');
  LABEL ON COLUMN IRPT_DTA/IRPTCFG (
         NUMSVR Text IS 'Number Listening Jobs',
         SVRPORT Text IS 'Server Listens on',
-        SESSTIMEO Text IS 'Session Time out Minutes');
+        SESSTIMEO Text IS 'Session Time out Minutes'
+        SECSVR Text IS 'Secure Server Setting Y/N');
  INSERT INTO IRPT_DTA/IRPTCFG (numsvr, svrport, sesstimeo)
-        VALUES(5,23456,10);
+        VALUES(5,23456,10,'N');
 

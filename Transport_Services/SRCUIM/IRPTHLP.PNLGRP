@@ -17,6 +17,61 @@
 .* or substantial portions of the Software.
 .*
 :PNLGRP.
+:HELP     NAME=fkeys.
+Function Keys - Help
+:XH3.Function keys
+:P.The function keys that are available to the panel group.
+:EHELP.
+:HELP     NAME=helpf3.
+:PARML.
+:PT.F3=Exit
+:PD.Ends the current task and returns you to the display from which the command was invoked.
+:EPARML.
+:EHELP.
+:HELP     NAME=helpf5.
+:PARML.
+:PT.F5=Refresh
+:PD.Rebuilds the list and redisplays it.
+:EPARML.
+:EHELP.
+:HELP     NAME=helpf12.
+:PARML.
+:PT.F12=Cancel
+:PD.Cancels processing of any options or changes you have made to the current display and returns you to the previous display.
+:EPARML.
+:EHELP.
+:HELP     NAME=enter.
+:PARML.
+:PT.Enter
+:PD.Submits information on the display for processing.
+:EPARML.
+:EHELP.
+:HELP     NAME=help.
+:PARML.
+:PT.Help
+:PD.Provides additional information about using the display.
+:EPARML.
+:EHELP.
+:HELP     NAME=pagedown.
+:PARML.
+:PT.Page Down (Roll Up)
+:PD.Moves the information displayed forward to show additional information.
+:EPARML.
+:EHELP.
+:HELP     NAME=pageup.
+:PARML.
+:PT.Page Up (Roll Down)
+:PD.Moves the information displayed backward to show additional
+information.
+:EPARML.
+:EHELP.
+:HELP   NAME='opth'.
+:P.The options available for the list items.
+:PARML.
+:PT.4
+:PD.Remove the session ID from the User Index. this will require the user signs back on the next time they use the Transport Server.
+:EPARML.
+:EHELP.
 :HELP   NAME='cfgpnl/numsvrh'.
 :P.The number of worker jobs that will be started when the Transport Server starts.
 :EHELP.
@@ -26,5 +81,17 @@
 :HELP   NAME='cfgpnl/sesstimoh'.
 :P.The time in minutes that a session ID will be considered as stale after no activity. A clean up process
 will review all stored session ID's for expiration and remove if necessary.
+:EHELP.
+:HELP   NAME='sessidpnlh'.
+:P.Provides access to the session ID's stored by the Server Programs from client requests.
+:EHELP.
+:HELP   NAME='sessidpnlh/lastacth'.
+:P.The date and Time the session was last used
+:EHELP.
+:HELP   NAME='sessidpnlh/profileh'.
+:P.The profile assigned to the session ID.
+:EHELP.
+:HELP   NAME='sessidpnlh/sessidh'.
+:P.The session ID assigned when the profile and password were successfully checked.
 :EHELP.
 :EPNLGRP.

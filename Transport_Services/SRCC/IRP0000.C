@@ -19,6 +19,7 @@
 #include <H/COMMON>                              // common header
 #include <H/MSGFUNC>                             // message functions
 #include <H/SVRFUNC>                             // message functions
+#include <H/GENFUNC>                             // general functions
 #include <qrcvdtaq.h>                            // Receive Data Q Msg
 #include <qclrdtaq.h>                            // Clear Data Q Msgs
 
@@ -48,13 +49,14 @@ char DQueue[10] = "SVRCTLQ   ";                  // Master Q
 char DQLib[10] = _DFT_PGM_LIB;                   // Master Q Lib
 char DQKey[4] = "0000";                          // key data used for retvl
 char SpawnStr[50];                               // spawn string
-char *spawn_argv[3];                             // Spawn arg
+char *spawn_argv[4];                             // Spawn arg
 char *spawn_envp[1];                             // Spawn Environment
 char *recptr;                                    // pointer to data
 char buffer[80];                                 // Buffer
 char QueueData[_QSIZE];                          // Data from Data queue
 char msg_dta[_MAX_MSG];                          // msg buffer
 char Key[5];                                     // Switch Key
+char secSvr[2];                                  // secure server flag
 pid_list_t pid_list;                             // Process List struct
 pid_list_t ss_pid_list;                          // Process List struct
 Qmhq_Sender_Information_t SInfo;                 // Sender Inf struct
@@ -63,7 +65,6 @@ struct sockaddr_in addr;                         // socket struct
 Os_EC_t ErrorCode = {0};                         // Error code data
 
 ErrorCode.EC.Bytes_Provided = _ERR_REC;
-
 // Open the Config File
 if((fp =_Ropen("IRPTCFG","rr")) == NULL) {
    snd_msg("F000000",_DFT_CFG,20);
@@ -102,7 +103,7 @@ QCLRDTAQ(DQueue,
 if(ErrorCode.EC.Bytes_Available) {
    snd_error_msg(ErrorCode);
    }
-// Set up the listening sockets Non Secure
+// Set up the listening socket
 listen_sd = socket(AF_INET, SOCK_STREAM, 0);
 if(listen_sd < 0) {
    sprintf(msg_dta," socket() failed %s",strerror(errno));
@@ -132,9 +133,26 @@ if(rc < 0) {
    }
 memset(&inherit, 0, sizeof(inherit));
 sprintf(buffer, "%d", listen_sd);
+if(*CfgRec.SECSVR == 'Y') {
+   sprintf(secSvr, "%.1s", CfgRec.SECSVR);
+   // make sure DCM is installed first
+   if(get_lpp_status("5770SS1","*CUR  ","0034") != 1) {
+      sprintf(secSvr, "%.1s","N");
+      snd_msg("SEC0001"," ",0);
+      }
+   else {
+      // register the application ID
+      if(reg_appid(_IRPT_APPID,_IRPT_APPID_DESC,'1') != 1) {
+         snd_msg("SEC0002",msg_dta,strlen(msg_dta));
+         sprintf(secSvr, "%.1s","N");
+         }
+      }
+   }
+// argv[0] generally stores the program name etc we send in NULL string
 spawn_argv[0] = "";
 spawn_argv[1] = buffer;
-spawn_argv[2] = NULL;
+spawn_argv[2] = secSvr;
+spawn_argv[3] = NULL;
 spawn_envp[0] = NULL;
 // load the listening jobs Non Secure
 for(i = 0; i < num_wrk; i++)  {
