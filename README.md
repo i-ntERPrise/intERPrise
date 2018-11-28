@@ -19,12 +19,12 @@ The following principles are **fundamental ** to this initiative:
  
 * Absolute data-centricity (ALL data rules enforced by DB2 by way of triggers and constraints)
 * ILE
-* No DSPFâ€™s (display files aka 5250)
+* No DSPF (display files aka 5250)
 * Absolute separation of concerns (MVC)
 * Absolute leveraging of standard, unique IBM i capabilities (*MSGF, work management, *USRSPC, *USRIDX, journaling, commitment control, etc.)
-* No â€œblack-boxâ€� functionality
+* No black-box functionality
 * No ISV product dependencies
-* Open to ANY potential device and/or service (read front-end), interacting via JSON between the IBM I based solution and the â€œdelivery channelâ€� (read â€œclientâ€�).
+* Open to ANY potential device and/or service (read front-end), interacting via JSON between the IBM I based solution and the delivery channel(read client).
 * Absolutely no OPM (Original Program Model) code constructs will be acceptable.
 
 **NOTE**: for all the 0.n **alpha** releases: please focus all your efforts on the `CRD000F`, `DEB000F` and `CSH000F` tables and all their associated components, in order to familiarise yourself with architecture and how all components interrelate. Should you have **any** suggestions on how the "Committee" (intERPrise Architectural and Standards Committee) can improve the architecture, to make it even more "open" and relevant, please forward your detailed suggestions to `management@i-nterprise.org`.
@@ -38,9 +38,9 @@ These instructions will get you a copy of the project up and running on your loc
 The objective is to **only** use modern coding techniques. Our definition of when you are using ILE and RPG IV the way it should be, it will have most of the following attributes:
 * `*SRVPGM` - Functions and Procedures bound into *SRVPGM and *PGM
 * Activation Groups - **no** execution in the **default** (at least `QILE` named activation group) activation group (in general, bar exceptions)
-* BIFâ€™s
+* BIF's
 * Single Instance, reusable code components
-* Separation of concerns (aka MVC, aka â€œmulti-tierâ€� architecture)
+* Separation of concerns (aka MVC, aka multi-tier architecture)
  
 ILE C and ILE Cobol contributions are welcome, but MUST implement single Instance, reusable code components.
 
@@ -53,7 +53,7 @@ The following tools and technologies are used by our team:
 3.	ILE-RPG Education resources
 4.	Standard IBM i development tooling (compilers, ADTS, etc.)
 5.	MiWorkplace tooling
-6.	iWebSrv for INITIAL â€œdelivery channelâ€�
+6.	iWebSrv for INITIAL delivery channel
 
 It is especially important that you are familiar and adopt with the ILE development paradigm. The **free** education resource at [this link](http://www.ile-rpg.org/education.html) will provide you with most, if not all that you may require.
 
@@ -92,7 +92,7 @@ See also the list of contributors who participated in this project.
 
 ## License
 
-This project is licensed under the Apache 2.0 license â€“ see the LICENSE.md file for details
+This project is licensed under the Apache 2.0 license see the LICENSE.md file for details
 
 ## Acknowledgments
 
