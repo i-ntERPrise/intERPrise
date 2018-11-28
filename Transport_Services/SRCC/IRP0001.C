@@ -88,7 +88,7 @@ if(errorCode.EC.Bytes_Available) {
    }
 // check if secure Server
 if(memcmp(argv[2],"Y",1) == 0) {
-   if(crt_secure_env(&envHndl,_IRPT_APPID) != 1) {
+   if(crt_secure_env(&envHndl,_IRPT_APPID,_IRPT_APPID_LEN,GSK_SERVER_SESSION) != 1) {
       // close as cannot connect
       snd_msg("SEC0000"," ",0);
       gsk_clean(&envHndl,&sessHndl);
@@ -98,15 +98,6 @@ if(memcmp(argv[2],"Y",1) == 0) {
 // connect to the socket passed as argv[1]
 listen_sd = atoi(argv[1]);
 addrLen = sizeof(caddr);
-if(secure == 1) {
-   if(rc = gsk_secure_soc_open(envHndl,&sessHndl) != GSK_OK) {
-      sprintf(msg_dta,"%s : %d - %s.",_GSK0004,rc,gsk_strerror(rc));
-      snd_msg("GEN0001",msg_dta,strlen(msg_dta));
-      gsk_clean(&envHndl,&sessHndl);
-      close(listen_sd);
-      return -1;
-      }
-   }
 do {
    accept_sd = accept(listen_sd,(struct sockaddr *)&caddr,&addrLen);
    if(accept_sd < 0) {
@@ -128,26 +119,33 @@ do {
    else {
       memset(recvBuf,'\0',_32K);
       if(secure  == 1) {
+         if(rc = gsk_secure_soc_open(envHndl,&sessHndl) != GSK_OK) {
+            sprintf(msg_dta,"%s : %d - %s.",_GSK0004,rc,gsk_strerror(rc));
+            snd_msg("GEN0001",msg_dta,strlen(msg_dta));
+            gsk_clean(&envHndl,&sessHndl);
+            close(accept_sd);
+            return -1;
+            }
          // set up the secure session
          if(rc = gsk_attribute_set_numeric_value(sessHndl,GSK_FD,accept_sd) != GSK_OK) {
             sprintf(msg_dta,"%s : %d - %s.",_GSK0005,rc,gsk_strerror(rc));
             snd_msg("GEN0001",msg_dta,strlen(msg_dta));
             gsk_clean(&envHndl,&sessHndl);
-            close(listen_sd);
+            close(accept_sd);
             return -1;
             }
          if(rc = gsk_secure_soc_init(sessHndl) != GSK_OK) {
             sprintf(msg_dta,"%s : %d - %s.",_GSK0006,rc,gsk_strerror(rc));
             snd_msg("GEN0001",msg_dta,strlen(msg_dta));
             gsk_clean(&envHndl,&sessHndl);
-            close(listen_sd);
+            close(accept_sd);
             return -1;
             }
          rc = gsk_secure_soc_read(sessHndl,recvBuf,_32K, &amtRead);
          if(convert_buffer(recvBuf,convBuf,amtRead,_32K,a_e_ccsid) != 1) {
             sprintf(msg_dta,"Failed to convert\n");
             gsk_clean(&envHndl,&sessHndl);
-            close(listen_sd);
+            close(accept_sd);
             return -1;
             }
          }
@@ -156,7 +154,7 @@ do {
          // should be ASCII so convert and keep null terminator
          if(convert_buffer(recvBuf,convBuf,rc+1,_32K,a_e_ccsid) != 1) {
             sprintf(msg_dta,"Failed to convert\n");
-            close(listen_sd);
+            close(accept_sd);
             return -1;
             }
          }
@@ -179,11 +177,10 @@ do {
             break;
             }
          }
-      // clean up the secure environments
-      gsk_clean(&envHndl,&sessHndl);
+      gsk_environment_close(&sessHndl);
       }
    }while (stop == 0);
 gsk_clean(&envHndl,&sessHndl);
-close(listen_sd);
+close(accept_sd);
 return 0;
 }

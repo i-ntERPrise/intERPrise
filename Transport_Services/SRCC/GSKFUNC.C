@@ -27,7 +27,9 @@
 // returns 1 on success
 
 int crt_secure_env(gsk_handle *envHndl,
-                   char *appId) {
+                   char *appId,
+                   int appIdLen,
+                   GSK_ENUM_VALUE gskType) {
 int rc = 0;                                      // return code
 char msg_dta[_MAX_MSG];                          // message buffer
 
@@ -38,7 +40,7 @@ if(rc = gsk_environment_open(envHndl) != GSK_OK) {
    return -1;
    }
 // set the application ID
-if(rc = gsk_attribute_set_buffer(*envHndl,GSK_OS400_APPLICATION_ID,appId,strlen(appId)) != GSK_OK) {
+if(rc = gsk_attribute_set_buffer(*envHndl,GSK_OS400_APPLICATION_ID,appId,appIdLen) != GSK_OK) {
    sprintf(msg_dta,"%s : %d - %s.",_GSK0001,rc,gsk_strerror(rc));
    snd_msg("GEN0001",msg_dta,strlen(msg_dta));
    // disable the secure environment
@@ -48,7 +50,7 @@ if(rc = gsk_attribute_set_buffer(*envHndl,GSK_OS400_APPLICATION_ID,appId,strlen(
    return -1;
    }
 // set as a server application
-if(rc = gsk_attribute_set_enum(*envHndl,GSK_SESSION_TYPE,GSK_SERVER_SESSION) != GSK_OK) {
+if(rc = gsk_attribute_set_enum(*envHndl,GSK_SESSION_TYPE,gskType) != GSK_OK) {
    sprintf(msg_dta,"%s : %d - %s.",_GSK0002,rc,gsk_strerror(rc));
    snd_msg("GEN0001",msg_dta,strlen(msg_dta));
    // disable the secure environment
@@ -69,37 +71,17 @@ if(rc = gsk_attribute_set_enum(*envHndl,GSK_PROTOCOL_SSLV3,GSK_PROTOCOL_SSLV3_OF
       }
    return -1;
    }
-// disable TLS V1
-if(rc = gsk_attribute_set_enum(*envHndl,GSK_PROTOCOL_TLSV10,GSK_FALSE) != GSK_OK) {
-   sprintf(msg_dta,"%s : %d - %s.",_GSK0002,rc,gsk_strerror(rc));
-   snd_msg("GEN0001",msg_dta,strlen(msg_dta));
-   // soft error as only unable to disable protocol but we will return anyhow
-   // disable the secure environment
-   if(envHndl != NULL) {
-      gsk_environment_close(envHndl);
+if(gskType == GSK_SERVER_SESSION) {
+   // set the cipher to use, we are going for a strong cipher and TLS V1.2
+   if(rc = gsk_attribute_set_buffer(*envHndl,GSK_TLSV12_CIPHER_SPECS_EX,_CIPHER_SUITE,39) != GSK_OK) {
+      sprintf(msg_dta,"%s : %d - %s.",_GSK0002,rc,gsk_strerror(rc));
+      snd_msg("GEN0001",msg_dta,strlen(msg_dta));
+      // disable the secure environment
+      if(envHndl != NULL) {
+         gsk_environment_close(envHndl);
+         }
+      return -1;
       }
-   return -1;
-   }
-// disable TLS V1.1
-if(rc = gsk_attribute_set_enum(*envHndl,GSK_PROTOCOL_TLSV11,GSK_FALSE) != GSK_OK) {
-   sprintf(msg_dta,"%s : %d - %s.",_GSK0002,rc,gsk_strerror(rc));
-   snd_msg("GEN0001",msg_dta,strlen(msg_dta));
-   // soft error as only unable to disable protocol but we will return anyhow
-   // disable the secure environment
-   if(envHndl != NULL) {
-      gsk_environment_close(envHndl);
-      }
-   return -1;
-   }
-// set the cipher to use, we are going for a strong cipher and TLS V1.2
-if(rc = gsk_attribute_set_buffer(*envHndl,GSK_TLSV12_CIPHER_SPECS_EX,_CIPHER_SUITE,39) != GSK_OK) {
-   sprintf(msg_dta,"%s : %d - %s.",_GSK0002,rc,gsk_strerror(rc));
-   snd_msg("GEN0001",msg_dta,strlen(msg_dta));
-   // disable the secure environment
-   if(envHndl != NULL) {
-      gsk_environment_close(envHndl);
-      }
-   return -1;
    }
 // init secure environment
 if(rc = gsk_environment_init(*envHndl) != GSK_OK) {

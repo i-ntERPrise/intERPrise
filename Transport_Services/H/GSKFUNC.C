@@ -64,8 +64,9 @@
    #define _CIPHER_SUITE "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
    #define _IRPT_APPID "IRPTSECSVR_APP"
    #define _IRPT_APPID_DESC "intERPrise Secure Server"
+   #define _IRPT_APPID_LEN 14
 
-   int crt_secure_env(gsk_handle *,char *);
+   int crt_secure_env(gsk_handle *,char *,int,GSK_ENUM_VALUE);
    int reg_appid(char *,char *,char);
    int gsk_clean(gsk_handle *,gsk_handle *);
    #endif

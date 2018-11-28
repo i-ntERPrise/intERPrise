@@ -24,6 +24,7 @@
 
 #define _IRPT_CAPPID "IRPTSVRTST_APP"
 #define _IRPT_CAPPID_DESC "intERPrise Server Test"
+#define _IRPT_CAPPID_LEN 14
 
 // function Get_Host_Addr()
 // Purpose: get the Host address.
@@ -105,15 +106,15 @@ int crt_secure_session(gsk_handle *envHndl,
                        int *sockfd) {
 int rc = 0;                                      // return code
 
-if(rc = gsk_secure_soc_open(envHndl,&sessHndl) != GSK_OK) {
+if(rc = gsk_secure_soc_open(*envHndl,sessHndl) != GSK_OK) {
    printf("Failed to open secure socket : %d - %s\n",rc,gsk_strerror(rc));
    return -1;
    }
-if(rc = gsk_attribute_set_numeric_value(sessHndl,GSK_FD,*sockfd) != GSK_OK) {
+if(rc = gsk_attribute_set_numeric_value(*sessHndl,GSK_FD,*sockfd) != GSK_OK) {
    printf("Failed to set socket : %d - %s.\n",rc,gsk_strerror(rc));
    return -1;
    }
-if(rc = gsk_secure_soc_init(sessHndl) != GSK_OK) {
+if(rc = gsk_secure_soc_init(*sessHndl) != GSK_OK) {
    printf("Failed to initialize session : %d - %s.",rc,gsk_strerror(rc));
    return -1;
    }
@@ -183,11 +184,11 @@ if(*CfgRec.SECSVR == 'Y') {
       return -1;
       }
    // register the application ID as a client
-   if(reg_appid(_IRPT_CAPPID,_IRPT_CAPPID_DESC,'0') != 1) {
+   if(reg_appid(_IRPT_CAPPID,_IRPT_CAPPID_DESC,'2') != 1) {
       printf("Failed to register the Client application\n");
       return -1;
       }
-   if(crt_secure_env(&envHndl,_IRPT_APPID) != 1) {
+   if(crt_secure_env(&envHndl,_IRPT_CAPPID,_IRPT_CAPPID_LEN,GSK_CLIENT_SESSION) != 1) {
       gsk_clean(&envHndl,&sessHndl);
       printf("Failed to create the secure environment\n");
       return -1;
