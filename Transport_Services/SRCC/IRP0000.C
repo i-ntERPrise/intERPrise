@@ -40,6 +40,7 @@ int Server_Port = 0;                             // server port
 int num_wrk = 0;                                 // number of worker jobs
 int new_wrk = 0;                                 // number of worker jobs to add
 int type = 0;                                    // Switch key
+int curWrk = 0;                                  // current worker jobs
 int *int_ptr;                                    // int pointer
 decimal(5,0)  DataLength = 0.0d;                 // Number of bytes returned
 decimal(5,0)  WaitTime = -1.0d;                  // wait for data <0 = forever
@@ -57,6 +58,7 @@ char QueueData[_QSIZE];                          // Data from Data queue
 char msg_dta[_MAX_MSG];                          // msg buffer
 char Key[5];                                     // Switch Key
 char secSvr[2];                                  // secure server flag
+char progName[11];                               // program name
 pid_list_t pid_list;                             // Process List struct
 pid_list_t ss_pid_list;                          // Process List struct
 Qmhq_Sender_Information_t SInfo;                 // Sender Inf struct
@@ -132,6 +134,7 @@ if(rc < 0) {
    return -1;
    }
 memset(&inherit, 0, sizeof(inherit));
+inherit.flags = SPAWN_SETJOBNAMEARGV_NP;
 sprintf(buffer, "%d", listen_sd);
 if(*CfgRec.SECSVR == 'Y') {
    sprintf(secSvr, "%.1s", CfgRec.SECSVR);
@@ -149,13 +152,19 @@ if(*CfgRec.SECSVR == 'Y') {
       }
    }
 // argv[0] generally stores the program name etc we send in NULL string
-spawn_argv[0] = "";
 spawn_argv[1] = buffer;
 spawn_argv[2] = secSvr;
 spawn_argv[3] = NULL;
 spawn_envp[0] = NULL;
 // load the listening jobs Non Secure
 for(i = 0; i < num_wrk; i++)  {
+   if(*CfgRec.SECSVR == 'Y') {
+      sprintf(progName,"SECRSP%.4d",i);
+      }
+   else {
+      sprintf(progName,"RESPND%.4d",i);
+      }
+   spawn_argv[0] = progName;
    pid = spawn(SpawnStr,listen_sd + 1, NULL, &inherit,spawn_argv, spawn_envp);
    if(pid < 0)  {
       sprintf(msg_dta," spawn() failed %s",strerror(errno));
@@ -191,11 +200,17 @@ do {
          }
       case  1     :   {  // load more workers
          new_wrk = atoi(recptr);
-         for(i = 0; i < new_wrk; i++) {
+         for(i = 0; i < new_wrk; i++,num_wrk++) {
             if(num_wrk == _MAX_WORK) {
                // send a message stating no more jobs can be started?
                break;
                }
+               if(*CfgRec.SECSVR == 'Y') {
+                  sprintf(progName,"SECRSP%.4d",num_wrk);
+                  }
+               else {
+                  sprintf(progName,"RESPND%.4d",num_wrk);
+                  }
             pid = spawn(SpawnStr,listen_sd + 1, NULL, &inherit,spawn_argv, spawn_envp);
             if(pid < 0) {
                sprintf(msg_dta,"Spawn Error %s",strerror(errno));
