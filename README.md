@@ -1,47 +1,54 @@
-# intERPrise
-ILE Based Open Source CRM/ERP offering for the IBM i. 
+# intERPrise – ALPHA 0.2 Disto
+ILE Based, data centric Open Source ERP offering for the IBM i. 
 
-## intERPrise Base ERP (Debtors, Creditors, Cashbook & GL)
+## intERPrise Base ERP (Debtors { Accounts Receivables or Receivables}, Creditors { Accounts Payable or Payables}, Cashbook {Cash Management} & General Ledger)
 
-A community driven **open source** initiative, to bring a **modern**, DB2 for i and ILE based, data-centric, multi-tier (MVC), NATIVE (to IBM i) base ERP application **free** to the entire IBM i installed base, subject to the terms of the Apache 2 licensing conditions.
+A community driven **OPEN SOURCE** (https://opensource.org/osd) initiative, to bring a MODERN, DB2 for i and ILE based, **data-centric** (http://datacentricmanifesto.org/principles/), multi-tier (MVC), NATIVE (to IBM i) base ERP application FREE to the entire IBM i installed base, subject to the terms of the **Apache 2 licensing conditions** (http://www.apache.org/licenses/LICENSE-2.0).
 
-It is especially important to note that this current release is an **alpha** 0.1 release that serves as a foundation to first solidify the architecture, integration points, education and skills requirements for participants and to iron out any issues in the GitHub processes. We strongly advise that you use the initial few distros, to familiarise yourself with the coding paradigm, the standards and the processes.
+It is especially important to note that this current release is now the **ALPHA 0.2** release that serves as a foundation to first solidify the architecture, serve as basis for discussion of the proposed coding standards and naming conventions, integration points, education and skills requirements for participants and to iron out any issues in the GitHub processes. 
 
-Also important to note that the committee are working with Axiom Systems, to delineate which database artefacts and functions fall within the ambit of the "Base ERP" (Debtors, Creditors, Cashbook & GL), and which fall outside. This is relevant due to potential referential (aka foreign key) constraints and the nature of their ERP, which is completely integrated.
+We strongly advise that you use the initial few distros, to familiarise yourself with the coding paradigm, the standards and the processes.
 
-The committee is also continuously busy to implement our recommended naming conventions on all the database artefacts that were harvested from the S2E models. Currently the complete application consist out of 898 tables.
+Also important to note that the committee are working with Axiom Systems, to delineate which database artefacts and functions fall within the ambit of the **Base ERP** (Debtors { Accounts Receivables or Receivables}, Creditors { Accounts Payable or Payables}, Cashbook {Cash Management} & General Ledger), and which fall outside. This is relevant due to potential referential (aka foreign key) constraints and the nature of their ERP, which is completely integrated.
 
-Please review [our about page](http://www.i-nterprise.org/about.html) and [our standards](http://www.i-nterprise.org/standards---conventions.html) occasionally as this initiative evolves?
+The committee is also continuously busy to implement our recommended naming conventions on all the database artefacts that were harvested from the S2E models. Currently the complete application consist out of 898 tables. This will also be subject to refinement and its own modernization and review process, as this application model, although current, is also about thirty YEARS old.
+
+Please review our about page and our standards occasionally as this initiative evolves?
+
+
+Please review (http://www.i-nterprise.org/about.html) and our standards](http://www.i-nterprise.org/standards---conventions.html) occasionally as this initiative evolves?
 
 ---
 
-The following principles are **fundamental ** to this initiative:
+The following principles are **FUNDAMENTAL** to this initiative:
  
 * Absolute data-centricity (ALL data rules enforced by DB2 by way of triggers and constraints)
 * ILE
 * No DSPF (display files aka 5250)
 * Absolute separation of concerns (MVC)
-* Absolute leveraging of standard, unique IBM i capabilities (*MSGF, work management, *USRSPC, *USRIDX, journaling, commitment control, etc.)
+* Absolute leveraging of standard, unique IBM i capabilities (MSGF, work management, USRSPC, USRIDX, journaling, commitment control, etc.)
 * No black-box functionality
 * No ISV product dependencies
 * Open to ANY potential device and/or service (read front-end), interacting via JSON between the IBM I based solution and the delivery channel(read client).
 * Absolutely no OPM (Original Program Model) code constructs will be acceptable.
 
-**NOTE**: for all the 0.n **alpha** releases: please focus all your efforts on the `CRD000F`, `DEB000F` and `CSH000F` tables and all their associated components, in order to familiarise yourself with architecture and how all components interrelate. Should you have **any** suggestions on how the "Committee" (intERPrise Architectural and Standards Committee) can improve the architecture, to make it even more "open" and relevant, please forward your detailed suggestions to `management@i-nterprise.org`.
+**NOTE:** for all the 0.n **ALPHA** releases: please focus all your efforts on the completed (for purposes of the architecture and naming conventions & standards discussion) tables and all their associated components (triggers, constraints, copybooks, IO Services, Enterprise Services, Transport Services, SRVPGM’s, BNDDIR, etc.) in order to familiarise yourself with architecture and how all components interrelate. 
 
-As soon as we announce the availability of the **alpha** 1.0 release, you can start sharing code contributions. Only code that implements and follow our published standards, will be considered for inclusion in future distros.
+Should you have **any** suggestions on how the "Committee" (intERPrise Architectural and Standards Committee) can improve the architecture, to make it even more "open" and relevant, please forward your detailed suggestions to `management@i-nterprise.org`.
+
+As soon as we announce the availability of the **ALPHA 1.0** release, you can start sharing code contributions. Only code that implements and follow our published standards, will be considered for inclusion in future distros.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system. (We will soon provide an utility that will build the complete product for you on your development machine).
 
-The objective is to **only** use modern coding techniques. Our definition of when you are using ILE and RPG IV the way it should be, it will have most of the following attributes:
-* `*SRVPGM` - Functions and Procedures bound into *SRVPGM and *PGM
-* Activation Groups - **no** execution in the **default** (at least `QILE` named activation group) activation group (in general, bar exceptions)
-* BIF's
-* Single Instance, reusable code components
-* Separation of concerns (aka MVC, aka multi-tier architecture)
- 
+The objective is to only use modern coding techniques. Our definition of when you are using ILE and RPG IV the way it should be, it will have most of the following attributes:
+*	SRVPGM - Functions and Procedures bound into SRVPGM and PGM
+*	Activation Groups - no execution in the default (at least QILE named activation group) activation group (in general, bar exceptions)
+*	BIF’s
+*	Single Instance, reusable code components
+*	Separation of concerns (aka MVC, aka “multi-tier” architecture)
+
 ILE C and ILE Cobol contributions are welcome, but MUST implement single Instance, reusable code components.
 
 ## Prerequisites
@@ -55,13 +62,13 @@ The following tools and technologies are used by our team:
 5.	MiWorkplace tooling
 6.	iWebSrv for INITIAL delivery channel
 
-It is especially important that you are familiar and adopt with the ILE development paradigm. The **free** education resource at [this link](http://www.ile-rpg.org/education.html) will provide you with most, if not all that you may require.
+It is especially important that you are familiar and adopt with the ILE development paradigm. The **FREE** education resource at http://www.ile-rpg.org/education.html will provide you with most, if not all that you may require.
 
 ## Installing
 
-Please Note this is the initial test, we will be providing CLP to carry out the build in the near future.
+Please Note this is the initial tests. We will soon provide an utility that will build the complete product for you on your development machine.
 
-Please contact for build instructions.
+Until then, please contact for step by step build instructions, by emailing `management@i-nterprise.org`.
 
 ## Contributing
 
