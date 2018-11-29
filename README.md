@@ -32,7 +32,7 @@ The following principles are **FUNDAMENTAL** to this initiative:
 * Open to ANY potential device and/or service (read front-end), interacting via JSON between the IBM I based solution and the delivery channel(read client).
 * Absolutely no OPM (Original Program Model) code constructs will be acceptable.
 
-NOTE: for all the 0.n ALPHA releases: please focus all your efforts on the completed (for purposes of the architecture and naming conventions & standards discussion) tables and all their associated components (triggers, constraints, copybooks, IO Services, Enterprise Services, Transport Services, SRVPGM’s, BNDDIR, etc.) in order to familiarise yourself with architecture and how all components interrelate. 
+**NOTE:** for all the 0.n **ALPHA** releases: please focus all your efforts on the completed (for purposes of the architecture and naming conventions & standards discussion) tables and all their associated components (triggers, constraints, copybooks, IO Services, Enterprise Services, Transport Services, SRVPGM’s, BNDDIR, etc.) in order to familiarise yourself with architecture and how all components interrelate. 
 
 Should you have **any** suggestions on how the "Committee" (intERPrise Architectural and Standards Committee) can improve the architecture, to make it even more "open" and relevant, please forward your detailed suggestions to `management@i-nterprise.org`.
 
@@ -43,11 +43,11 @@ As soon as we announce the availability of the **ALPHA 1.0** release, you can st
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system. (We will soon provide an utility that will build the complete product for you on your development machine).
 
 The objective is to only use modern coding techniques. Our definition of when you are using ILE and RPG IV the way it should be, it will have most of the following attributes:
-•	SRVPGM - Functions and Procedures bound into SRVPGM and PGM
-•	Activation Groups - no execution in the default (at least QILE named activation group) activation group (in general, bar exceptions)
-•	BIF’s
-•	Single Instance, reusable code components
-•	Separation of concerns (aka MVC, aka “multi-tier” architecture)
+*	SRVPGM - Functions and Procedures bound into SRVPGM and PGM
+*	Activation Groups - no execution in the default (at least QILE named activation group) activation group (in general, bar exceptions)
+*	BIF’s
+*	Single Instance, reusable code components
+*	Separation of concerns (aka MVC, aka “multi-tier” architecture)
 
 ILE C and ILE Cobol contributions are welcome, but MUST implement single Instance, reusable code components.
 
