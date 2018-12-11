@@ -1,0 +1,132 @@
+/*
+Copyright 2018 chrish.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+/* 
+    Created on : 10-Dec-2018, 3:51:59 PM
+    Author     : chrish
+*/
+
+.clear {
+    clear: both;
+}
+
+body {
+    font-family:  sans-serif;
+    font-size: 16px;
+    width: 100vw;
+    min-width:560px;
+    background:white;
+    margin:0;
+    padding: 0px;
+    padding-bottom:150px;
+    overflow:hidden;
+    overflow-y:auto;
+}
+
+.header {
+    padding-left: 30px;
+    border-bottom: blue solid 1px;
+}
+
+.si {
+    margin-left: 30%;
+    margin-right: 30%;
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+.si_form {
+    border: 3px solid #f1f1f1;
+    width:100%;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
+}
+
+/* Full-width inputs */
+.si_input[type=text], input[type=password] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Set a style for all buttons */
+.si_button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Add a hover effect for buttons */
+.si_button:hover {
+    opacity: 0.8;
+}
+
+/* Center the company logo image inside this container */
+.imgcontainer {
+    text-align: center;
+    margin: 24px 0 12px 0;
+}
+
+/* Company logo sign in */
+.c_logo {
+    width: 40%;
+    border-radius: 50%;
+}
+
+/* Add padding to containers */
+.si_container {
+    padding: 16px;
+}
+
+.footer {
+    width:100%; 
+    background: #99ccff;
+}
+.f_nav {
+    width: 100%;
+    text-align: right;
+}
+
+.cpr {
+    padding: 20px;
+    color: #ffffff;
+    background:#99ccff;
+    font-size: 12px;
+}
+
+.btn { 
+    text-align:center; 
+    border:0; 
+    border-radius:4px; 
+    color:white; 
+    background:#1aa3ff; 
+    padding: 10px;
+    margin-bottom: 5px; 
+}
+
+.c_btn { 
+    background: red; 
+    color: white;
+    position: fixed;
+    right: 20px;
+    top: 50px;
+}
