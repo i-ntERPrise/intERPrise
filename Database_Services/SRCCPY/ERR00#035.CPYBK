@@ -1,0 +1,2 @@
+      */copy SRCCPY,ERR00#                        Clear Current Message Queue
+     d ERR00           pr

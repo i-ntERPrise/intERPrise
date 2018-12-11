@@ -1,0 +1,5 @@
+      * Set List Attributes to TOP
+      */copy SRCCPY,U_SETLATOP                    SETLATOP(APPH:[listname']);
+     d SETLSTTOP       pr
+     d  APPH                          8    const
+     d  ListN                        10    const options(*nopass)

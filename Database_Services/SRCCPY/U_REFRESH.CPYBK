@@ -1,0 +1,5 @@
+      * Refresh List [and Change Loader]
+      */copy SRCCPY,U_REFRESH                     REFRESH(P.APPH:['NEWLOAD'])
+     d REFRESH         pr                  extproc('REFRESH')
+     d  APPH                          8    const
+     d  LoadPgm                      10    const options(*nopass)
