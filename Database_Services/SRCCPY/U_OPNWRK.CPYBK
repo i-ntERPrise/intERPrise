@@ -1,0 +1,7 @@
+      * Open & Initialize "Work with" Panel
+      */copy SRCCPY,U_OPNWRK                      APPH = OPNWRK('pnlgrp':ptr:len:[rec]);
+     d OPNWRK          pr             8
+     d  PnlGrp                       10    const
+     d  IniP                           *   const
+     d  IniL                         10i 0 const
+     d  IniR                         10    const options(*nopass)
