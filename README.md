@@ -1,5 +1,5 @@
 # intERPrise – ALPHA 0.2 Disto
-ILE Based, data centric Open Source ERP offering for the IBM i. 
+ILE Based, data centric Open Source ERP offering for the IBM i... 
 
 ## intERPrise Base ERP (Debtors { Accounts Receivables or Receivables}, Creditors { Accounts Payable or Payables}, Cashbook {Cash Management} & General Ledger)
 
