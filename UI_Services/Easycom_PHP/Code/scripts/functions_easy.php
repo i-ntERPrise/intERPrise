@@ -25,15 +25,17 @@
  * @return int
  */
 
-function easy_addlibl($libraries, &$conn) {
+function easy_addlibl($libraries, $conn) {
     $curlibl = "";
+    $out = array("usrlibl" => 'curlibl');
+    $in = array("libl" => $curlibl);
     // get current librarylist
-    if (!i5_command("rtvjoba", array(), array("usrlibl" => "curlibl"), $conn))
+    if (!i5_command("rtvjoba", array(), $out, $conn))
         die("Could not retrieve current librarylist:" . i5_errormsg($conn));
     // add our libraries to the librarylist
     $curlibl .= " " . implode(" ", $libraries);
     // if library list already set a CPF2184 message will be generated, treat as warning and by pass. 
-    if (!i5_command("chglibl", array("libl" => $curlibl), array(), $conn)) {
+    if (!i5_command("chglibl", $in, array(), $conn)) {
         if (i5_errormsg($conn) != 'CPF2184')
             echo("Could not change current librarylist:" . i5_errormsg($conn));
     }
