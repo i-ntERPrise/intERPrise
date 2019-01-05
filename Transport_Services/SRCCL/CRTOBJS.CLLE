@@ -16,14 +16,16 @@
 /* The above copyright notice and this permission notice shall be included in all copies */
 /* or substantial portions of the Software.                                              */
 
-             PGM        PARM(&SPT &FLOW)
-             DCL        VAR(&SPT) TYPE(*CHAR) LEN(10)
-             DCL        VAR(&FLOW) TYPE(*CHAR) LEN(5)
-             DCL        VAR(&SRCLIB) TYPE(*CHAR) LEN(10) VALUE(IRPT)
-             DCL        VAR(&TBND) TYPE(*CHAR) LEN(10) VALUE(IRPT)
-             DCL        VAR(&TPGM) TYPE(*CHAR) LEN(10) VALUE(IRPT_OBJ)
-             DCL        VAR(&TDTA) TYPE(*CHAR) LEN(10) VALUE(IRPT_DTA)
-             DCL        VAR(&TGTRLS) TYPE(*CHAR) LEN(10) VALUE(*CURRENT)
+             PGM        PARM(&SPT &FLOW &SRCLIB &TPGM &TDTA)           
+             DCL        VAR(&SPT) TYPE(*CHAR) LEN(10)                  
+             DCL        VAR(&FLOW) TYPE(*CHAR) LEN(5)                  
+             DCL        VAR(&SRCLIB) TYPE(*CHAR) LEN(10)               
+             DCL        VAR(&TBND) TYPE(*CHAR) LEN(10)                 
+             DCL        VAR(&TPGM) TYPE(*CHAR) LEN(10)                 
+             DCL        VAR(&TDTA) TYPE(*CHAR) LEN(10)                 
+             DCL        VAR(&TGTRLS) TYPE(*CHAR) LEN(10) VALUE(*CURRENT
+                                                                       
+             CHGVAR     VAR(&TBND) VALUE(&SRCLIB)                      
 
              /* if a label is passed in go to it */
              IF         COND(%SST(&SPT 1 10) *EQ 'START') THEN(GOTO CMDLBL(START))
