@@ -23,7 +23,7 @@
              DCL        VAR(&TBND) TYPE(*CHAR) LEN(10)                 
              DCL        VAR(&TPGM) TYPE(*CHAR) LEN(10)                 
              DCL        VAR(&TDTA) TYPE(*CHAR) LEN(10)                 
-             DCL        VAR(&TGTRLS) TYPE(*CHAR) LEN(10) VALUE(*CURRENT
+             DCL        VAR(&TGTRLS) TYPE(*CHAR) LEN(10) VALUE(*CURRENT)
                                                                        
              CHGVAR     VAR(&TBND) VALUE(&SRCLIB)                      
 
