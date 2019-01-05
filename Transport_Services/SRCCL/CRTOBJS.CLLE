@@ -49,15 +49,15 @@
              IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
              /* libraries */
  LIB:        CHKOBJ     OBJ(&TPGM) OBJTYPE(*LIB)
-             MONMSG     MSGID(CPF9801) EXEC(GOTO L1)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO C1)
              /* clear the library if exists */
-             CLRLIB     LIB(&TPGM)
+             /* CLRLIB     LIB(&TPGM) jenkins */
              GOTO       CMDLBL(C1)
  L1:         CRTLIB     LIB(&TPGM)
  C1:         CHKOBJ     OBJ(&TDTA) OBJTYPE(*LIB)
-             MONMSG     MSGID(CPF9801) EXEC(GOTO L2)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO C2)
              /* clear the library if exists */
-             CLRLIB     LIB(&TDTA)
+             /* CLRLIB     LIB(&TDTA) jenkins */
              GOTO       CMDLBL(C2)
  L2:         CRTLIB     LIB(&TDTA)
  C2:
