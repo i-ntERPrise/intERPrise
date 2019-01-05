@@ -27,6 +27,7 @@
       *       "CRTBNDRPG PGM(IRPSRC/IRPBLD011) SRCFILE(IRPSRC/SRCOBJ) SRCMBR(IRPBLD011)
       *        TEXT('IRP Builder 01 V1')"
       * 5. Execute "CALL IRPSRC/IRPBLD011"
+      * jabsdkajsdhk
       *$ Program =========================================================================
      h main(IRPBLD011)
      h dftactgrp(*no) actgrp(*new) usrprf(*owner) aut(*use)
