@@ -84,7 +84,8 @@
              /* message queue */
  MSGQ:       CRTMSGQ    MSGQ(&TPGM/IRPTMSGQ) TEXT('Transport Services Message Queue')
              /* files */
- TABLES:     RUNSQLSTM  SRCFILE(&SRCLIB/SRCSQL) SRCMBR(IRP0003) COMMIT(*NONE) ERRLVL(30)
+ TABLES:     RUNSQLSTM  SRCFILE(&SRCLIB/SRCSQL) SRCMBR(IRP0003) COMMIT(*NONE) ERRLVL(30) +
+                          DFTRDBCOL(&TDTA)
              IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
              /* binding directory */
  BND:        DLTBNDDIR  BNDDIR(&SRCLIB/&TBND)
