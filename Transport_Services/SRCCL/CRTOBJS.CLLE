@@ -24,6 +24,8 @@
              DCL        VAR(&TPGM) TYPE(*CHAR) LEN(10)                 
              DCL        VAR(&TDTA) TYPE(*CHAR) LEN(10)                 
              DCL        VAR(&TGTRLS) TYPE(*CHAR) LEN(10) VALUE(*CURRENT)
+             
+             MONMSG     MSGID(CPF0000 CZM0000) EXEC(GOTO CMDLBL(ERROR))
                                                                        
              CHGVAR     VAR(&TBND) VALUE(&SRCLIB)                      
 
@@ -172,7 +174,12 @@
              IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
              /* build the UsrIdx */
              CALL       PGM(&TPGM/IRP2000) PARM(&TPGM)
- END:        RMVLIBLE   LIB(&TPGM)
-             RMVLIBLE   LIB(&TDTA)
-             ENDPGM
-
+  END:        RMVLIBLE   LIB(&TPGM)                                    
+              MONMSG     MSGID(CPF0000)                                
+              RMVLIBLE   LIB(&TDTA)                                    
+              MONMSG     MSGID(CPF0000)                                
+              return                                                   
+  error:                                                               
+              SNDPGMMSG  MSGID(CPF9898) MSGF(QCPFMSG) +                
+                 MSGDTA('"CRTOBJS Build failed"') MSGTYPE(*ESCAPE)     
+              ENDPGM                                                   
