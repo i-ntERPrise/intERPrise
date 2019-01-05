@@ -14,9 +14,7 @@
 -- The above copyright notice and this permission notice shall be included in all copies
 -- or substantial portions of the Software.
 
- Drop Table IRPT_DTA/IRPTCFG;
-
- Create Table IRPT_DTA/IRPTCFG (
+ Create or Replace Table IRPT_DTA/IRPTCFG (
         numsvr smallint NOT NULL,
         svrport integer NOT NULL,
         sesstimeo integer NOT NULL,
