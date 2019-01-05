@@ -89,7 +89,7 @@
              MONMSG     MSGID(CPF2105)
              CRTBNDDIR  BNDDIR(&SRCLIB/&TBND)
              ADDBNDDIRE BNDDIR(&SRCLIB/&TBND) OBJ((MSGFUNC *SRVPGM *DEFER) (SVRFUNC *SRVPGM *DEFER) (GSKFUNC *SRVPGM *DEFER) +
-                          (GENFUNC *SRVPGM *DERFER))
+                          (GENFUNC *SRVPGM *DEFER))
              IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
              /* data queues */
  DQ:         CRTDTAQ    DTAQ(&TPGM/SVRCTLQ) TYPE(*STD) MAXLEN(1024) SEQ(*KEYED) KEYLEN(4) SENDERID(*YES) SIZE(*MAX2GB) AUTORCL(*YES) +
