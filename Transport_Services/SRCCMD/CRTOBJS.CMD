@@ -22,3 +22,6 @@
              PARM       KWD(SPT) TYPE(*CHAR) LEN(10) RSTD(*YES) DFT(START) VALUES(START LIB SBS MSGQ TABLES BND DQ SRVMOD BNDSRC +
                           PGMMOD SRVPGM PGM CMD UIM) PROMPT('Start Point Label')
              PARM       KWD(FLOW) TYPE(*CHAR) LEN(5) RSTD(*YES) DFT(*CONT) VALUES(*CONT *STOP) PROMPT('Program flow')
+             PARM       KWD(SRCLIB) TYPE(*NAME) LEN(10) DFT(IRPT) PROMPT('Source Library')
+             PARM       KWD(OBJLIB) TYPE(*NAME) LEN(10) DFT(IRPT_OBJ) PROMPT('Object Library')
+             PARM       KWD(DTALIB) TYPE(*NAME) LEN(10) DFT(IRPT_DTA) PROMPT('Data Library')

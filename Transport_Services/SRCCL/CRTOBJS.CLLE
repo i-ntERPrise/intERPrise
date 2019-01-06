@@ -16,14 +16,18 @@
 /* The above copyright notice and this permission notice shall be included in all copies */
 /* or substantial portions of the Software.                                              */
 
-             PGM        PARM(&SPT &FLOW)
-             DCL        VAR(&SPT) TYPE(*CHAR) LEN(10)
-             DCL        VAR(&FLOW) TYPE(*CHAR) LEN(5)
-             DCL        VAR(&SRCLIB) TYPE(*CHAR) LEN(10) VALUE(IRPT)
-             DCL        VAR(&TBND) TYPE(*CHAR) LEN(10) VALUE(IRPT)
-             DCL        VAR(&TPGM) TYPE(*CHAR) LEN(10) VALUE(IRPT_OBJ)
-             DCL        VAR(&TDTA) TYPE(*CHAR) LEN(10) VALUE(IRPT_DTA)
+             PGM        PARM(&SPT &FLOW &SRCLIB &TPGM &TDTA)           
+             DCL        VAR(&SPT) TYPE(*CHAR) LEN(10)                  
+             DCL        VAR(&FLOW) TYPE(*CHAR) LEN(5)                  
+             DCL        VAR(&SRCLIB) TYPE(*CHAR) LEN(10)               
+             DCL        VAR(&TBND) TYPE(*CHAR) LEN(10)                 
+             DCL        VAR(&TPGM) TYPE(*CHAR) LEN(10)                 
+             DCL        VAR(&TDTA) TYPE(*CHAR) LEN(10)                 
              DCL        VAR(&TGTRLS) TYPE(*CHAR) LEN(10) VALUE(*CURRENT)
+             
+             MONMSG     MSGID(CPF0000 CZM0000) EXEC(GOTO CMDLBL(ERROR))
+                                                                       
+             CHGVAR     VAR(&TBND) VALUE(&SRCLIB)                      
 
              /* if a label is passed in go to it */
              IF         COND(%SST(&SPT 1 10) *EQ 'START') THEN(GOTO CMDLBL(START))
@@ -47,15 +51,15 @@
              IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
              /* libraries */
  LIB:        CHKOBJ     OBJ(&TPGM) OBJTYPE(*LIB)
-             MONMSG     MSGID(CPF9801) EXEC(GOTO L1)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO C1)
              /* clear the library if exists */
-             CLRLIB     LIB(&TPGM)
+             /* CLRLIB     LIB(&TPGM) jenkins */
              GOTO       CMDLBL(C1)
  L1:         CRTLIB     LIB(&TPGM)
  C1:         CHKOBJ     OBJ(&TDTA) OBJTYPE(*LIB)
-             MONMSG     MSGID(CPF9801) EXEC(GOTO L2)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO C2)
              /* clear the library if exists */
-             CLRLIB     LIB(&TDTA)
+             /* CLRLIB     LIB(&TDTA) jenkins */
              GOTO       CMDLBL(C2)
  L2:         CRTLIB     LIB(&TDTA)
  C2:
@@ -80,7 +84,8 @@
              /* message queue */
  MSGQ:       CRTMSGQ    MSGQ(&TPGM/IRPTMSGQ) TEXT('Transport Services Message Queue')
              /* files */
- TABLES:     RUNSQLSTM  SRCFILE(&SRCLIB/SRCSQL) SRCMBR(IRP0003) COMMIT(*NONE) ERRLVL(30)
+ TABLES:     RUNSQLSTM  SRCFILE(&SRCLIB/SRCSQL) SRCMBR(IRP0003) COMMIT(*NONE) ERRLVL(30) +
+                          DFTRDBCOL(&TDTA)
              IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
              /* binding directory */
  BND:        DLTBNDDIR  BNDDIR(&SRCLIB/&TBND)
@@ -130,18 +135,22 @@
              CRTCMOD    MODULE(&SRCLIB/SVRTEST) SRCFILE(&SRCLIB/SRCC) TEXT('') OUTPUT(*PRINT) TGTRLS(&TGTRLS)
              IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
              /* service programs */
- SRVPGM:     CHKOBJ     OBJ(&SRCLIB/GENFUNC) OBJTYPE(*MODULE)
+ SRVPGM:     CHKOBJ     OBJ(&SRCLIB/MSGFUNC) OBJTYPE(*MODULE)
              MONMSG     MSGID(CPF9801) EXEC(GOTO B1)
-             CRTSRVPGM  SRVPGM(&TPGM/GENFUNC) MODULE(&SRCLIB/GENFUNC) SRCFILE(&SRCLIB/SRCBND) BNDDIR(&SRCLIB/&TBND)
+             CRTSRVPGM  SRVPGM(&TPGM/MSGFUNC) MODULE(&SRCLIB/MSGFUNC) SRCFILE(&SRCLIB/SRCBND) BNDDIR(&SRCLIB/&TBND) +
+                         OPTION(*UNRSLVREF)
  B1:         CHKOBJ     OBJ(&SRCLIB/GSKFUNC) OBJTYPE(*MODULE)
              MONMSG     MSGID(CPF9801) EXEC(GOTO B2)
-             CRTSRVPGM  SRVPGM(&TPGM/GSKFUNC) MODULE(&SRCLIB/GSKFUNC) SRCFILE(&SRCLIB/SRCBND) BNDDIR(&SRCLIB/&TBND)
- B2:         CHKOBJ     OBJ(&SRCLIB/MSGFUNC) OBJTYPE(*MODULE)
+             CRTSRVPGM  SRVPGM(&TPGM/GSKFUNC) MODULE(&SRCLIB/GSKFUNC) SRCFILE(&SRCLIB/SRCBND) BNDDIR(&SRCLIB/&TBND) +
+                         OPTION(*UNRSLVREF)
+ B2:         CHKOBJ     OBJ(&SRCLIB/GENFUNC) OBJTYPE(*MODULE)
              MONMSG     MSGID(CPF9801) EXEC(GOTO B3)
-             CRTSRVPGM  SRVPGM(&TPGM/MSGFUNC) MODULE(&SRCLIB/MSGFUNC) SRCFILE(&SRCLIB/SRCBND) BNDDIR(&SRCLIB/&TBND)
+             CRTSRVPGM  SRVPGM(&TPGM/GENFUNC) MODULE(&SRCLIB/GENFUNC) SRCFILE(&SRCLIB/SRCBND) BNDDIR(&SRCLIB/&TBND) +
+                         OPTION(*UNRSLVREF)
  B3:         CHKOBJ     OBJ(&SRCLIB/SVRFUNC) OBJTYPE(*MODULE)
              MONMSG     MSGID(CPF9801) EXEC(GOTO B4)
-             CRTSRVPGM  SRVPGM(&TPGM/SVRFUNC) MODULE(&SRCLIB/SVRFUNC) SRCFILE(&SRCLIB/SRCBND) BNDDIR(&SRCLIB/&TBND)
+             CRTSRVPGM  SRVPGM(&TPGM/SVRFUNC) MODULE(&SRCLIB/SVRFUNC) SRCFILE(&SRCLIB/SRCBND) BNDDIR(&SRCLIB/&TBND) +
+                         OPTION(*UNRSLVREF)
  B4:
              IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
              /* programs */
@@ -170,7 +179,14 @@
              IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
              /* build the UsrIdx */
              CALL       PGM(&TPGM/IRP2000) PARM(&TPGM)
- END:        RMVLIBLE   LIB(&TPGM)
-             RMVLIBLE   LIB(&TDTA)
-             ENDPGM
-
+  END:        RMVLIBLE   LIB(&TPGM)                                    
+              MONMSG     MSGID(CPF0000)                                
+              RMVLIBLE   LIB(&TDTA)                                    
+              MONMSG     MSGID(CPF0000)                                
+              return                                                   
+  error:
+           
+              dspjoblog output(*print) /* jenkins */
+              SNDPGMMSG  MSGID(CPF9898) MSGF(QCPFMSG) +                
+                 MSGDTA('"CRTOBJS Build failed"') MSGTYPE(*ESCAPE)     
+              ENDPGM                                                   
