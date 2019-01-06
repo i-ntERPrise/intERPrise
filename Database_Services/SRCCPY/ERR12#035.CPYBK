@@ -1,5 +1,0 @@
-      */copy SRCCPY,ERR12#                        Send *INFO Message to *EXT
-     d ERR12           pr
-     d  MI                            7    const
-     d  MF                           10    const options(*omit:*nopass)
-     d  MD                          128    const options(*nopass)

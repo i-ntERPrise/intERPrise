@@ -1,4 +1,0 @@
-      * Set Screen Image
-      */copy SRCCPY,U_SETSC                       SETSC(APPH);
-     d SETSC           pr
-     d  APPH                          8    const

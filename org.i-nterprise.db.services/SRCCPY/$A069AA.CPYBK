@@ -1,0 +1,6 @@
+      */copy Business Rule for "User ID Name" Validation [USRNAM]
+      */copy SRCCPY,$A069AA                       $USRNAM(Event:Orig:New);
+     d $USRNAM         pr
+     d  Event                         1
+     d  oUSRNAM                      25
+     d  nUSRNAM                      25

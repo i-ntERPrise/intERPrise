@@ -1,7 +1,0 @@
-      * Put Dialog Variable (PUTV)
-      */copy SRCCPY,U_PUTV                        PUTV(APPH:ptr:len:['rec']);
-     d PUTV            pr
-     d  APPH                          8    const
-     d  RecP                           *   const
-     d  RecL                         10i 0 const
-     d  RecN                         10    const options(*nopass)

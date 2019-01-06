@@ -1,3 +1,0 @@
-      */copy SRCCPY,ERR08#                        Rcv. All Current Pgm. Msg's into Pointer
-     d ERR08           pr
-     d  Pointer                        *

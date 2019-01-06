@@ -1,5 +1,0 @@
-      */copy SRCCPY,ERR14#                        Send *INFO to *SYSOPR
-     d ERR14           pr
-     d  MI                            7    const
-     d  MF                           10    const options(*omit:*nopass)
-     d  MD                          128    const options(*nopass)

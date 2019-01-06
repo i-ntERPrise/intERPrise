@@ -1,0 +1,98 @@
+.*
+.* Copyright (c) 2018 Shield Advanced Solutions Ltd
+.* Created by Shield advanced Solutions Ltd - www.shieldadvanced.com
+.* Original code : Chris Hird Director
+.*
+.* Licensed under the Apache License, Version 2.0 (the "License");
+.* you may not use this file except in compliance with the License.
+.* You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+.*
+.* Unless required by applicable law or agreed to in writing, software
+.* distributed under the License is distributed on an "AS IS" BASIS,
+.* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+.* See the License for the specific language governing permissions and
+.* limitations under the License.
+.*
+.* The above copyright notice and this permission notice shall be included in all copies
+.* or substantial portions of the Software.
+.*
+:PNLGRP   HLPSHELF=list
+          DFTMSGF=irptmsgf.
+.*
+:COPYR.
+(c)         Copyright Shield Advanced Solutions Ltd.       1997-2018
+:IMPORT  NAME='*'  PNLGRP=irpthlp.
+.*
+:CLASS   NAME=ynclsu    BASETYPE='CHAR 1' CASE=UPPER.
+:CHECK VALUES='"Y" "N"' MSGID=ERR0006.
+:ECLASS.
+:CLASS   NAME=chr10cls   BASETYPE='CHAR 10'.
+:ECLASS.
+:CLASS   NAME=chr20cls   BASETYPE='CHAR 20'.
+:ECLASS.
+:CLASS   NAME=bin15cls   BASETYPE='BIN 15'.
+:ECLASS.
+:CLASS   NAME=bin31cls   BASETYPE='BIN 31'.
+:ECLASS.
+.*
+:VAR  NAME=csrvar    CLASS=chr10cls.
+:VAR  NAME=expgm     CLASS=chr20cls.
+:VAR  NAME=numsvr    CLASS=bin15cls.
+:VAR  NAME=svrport   CLASS=bin31cls.
+:VAR  NAME=sesstimo  CLASS=bin31cls.
+:VAR  NAME=secsvr    CLASS=ynclsu.
+.*
+:VARRCD  NAME=cursor    VARS='csrvar'.
+:VARRCD  NAME=exitpgm   VARS='expgm'.
+:VARRCD  NAME=irptinfo  VARS='numsvr svrport sesstimo secsvr'.
+.*
+:KEYL  NAME=basickeys   HELP=fkeys.
+:KEYI  KEY=F1        HELP=helpf1
+       ACTION=HELP.
+:KEYI  KEY=F3        HELP=helpf3
+       ACTION='EXIT SET'
+       VARUPD=NO.
+F3=Exit
+:KEYI  KEY=F12       HELP=helpf12
+       ACTION='CANCEL SET'
+       VARUPD=NO.
+F12=Cancel
+:KEYI  KEY=ENTER     HELP=enter
+       ACTION=ENTER.
+:KEYI  KEY=HELP      HELP=help
+       ACTION=HELP.
+:EKEYL.
+.*
+:PANEL  NAME=IRPTCFG HELP='cfgpnlh'
+        KEYL=basickeys
+        ENTER='RETURN 500'
+        ENBGUI=YES
+        TOPSEP=SPACE.
+Configure Default settings
+:DATA     DEPTH='*'
+          LAYOUT=1
+          BOTSEP=SPACE
+          SCROLL=YES
+          COMPACT.
+:DATACOL  WIDTH=40.
+:DATACOL  WIDTH=20.
+:DATAI    VAR=svrport
+          HELP='cfgpnl/svrporth'
+          USAGE=INOUT.
+Server Listening Port
+:DATAI    VAR=numsvr
+          HELP='cfgpnl/numsvrh'
+          USAGE=INOUT.
+Number of Server Jobs
+:DATAI    VAR=sesstimo
+          HELP='cfgpnl/sesstimoh'
+          USAGE=INOUT.
+Session Time out Interval
+:DATAI    VAR=secsvr
+          HELP='cfgpnl/secsvrh'
+          USAGE=INOUT.
+Secure Server
+:EDATA.
+:EPANEL.
+.*
+:EPNLGRP.

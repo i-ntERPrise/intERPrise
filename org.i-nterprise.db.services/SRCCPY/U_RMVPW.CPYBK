@@ -1,0 +1,4 @@
+      *Remove Pop-Up Window
+      */copy SRCCPY,U_RMVPW                       RMVPW(P.APPH);
+     d RMVPW           pr
+     d  APPH                          8    const

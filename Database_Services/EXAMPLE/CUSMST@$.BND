@@ -1,8 +1,0 @@
-STRPGMEXP PGMLVL(*CURRENT) SIGNATURE('V1.0')
-          EXPORT SYMBOL(CUSMST@01A)     /* Process "Filter" Request         */
-
-          EXPORT SYMBOL(CUSMST@02A)     /* Add Customer Record              */
-          EXPORT SYMBOL(CUSMST@02B)     /* Update Customer Record           */
-          EXPORT SYMBOL(CUSMST@02C)     /* Delete Customer Record           */
-          EXPORT SYMBOL(CUSMST@02D)     /* Display Customer Record          */
-ENDPGMEXP

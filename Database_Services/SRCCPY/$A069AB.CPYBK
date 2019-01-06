@@ -1,6 +1,0 @@
-      */copy Business Rule for "User ID Date First Access" Validation [USRIDFA]
-      */copy SRCCPY,$A069AB                       $USRIDFA(Event:Orig:New);
-     d $USRIDFA        pr
-     d  Event                         1
-     d  oUSRIDFA                       z
-     d  nUSRIDFA                       z

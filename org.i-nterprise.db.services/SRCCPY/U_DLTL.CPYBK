@@ -1,0 +1,5 @@
+      * Delete List
+      */copy SRCCPY,U_DLTL                        DLTL(APPH:[ListN])
+     d DLTL            pr
+     d  APPH                          8    const
+     d  ListN                        10    const options(*nopass)

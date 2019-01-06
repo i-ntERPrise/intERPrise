@@ -1,0 +1,8 @@
+      */copy SRCGPL,U_KEYPL                       Function Key Processor Parameter List
+     d P               ds                  qualified
+     d  Lev                          10i 0
+     d  Rsvd1                         8
+     d  Type                         10i 0
+     d  APPH                          8
+     d  PnlN                         10
+     d  FKey                         10i 0
