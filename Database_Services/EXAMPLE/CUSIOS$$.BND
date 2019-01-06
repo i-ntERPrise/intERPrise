@@ -1,4 +1,0 @@
-STRPGMEXP PGMLVL(*CURRENT) SIGNATURE('V1.R0.M0')
-          EXPORT SYMBOL(CUSMSTFP)  /* CUSMSTFR Pointer                     */
-          EXPORT SYMBOL(CUSMSTF@)  /* I/O Server - CUSMSTF                 */
-ENDPGMEXP

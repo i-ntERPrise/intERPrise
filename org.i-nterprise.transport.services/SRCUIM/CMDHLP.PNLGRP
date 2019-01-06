@@ -1,0 +1,86 @@
+.*
+.* Copyright (c) 2018 Shield Advanced Solutions Ltd
+.* Created by Shield advanced Solutions Ltd - www.shieldadvanced.com
+.* Original code : Chris Hird Director
+.*
+.* Licensed under the Apache License, Version 2.0 (the "License");
+.* you may not use this file except in compliance with the License.
+.* You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+.*
+.* Unless required by applicable law or agreed to in writing, software
+.* distributed under the License is distributed on an "AS IS" BASIS,
+.* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+.* See the License for the specific language governing permissions and
+.* limitations under the License.
+.*
+.* The above copyright notice and this permission notice shall be included in all copies
+.* or substantial portions of the Software.
+.*
+:PNLGRP.
+.*
+.* Import help modules for job-related commands
+.*
+:IMPORT  NAME='*'        PNLGRP=qhsycmd1.
+.*
+.* Help modules for COMMANDS
+.*
+.* ADDWKRJOB Command
+.*
+:HELP name='ADDWKRJOB'.
+Add Worker Jobs - Help
+:XH3.Add Worker Jobs
+:P.
+When the Transport Server starts it will load a number of worker jobs that respond to client requests based on the configuration
+File. If you need to launch additional jobs without resetting the default and restarting the Server use this command to
+submit addtional jobs.
+:EHELP.
+:HELP name='ADDWKRJOB/NUM'.
+Number - Help
+:XH3.Number
+:P.
+The number of additional jobs to start.
+:EHELP.
+.*
+.* SVRTEST Command
+.*
+:HELP name='SVRTEST'.
+Server Test - Help
+:XH3.Server Test
+:P.
+The Transport Server is used to receive and deliver ASCII based JSON requests from clients. This command allows the Server
+functions to be tested by sending and receiving the JSON requests in ASCII and converting the response to EBCDIC for display
+to the user.
+:EHELP.
+:HELP name='SVRTEST/ADDR'.
+IP Address - Help
+:XH3.IP Address
+:P.
+The IP address the server is listening on.
+:EHELP.
+:HELP name='SVRTEST/PRF'.
+User Profile - Help
+:XH3.User Profile
+:P.
+The User Profile used to sign on to the IBM i where the server is running.
+:EHELP.
+:HELP name='SVRTEST/PWD'.
+User Password - Help
+:XH3.User Password
+:P.
+The password associated with the User Profile being sent.
+:NOTE.
+The Password is sent to the remote system in plain text, we suggest it is only used within the local LAN or via a
+secure connection.
+:ENOTE.
+:EHELP.
+.*
+.* WRKIRPTCFG Command
+.*
+:HELP name='WRKIRPTCFG'.
+Work with Server Config - Help
+:XH3.Work with Server Config
+:P.
+The Transport Server uses the configuration to determin the number of worker jobs to start and the Port number to listen for
+connection requests on. This command will start the Panel Group interface where the defaults can be changed.
+:EHELP.
+:EPNLGRP.

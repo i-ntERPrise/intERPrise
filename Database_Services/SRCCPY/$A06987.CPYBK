@@ -1,6 +1,0 @@
-      */copy Business Rule for "Menu ID" Validation [MNUID]
-      */copy SRCCPY,$A06987                       $MNUID(Event:Orig:New);
-     d $MNUID          pr
-     d  Event                         1
-     d  oMNUID                       10
-     d  nMNUID                       10

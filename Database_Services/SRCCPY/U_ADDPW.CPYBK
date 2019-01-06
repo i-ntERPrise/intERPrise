@@ -1,7 +1,0 @@
-      *Add Pop-Up Window
-      */copy SRCCPY,U_ADDPW                       ADDPW(P.APPH:['*ROWCOL':nn:nn]);
-     d ADDPW           pr
-     d  APPH                          8    const
-     d  Loc                          10    const options(*nopass)
-     d  Row                          10i 0 const options(*nopass)
-     d  Col                          10i 0 const options(*nopass)

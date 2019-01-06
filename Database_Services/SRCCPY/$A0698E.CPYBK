@@ -1,6 +1,0 @@
-      */copy Business Rule for "Program/Parameter" Validation [PGMPRM]
-      */copy SRCCPY,$A0698E                       $PGMPRM(Event:Orig:New);
-     d $PGMPRM         pr
-     d  Event                         1
-     d  oPGMPRM                      10
-     d  nPGMPRM                      10

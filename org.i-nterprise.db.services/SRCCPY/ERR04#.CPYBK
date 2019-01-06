@@ -1,0 +1,2 @@
+      */copy SRCCPY,ERR04#                        CHAR(7)=Retrieve *LAST Message Id
+     d ERR04           pr             7

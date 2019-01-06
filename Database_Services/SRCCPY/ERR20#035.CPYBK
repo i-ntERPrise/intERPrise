@@ -1,5 +1,0 @@
-      */copy SRCCPY,ERR20#                        Retrieve Message Text MD=128, RETURN=132
-     d ERR20           pr           132
-     d  MI                            7    const
-     d  MF                           10    const options(*omit:*nopass)
-     d  MD                          128    const options(*nopass)

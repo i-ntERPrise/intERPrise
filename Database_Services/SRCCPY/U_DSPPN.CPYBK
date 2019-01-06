@@ -1,5 +1,0 @@
-      * Display Panel (New Task)
-      */copy SRCCPY,U_DSPPN                       [funreq =] DSPPN(APPH:'panel');
-     d DSPPN           pr            10i 0
-     d  APPH                          8    const
-     d  PnlId                        10    const

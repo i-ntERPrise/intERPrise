@@ -1,0 +1,7 @@
+      */copy SRCCPY,API_EC#                       API Error Data Structure
+     d EC              ds
+     d  ByteIn                        9b 0 inz(0)
+     d  ByteOut                       9b 0 inz(0)
+     d  ErrorId                       7    inz('       ')
+     d  Resvd1                        1    inz(' ')
+     d  ErrorDta                     20    inz(' ')
