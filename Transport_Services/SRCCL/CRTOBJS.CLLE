@@ -185,7 +185,8 @@
               MONMSG     MSGID(CPF0000)                                
               return                                                   
   error:
-              dspjoblog output(*print)
+           
+              dspjoblog output(*print) /* jenkins */
               SNDPGMMSG  MSGID(CPF9898) MSGF(QCPFMSG) +                
                  MSGDTA('"CRTOBJS Build failed"') MSGTYPE(*ESCAPE)     
               ENDPGM                                                   
