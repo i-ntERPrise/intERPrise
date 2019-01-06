@@ -1,0 +1,85 @@
+      *& Apache License
+      *****************************************************************************************
+      *                                                                                       *
+      * Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.                               *
+      * Created by AO Foundation - www.adsero-optima.com                                      *
+      * Original TEMPLATE author: Tommy Atkins - Chief Development Officer                    *
+      *                                                                                       *
+      * All source rendered by AO Foundation, based on harvested information from S2E Models  *
+      * retrieved and recovered with the consent of Axiom Systems Africa Pty (Ltd)            *
+      * from their Infologic application, subject to the Apache License, Version 2.0 terms.   *
+      * (http://www.axiom.co.za/index.php/solutions/application-systems/infologic)            *
+      *                                                                                       *
+      * Licensed under the Apache License, Version 2.0 (the "License");                       *
+      * you may not use this file except in compliance with the License.                      *
+      * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0    *
+      *                                                                                       *
+      * Unless required by applicable law or agreed to in writing, software                   *
+      * distributed under the License is distributed on an "AS IS" BASIS,                     *
+      * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.              *
+      * See the License for the specific language governing permissions and                   *
+      * limitations under the License.                                                        *
+      *                                                                                       *
+      * The above copyright notice and this permission notice shall be included in all copies *
+      * or substantial portions of the Software.                                              *
+      *                                                                                       *
+      *                            http://www.i-nterprise.org/                                *
+      *                                                                                       *
+      *****************************************************************************************
+      *===============================================================
+     h nomain aut(*use)
+      *===============================================================
+      *& Open Source Error Handlers #05
+      *  EXPORT SYMBOL(ERR50)  /* Convert SQLSTATE to Error Message  */
+      *& =============================================================
+      /copy SRCCPY,API_EC#                       API Error Data Structure
+      /copy SRCCPY,ERR03#                        Move *DIAG and Resend *ESCAPE Messages
+      /copy SRCCPY,ERR11#                        Send *ESCAPE Message
+      /copy SRCCPY,ERR50#                        Convert SQLSTATE to Error Message
+      *& =============================================================
+     d SQLCA           ds
+     d  SQLAID                        8
+     d  SQLABC                       10i 0
+     d  SQLCODE                      10i 0
+     d  SQLMSGL                       5i 0
+     d  SQLMSGD                      70
+     d  SQLERRP                       8
+     d  SQLERRD                      10i 0 dim(6)
+     d  SQLWARN                       1    dim(11)
+     d  SQLSTATE                      5
+      *===============================================================
+      *& ERR50: Convert SQLSTATE to Error Message <<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR50           b                   export
+     d ERR50           pi              n
+     d  Ptr                            *   const
+      *=====================================================
+     d SQLMSG          ds             7
+     d  C3                     3      3
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          CAPtr = Ptr;
+          //================================================
+          select;
+             when SQLCODE = 100;
+                  return *off;
+             when SQLCODE >= 0;
+                  return *on;
+          endsl;
+          //================================================
+          SQLMSG = 'SQ' + %subst(%editc(%abs(SQLCODE):'X'):6:5);
+          if C3 = '0';
+             C3 = 'L';
+          endif;
+          //================================================
+          ERR11(SQLMSG:'QSQLMSG':%subst(SQLMSGD:1:SQLMSGL));
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *=====================================================================

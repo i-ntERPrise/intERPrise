@@ -1,0 +1,192 @@
+/*                                                                                       */
+/* Copyright (c) 2018 Shield Advanced Solutions Ltd                                      */
+/* Created by Shield advanced Solutions Ltd - www.shieldadvanced.com                     */
+/* Original code : Chris Hird Director                                                   */
+/*                                                                                       */
+/* Licensed under the Apache License, Version 2.0 (the "License");                       */
+/* you may not use this file except in compliance with the License.                      */
+/* You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0    */
+/*                                                                                       */
+/* Unless required by applicable law or agreed to in writing, software                   */
+/* distributed under the License is distributed on an "AS IS" BASIS,                     */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.              */
+/* See the License for the specific language governing permissions and                   */
+/* limitations under the License.                                                        */
+/*                                                                                       */
+/* The above copyright notice and this permission notice shall be included in all copies */
+/* or substantial portions of the Software.                                              */
+
+             PGM        PARM(&SPT &FLOW &SRCLIB &TPGM &TDTA)           
+             DCL        VAR(&SPT) TYPE(*CHAR) LEN(10)                  
+             DCL        VAR(&FLOW) TYPE(*CHAR) LEN(5)                  
+             DCL        VAR(&SRCLIB) TYPE(*CHAR) LEN(10)               
+             DCL        VAR(&TBND) TYPE(*CHAR) LEN(10)                 
+             DCL        VAR(&TPGM) TYPE(*CHAR) LEN(10)                 
+             DCL        VAR(&TDTA) TYPE(*CHAR) LEN(10)                 
+             DCL        VAR(&TGTRLS) TYPE(*CHAR) LEN(10) VALUE(*CURRENT)
+             
+             MONMSG     MSGID(CPF0000 CZM0000) EXEC(GOTO CMDLBL(ERROR))
+                                                                       
+             CHGVAR     VAR(&TBND) VALUE(&SRCLIB)                      
+
+             /* if a label is passed in go to it */
+             IF         COND(%SST(&SPT 1 10) *EQ 'START') THEN(GOTO CMDLBL(START))
+             IF         COND(%SST(&SPT 1 10) *EQ 'LIB') THEN(GOTO CMDLBL(LIB))
+             IF         COND(%SST(&SPT 1 10) *EQ 'SBS') THEN(GOTO CMDLBL(SBS))
+             IF         COND(%SST(&SPT 1 10) *EQ 'TABLES') THEN(GOTO CMDLBL(TABLES))
+             IF         COND(%SST(&SPT 1 10) *EQ 'BND') THEN(GOTO CMDLBL(BND))
+             IF         COND(%SST(&SPT 1 10) *EQ 'DQ') THEN(GOTO CMDLBL(DQ))
+             IF         COND(%SST(&SPT 1 10) *EQ 'SRVMOD') THEN(GOTO CMDLBL(SRVMOD))
+             IF         COND(%SST(&SPT 1 10) *EQ 'BNDSRC') THEN(GOTO CMDLBL(BNDSRC))
+             IF         COND(%SST(&SPT 1 10) *EQ 'PGMMOD') THEN(GOTO CMDLBL(PGMMOD))
+             IF         COND(%SST(&SPT 1 10) *EQ 'SRVPGM') THEN(GOTO CMDLBL(SRVPGM))
+             IF         COND(%SST(&SPT 1 10) *EQ 'PGM') THEN(GOTO CMDLBL(PGM))
+             IF         COND(%SST(&SPT 1 10) *EQ 'CMD') THEN(GOTO CMDLBL(CMD))
+             IF         COND(%SST(&SPT 1 10) *EQ 'UIM') THEN(GOTO CMDLBL(UIM))
+ START:
+             /* profile */
+ PRF:        CHKOBJ     OBJ(*LIBL/IRPTUSER) OBJTYPE(*USRPRF)
+             MONMSG     MSGID(CPF9801) EXEC(CRTUSRPRF  USRPRF(IRPTUSER) PASSWORD(*NONE) STATUS(*DISABLED) USRCLS(*SECOFR) +
+                          INLMNU(*SIGNOFF))
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* libraries */
+ LIB:        CHKOBJ     OBJ(&TPGM) OBJTYPE(*LIB)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO C1)
+             /* clear the library if exists */
+             /* CLRLIB     LIB(&TPGM) jenkins */
+             GOTO       CMDLBL(C1)
+ L1:         CRTLIB     LIB(&TPGM)
+ C1:         CHKOBJ     OBJ(&TDTA) OBJTYPE(*LIB)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO C2)
+             /* clear the library if exists */
+             /* CLRLIB     LIB(&TDTA) jenkins */
+             GOTO       CMDLBL(C2)
+ L2:         CRTLIB     LIB(&TDTA)
+ C2:
+             ADDLIBLE   LIB(&TPGM)
+             MONMSG     MSGID(CPF2103)
+             ADDLIBLE   LIB(&TDTA)
+             MONMSG     MSGID(CPF2103)
+             /* message file */
+             CRTBNDCL   PGM(&TPGM/CRTTMSGF) SRCFILE(&SRCLIB/SRCCL) SRCMBR(*PGM)
+             CALL       PGM(&TPGM/CRTTMSGF) PARM(&TPGM)
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* subsystem */
+ SBS:        CRTCLS     CLS(&TPGM/IRPTCLS)
+             CRTJOBD    JOBD(&TPGM/IRPTJOBD)
+             CRTSBSD    SBSD(&TPGM/IRPTSBS) POOLS((1 *BASE)) TEXT('IRP Transport Subsystem')
+             CRTJOBQ    JOBQ(&TPGM/IRPTJOBQ)
+             ADDRTGE    SBSD(&TPGM/IRPTSBS) SEQNBR(100) CMPVAL('IRPT') PGM(QCMD) CLS(&TPGM/IRPTCLS)
+             ADDRTGE    SBSD(&TPGM/IRPTSBS) SEQNBR(999) CMPVAL(*ANY) PGM(QCMD) CLS(&TPGM/IRPTCLS)
+             CHGJOBD    JOBD(&TPGM/IRPTJOBD) JOBQ(*LIBL/IRPTJOBQ) USER(IRPTUSER) INLLIBL(&TPGM)
+             ADDJOBQE   SBSD(&TPGM/IRPTSBS) JOBQ(&TPGM/IRPTJOBQ) MAXACT(*NOMAX)
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* message queue */
+ MSGQ:       CRTMSGQ    MSGQ(&TPGM/IRPTMSGQ) TEXT('Transport Services Message Queue')
+             /* files */
+ TABLES:     RUNSQLSTM  SRCFILE(&SRCLIB/SRCSQL) SRCMBR(IRP0003) COMMIT(*NONE) ERRLVL(30) +
+                          DFTRDBCOL(&TDTA)
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* binding directory */
+ BND:        DLTBNDDIR  BNDDIR(&SRCLIB/&TBND)
+             MONMSG     MSGID(CPF2105)
+             CRTBNDDIR  BNDDIR(&SRCLIB/&TBND)
+             ADDBNDDIRE BNDDIR(&SRCLIB/&TBND) OBJ((MSGFUNC *SRVPGM *DEFER) (SVRFUNC *SRVPGM *DEFER) (GSKFUNC *SRVPGM *DEFER) +
+                          (GENFUNC *SRVPGM *DEFER))
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* data queues */
+ DQ:         CRTDTAQ    DTAQ(&TPGM/SVRCTLQ) TYPE(*STD) MAXLEN(1024) SEQ(*KEYED) KEYLEN(4) SENDERID(*YES) SIZE(*MAX2GB) AUTORCL(*YES) +
+                          TEXT('Server Control Queue')
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* service program modules created with Terraspace capability */
+ SRVMOD:     CRTCMOD    MODULE(&SRCLIB/GENFUNC) SRCFILE(&SRCLIB/SRCC) TEXT('') OUTPUT(*PRINT) TGTRLS(&TGTRLS) TERASPACE(*YES) +
+                          STGMDL(*INHERIT)
+             CRTCMOD    MODULE(&SRCLIB/GSKFUNC) SRCFILE(&SRCLIB/SRCC) TEXT('') OUTPUT(*PRINT) TGTRLS(&TGTRLS) TERASPACE(*YES) +
+                          STGMDL(*INHERIT)
+             CRTCMOD    MODULE(&SRCLIB/MSGFUNC) SRCFILE(&SRCLIB/SRCC) TEXT('') OUTPUT(*PRINT) TGTRLS(&TGTRLS) TERASPACE(*YES) +
+                          STGMDL(*INHERIT)
+             CRTCMOD    MODULE(&SRCLIB/SVRFUNC) SRCFILE(&SRCLIB/SRCC) TEXT('') OUTPUT(*PRINT) TGTRLS(&TGTRLS) TERASPACE(*YES) +
+                          STGMDL(*INHERIT)
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* binder source */
+ BNDSRC:     CRTSRCPF   FILE(&SRCLIB/SRCBND) RCDLEN(150) TEXT('Binder Source')
+             MONMSG     MSGID(CPF7302 CPF5813)
+             CHKOBJ     OBJ(&SRCLIB/GENFUNC) OBJTYPE(*MODULE)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO A1)
+             RTVBNDSRC  MODULE(GENFUNC) SRCFILE(&SRCLIB/SRCBND)
+ A1:         CHKOBJ     OBJ(&SRCLIB/GSKFUNC) OBJTYPE(*MODULE)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO A2)
+             RTVBNDSRC  MODULE(GSKFUNC) SRCFILE(&SRCLIB/SRCBND)
+ A2:         CHKOBJ     OBJ(&SRCLIB/MSGFUNC) OBJTYPE(*MODULE)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO A3)
+             RTVBNDSRC  MODULE(MSGFUNC) SRCFILE(&SRCLIB/SRCBND)
+ A3:         CHKOBJ     OBJ(&SRCLIB/SVRFUNC) OBJTYPE(*MODULE)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO A4)
+             RTVBNDSRC  MODULE(SVRFUNC) SRCFILE(&SRCLIB/SRCBND)
+ A4:
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* program modules */
+ PGMMOD:     CRTCMOD    MODULE(&SRCLIB/IRP0000) SRCFILE(&SRCLIB/SRCC) TEXT('') OUTPUT(*PRINT) TGTRLS(&TGTRLS)
+             CRTCMOD    MODULE(&SRCLIB/IRP0001) SRCFILE(&SRCLIB/SRCC) TEXT('') OUTPUT(*PRINT) TGTRLS(&TGTRLS)
+             CRTCMOD    MODULE(&SRCLIB/IRP0002) SRCFILE(&SRCLIB/SRCC) TEXT('') OUTPUT(*PRINT) TGTRLS(&TGTRLS)
+             CRTCMOD    MODULE(&SRCLIB/IRP0004) SRCFILE(&SRCLIB/SRCC) TEXT('') OUTPUT(*PRINT) TGTRLS(&TGTRLS)
+             CRTCMOD    MODULE(&SRCLIB/IRP1000) SRCFILE(&SRCLIB/SRCC) TEXT('') OUTPUT(*PRINT) TGTRLS(&TGTRLS)
+             CRTCMOD    MODULE(&SRCLIB/IRP2000) SRCFILE(&SRCLIB/SRCC) TEXT('') OUTPUT(*PRINT) TGTRLS(&TGTRLS)
+             CRTCMOD    MODULE(&SRCLIB/SVRTEST) SRCFILE(&SRCLIB/SRCC) TEXT('') OUTPUT(*PRINT) TGTRLS(&TGTRLS)
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* service programs */
+ SRVPGM:     CHKOBJ     OBJ(&SRCLIB/MSGFUNC) OBJTYPE(*MODULE)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO B1)
+             CRTSRVPGM  SRVPGM(&TPGM/MSGFUNC) MODULE(&SRCLIB/MSGFUNC) SRCFILE(&SRCLIB/SRCBND) BNDDIR(&SRCLIB/&TBND) +
+                         OPTION(*UNRSLVREF)
+ B1:         CHKOBJ     OBJ(&SRCLIB/GSKFUNC) OBJTYPE(*MODULE)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO B2)
+             CRTSRVPGM  SRVPGM(&TPGM/GSKFUNC) MODULE(&SRCLIB/GSKFUNC) SRCFILE(&SRCLIB/SRCBND) BNDDIR(&SRCLIB/&TBND) +
+                         OPTION(*UNRSLVREF)
+ B2:         CHKOBJ     OBJ(&SRCLIB/GENFUNC) OBJTYPE(*MODULE)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO B3)
+             CRTSRVPGM  SRVPGM(&TPGM/GENFUNC) MODULE(&SRCLIB/GENFUNC) SRCFILE(&SRCLIB/SRCBND) BNDDIR(&SRCLIB/&TBND) +
+                         OPTION(*UNRSLVREF)
+ B3:         CHKOBJ     OBJ(&SRCLIB/SVRFUNC) OBJTYPE(*MODULE)
+             MONMSG     MSGID(CPF9801) EXEC(GOTO B4)
+             CRTSRVPGM  SRVPGM(&TPGM/SVRFUNC) MODULE(&SRCLIB/SVRFUNC) SRCFILE(&SRCLIB/SRCBND) BNDDIR(&SRCLIB/&TBND) +
+                         OPTION(*UNRSLVREF)
+ B4:
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* programs */
+ PGM:        CRTPGM     PGM(&TPGM/IRP0000) MODULE(&SRCLIB/IRP0000) BNDDIR(&SRCLIB/&TBND)
+             CRTPGM     PGM(&TPGM/IRP0001) MODULE(&SRCLIB/IRP0001) BNDDIR(&SRCLIB/&TBND)
+             CRTPGM     PGM(&TPGM/IRP0002) MODULE(&SRCLIB/IRP0002) BNDDIR(&SRCLIB/&TBND)
+             CRTPGM     PGM(&TPGM/IRP0004) MODULE(&SRCLIB/IRP0004) BNDDIR(&SRCLIB/&TBND)
+             CRTPGM     PGM(&TPGM/IRP1000) MODULE(&SRCLIB/IRP1000) BNDDIR(&SRCLIB/&TBND)
+             CRTPGM     PGM(&TPGM/IRP2000) MODULE(&SRCLIB/IRP2000) BNDDIR(&SRCLIB/&TBND)
+             CRTPGM     PGM(&TPGM/SVRTEST) MODULE(&SRCLIB/SVRTEST) BNDDIR(&SRCLIB/&TBND)
+             CRTBNDCL   PGM(&TPGM/IRP2001) SRCFILE(&SRCLIB/SRCCL) SRCMBR(*PGM)
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* commands */
+ CMD:        CRTCMD     CMD(&TPGM/ADDWKRJOB) PGM(IRP0002) SRCFILE(&SRCLIB/SRCCMD) HLPPNLGRP(CMDHLP) HLPID(*CMD)
+             CRTCMD     CMD(&TPGM/SVRTEST) PGM(SVRTEST) SRCFILE(&SRCLIB/SRCCMD) HLPPNLGRP(CMDHLP) HLPID(*CMD)
+             CRTCMD     CMD(&TPGM/WRKIRPTCFG) PGM(IRP1000) SRCFILE(&SRCLIB/SRCCMD) HLPPNLGRP(CMDHLP) HLPID(*CMD)
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* UIM interfaces */
+ UIM:        CRTMNU     MENU(&TPGM/IRPTMAIN) TYPE(*UIM) SRCFILE(SRCUIM)
+             CRTMNU     MENU(&TPGM/IRPTOPS) TYPE(*UIM) SRCFILE(SRCUIM)
+             CRTMNU     MENU(&TPGM/IRPTCFG) TYPE(*UIM) SRCFILE(SRCUIM)
+             CRTPNLGRP  PNLGRP(&TPGM/IRP0004PG) SRCFILE(SRCUIM) TEXT('')
+             CRTPNLGRP  PNLGRP(&TPGM/IRP1000PG) SRCFILE(SRCUIM) TEXT('')
+             CRTPNLGRP  PNLGRP(&TPGM/IRPTHLP) SRCFILE(SRCUIM) TEXT('')
+             CRTPNLGRP  PNLGRP(&TPGM/CMDHLP) SRCFILE(SRCUIM) TEXT('')
+             IF         COND(%SST(&FLOW 1 5) *EQ '*STOP') THEN(GOTO CMDLBL(END))
+             /* build the UsrIdx */
+             CALL       PGM(&TPGM/IRP2000) PARM(&TPGM)
+  END:        RMVLIBLE   LIB(&TPGM)                                    
+              MONMSG     MSGID(CPF0000)                                
+              RMVLIBLE   LIB(&TDTA)                                    
+              MONMSG     MSGID(CPF0000)                                
+              return                                                   
+  error:
+           
+              dspjoblog output(*print) /* jenkins */
+              SNDPGMMSG  MSGID(CPF9898) MSGF(QCPFMSG) +                
+                 MSGDTA('"CRTOBJS Build failed"') MSGTYPE(*ESCAPE)     
+              ENDPGM                                                   

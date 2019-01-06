@@ -1,0 +1,6 @@
+      */copy Business Rule for "User Status" Validation [USRSTS]
+      */copy SRCCPY,$A06993                       $USRSTS(Event:Orig:New);
+     d $USRSTS         pr
+     d  Event                         1
+     d  oUSRSTS                       1
+     d  nUSRSTS                       1

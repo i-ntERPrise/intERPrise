@@ -1,0 +1,5 @@
+      * Display Panel (Old Task)
+      */copy SRCCPY,U_DSPPO                       FUNREQ = DSPPO(APPH:PnlId)
+     d DSPPO           pr            10i 0
+     d  APPH                          8    const
+     d  PnlId                        10    const

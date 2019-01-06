@@ -1,5 +1,0 @@
-      * Set List Attributes to ALL
-      */copy SRCCPY,U_SETLAALL                    SETLSTALL(APPH:[listname']);
-     d SETLSTALL       pr
-     d  APPH                          8    const
-     d  ListN                        10    const options(*nopass)

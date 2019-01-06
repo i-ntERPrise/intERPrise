@@ -1,0 +1,3 @@
+      * Move *DIAG and Resend *ESCAPE Messages
+      */copy SRCCPY,ERR03#                        ERR03();
+     d ERR03           pr

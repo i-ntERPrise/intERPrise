@@ -1,0 +1,8 @@
+      * Add Last List Entry
+      */copy SRCCPY,U_ADDLLE                      ADDLSTLE(APPH:recp:recl:'record');
+     d ADDLSTLE        pr
+     d  APPH                          8    const
+     d  RecP                           *   const
+     d  RecL                         10i 0 const
+     d  RecN                         10    const
+     d  ListN                        10    const options(*nopass)

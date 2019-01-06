@@ -1,0 +1,25 @@
+STRPGMEXP PGMLVL(*CURRENT) SIGNATURE('V1.0')
+          EXPORT SYMBOL(ParmLP)            /* Parameter List Pointer       */
+          EXPORT SYMBOL(W)                 /* Working Field DS             */
+          EXPORT SYMBOL(KV)                /* Key/Value DS                 */
+          EXPORT SYMBOL(WEBSRVCFGP)        /* Config. Record Pointer       */
+          EXPORT SYMBOL(SQL$P)             /* SQL String Pointer           */
+          EXPORT SYMBOL(InpDataP)          /* Current Input Data Pointer   */
+          EXPORT SYMBOL(OutDataP)          /* Current OutPut Data Pointer  */
+
+          EXPORT SYMBOL(GETSYS)            /* Get System Name              */
+          EXPORT SYMBOL(Cmd)               /* Execute Command              */
+          EXPORT SYMBOL(Initialize)        /* Initialize Exports           */
+          EXPORT SYMBOL(PrintAudit)        /* Print Audit Report           */
+
+          EXPORT SYMBOL(AOOSRV@02A)        /* WHERE: CHAR - Uppercase      */
+          EXPORT SYMBOL(AOOSRV@02B)        /* WHERE: CHAR - Case Sensitive */
+          EXPORT SYMBOL(AOOSRV@02C)        /* WHERE: NUMERIC               */
+          EXPORT SYMBOL(AOOSRV@02D)        /* WHERE: *ISO Date             */
+          EXPORT SYMBOL(AOOSRV@02E)        /* EncodeJSON                   */
+          EXPORT SYMBOL(AOOSRV@02F)        /* Get Next Key/Value Pair      */
+          EXPORT SYMBOL(AOOSRV@02G)        /* Unpack Array Elements        */
+
+          EXPORT SYMBOL(AOOSRV@04A)        /* Identify Input Object        */
+          EXPORT SYMBOL(AOOSRV@04B)        /* Error Response Processing    */
+ENDPGMEXP

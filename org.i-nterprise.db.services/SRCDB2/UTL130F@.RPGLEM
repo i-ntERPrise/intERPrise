@@ -1,0 +1,364 @@
+      *&***************************************************************************************
+      *                                                                                       *
+      * Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.                               *
+      * Created by AO Foundation - www.adsero-optima.com                                     *
+      * Original TEMPLATE author: Tommy Atkins - Chief Development Officer                    *
+      *                                                                                       *
+      * All source rendered by AO Foundation, based on harvested information from S2E Models *
+      * retrieved and recovered with the consent of Axiom Systems Africa Pty (Ltd)            *
+      * from their Infologic application, subject to the Apache License, Version 2.0 terms.   *
+      * (http://www.axiom.co.za/index.php/solutions/application-systems/infologic)            *
+      *                                                                                       *
+      * Licensed under the Apache License, Version 2.0 (the "License");                       *
+      * you may not use this file except in compliance with the License.                      *
+      * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0    *
+      *                                                                                       *
+      * Unless required by applicable law or agreed to in writing, software                   *
+      * distributed under the License is distributed on an "AS IS" BASIS,                     *
+      * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.              *
+      * See the License for the specific language governing permissions and                   *
+      * limitations under the License.                                                        *
+      *                                                                                       *
+      * The above copyright notice and this permission notice shall be included in all copies *
+      * or substantial portions of the Software.                                              *
+      *                                                                                       *
+      *                           http://www.i-nterprise.org/                                 *
+      *                                                                                       *
+      *****************************************************************************************
+      *&==============================================================
+     h nomain aut(*use) extbinint(*yes) option(*nodebugio) debug
+      *===============================================================
+     fUTL130F   uf a e           k disk    usropn commit rename(UTL130FR:R1)
+      * (KU):USRID(A),MNUID(A) =======================================
+     d UTL130F@        pr              n
+     d  Action                        5    const
+     d  RecKey                             const options(*nopass) like(RecKey)
+      *===============================================================
+     d UTL130FP        s               *   inz(%addr(Record))   export
+     d RecKey          ds                  likerec(R1:*KEY)
+     d Record        e ds                  extname(UTL130F)     inz
+      *===============================================================
+     d SaveR           ds                  likerec(R1)
+     d SaveK           ds                  likerec(R1:*KEY)
+      *===============================================================
+      /copy SRCCPY,ERR03#                        Move *DIAG and Resend *ESCAPE Messages
+      /copy SRCCPY,ERR11#                        Send *ESCAPE Message
+      *===============================================================
+     d Action          ds             5
+     d  A1                            1
+     d  A2                            1
+      *===============================================================
+     d NoKeys          s              1
+      *===============================================================
+      ****************************************************************
+      *===============================================================
+     p UTL130F@        b                   export
+     d                 pi              n
+     d  A                             5    const
+     d  K                                  const options(*nopass) like(RecKey)
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          Action = A;
+          //================================================
+          if %parms = 2;
+             RecKey = K;
+          else;
+             eval-corr RecKey = Record;
+          endif;
+          //================================================
+          select;
+              when A1 = 'I';         // Insert
+                   return PUT();
+              when A1 = 'U';         // Update
+                   return UPD();
+              when A1 = 'D';         // Delete
+                   return DLT();
+              when A1 = 'R';         // Read
+                   return GET();
+              when A1 = 'S';         // Set Limits (SETLL)
+                   return SETLL();
+              when A1 = 'G';         // Set Limits (SETGT)
+                   return SETGT();
+              when A1 = 'F';         // File Open/Close
+                   return OPNCLO();
+              other;
+                   ERR11('IOS9999':'ERRMSGF':'UTL130F@  '+Action);
+          endsl;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      ****************************************************************
+      *===============================================================
+     p PUT             b
+     d                 pi              n
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          write  R1;
+          return *on;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      ****************************************************************
+      *===============================================================
+     p UPD             b
+     d                 pi              n
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          chain %kds(RecKey) R1 SaveR;
+          //================================================
+          select;
+              when not %found and A2=' ';
+                   ERR11('IOS0010':'ERRMSGF':'IntERPrise Company User');
+              when not %found and A2='I';
+                   A2=' ';
+                   return PUT();
+              when %found;
+                   update R1;
+                   return *on;
+          endsl;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      ****************************************************************
+      *===============================================================
+     p DLT             b
+     d                 pi              n
+      *=====================================================
+      /free
+       //===================================================
+       monitor;
+          //================================================
+          select;
+              when A2 = ' ';
+                   delete %kds(RecKey) R1;
+                   return %found;
+              when A2 = '1';
+                   dou not %found;
+                       delete %kds(RecKey:1) R1 ;
+                   enddo;
+              when A2 = '2';
+                   dou not %found;
+                       delete %kds(RecKey:2) R1 ;
+                   enddo;
+              other;
+                   ERR11('IOS0100':'ERRMSGF':'UTL130F@  '+Action);
+            endsl;
+          //================================================
+          return *on;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+       //===================================================
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      ****************************************************************
+      *===============================================================
+     p SETLL           b
+     d                 pi              n
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          NoKeys = A2;
+          SaveK  = RecKey;
+          //================================================
+          select;
+              when NoKeys = ' ';
+                   setll %kds(RecKey)   R1 ;
+              when NoKeys = '1';
+                   setll %kds(RecKey:1) R1 ;
+              when NoKeys = '2';
+                   setll %kds(RecKey:2) R1 ;
+              when A2     = 'L';
+                   setll *start UTL130F  ;
+              when A2     = 'H';
+                   setll *end   UTL130F  ;
+              other;
+                   ERR11('IOS0100':'ERRMSGF':'UTL130F@  '+Action);
+          endsl;
+          //================================================
+          return %equal;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      ****************************************************************
+      *===============================================================
+     p SETGT           b
+     d                 pi              n
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          NoKeys = A2;
+          SaveK  = RecKey;
+          //================================================
+          select;
+              when NoKeys = ' ';
+                   setgt %kds(RecKey)   R1 ;
+              when NoKeys = '1';
+                   setgt %kds(RecKey:1) R1 ;
+              when NoKeys = '2';
+                   setgt %kds(RecKey:2) R1 ;
+             other;
+                   ERR11('IOS0100':'ERRMSGF':'UTL130F@  '+Action);
+          endsl;
+          //================================================
+          return %found;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *===============================================================
+     p                 e
+      *===============================================================
+      ****************************************************************
+      *===============================================================
+     p GET             b
+     d                 pi              n
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          select;
+              when A2 = ' ';  // Read - All Keys
+                   chain(n) %kds(RecKey) R1 ;
+                   return %found;
+              when A2 = 'N';  // Read Next
+                   return GETNXT();
+              when A2 = 'P';  // Read Previous
+                   return GETPRV();
+              when A2 = 'F';  // Read Next Record
+                   read(n)  R1 ;
+              when A2 = 'B';  // Read Previous Record
+                   readp(n) R1 ;
+             other;
+                   ERR11('IOS0100':'ERRMSGF':'UTL130F@  '+Action);
+          endsl;
+          //================================================
+          return %eof;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      ****************************************************************
+      *===============================================================
+     p GETNXT          b
+     d                 pi              n
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          select;
+              when NoKeys = ' ';
+                   reade(n) %kds(SaveK)   R1 ;
+              when NoKeys = '1';
+                   reade(n) %kds(SaveK:1) R1 ;
+              when NoKeys = '2';
+                   reade(n) %kds(SaveK:2) R1 ;
+              other;
+                   ERR11('IOS0100':'ERRMSGF':'UTL130F@  '+Action);
+          endsl;
+          //================================================
+          return %eof;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      ****************************************************************
+      *===============================================================
+     p GETPRV          b
+     d                 pi              n
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          select;
+              when NoKeys = ' ';
+                   readpe(n) %kds(SaveK)   R1 ;
+              when NoKeys = '1';
+                   readpe(n) %kds(SaveK:1) R1 ;
+              when NoKeys = '2';
+                   readpe(n) %kds(SaveK:2) R1 ;
+              other;
+                   ERR11('IOS0100':'ERRMSGF':'UTL130F@  '+Action);
+          endsl;
+          //================================================
+          return %eof;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      ****************************************************************
+      *===============================================================
+     p OPNCLO          b
+     d                 pi              n
+      *=====================================================
+      /free
+       //===================================================
+       monitor;
+          //================================================
+          select;
+              when A2 = 'O';      // Open/Initialize
+                   if not %open(UTL130F);
+                           open UTL130F;
+                   endif;
+              when A2 = 'C';      // Close
+                   if %open(UTL130F);
+                      close UTL130F;
+                   endif;
+              other;
+                   ERR11('IOS0100':'ERRMSGF':'UTL130F@  '+Action);
+          endsl;
+          //================================================
+          return '1';
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+       //===================================================
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================

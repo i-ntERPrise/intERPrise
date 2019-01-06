@@ -1,6 +1,0 @@
-      */copy Business Rule for "User ID" Validation [USRID]
-      */copy SRCCPY,$A06995                       $USRID(Event:Orig:New);
-     d $USRID          pr
-     d  Event                         1
-     d  oUSRID                        8
-     d  nUSRID                        8

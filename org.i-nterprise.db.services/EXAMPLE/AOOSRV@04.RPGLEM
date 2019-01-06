@@ -1,0 +1,169 @@
+      *===============================================================
+      *
+      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+      *  Created by AO Foundation - www.adsero-optima.com
+      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+      *
+      *  Licensed under the Apache License, Version 2.0 (the "License");
+      *  you may not use this file except in compliance with the License.
+      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+      *
+      *  Unless required by applicable law or agreed to in writing, software
+      *  distributed under the License is distributed on an "AS IS" BASIS,
+      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      *  See the License for the specific language governing permissions and
+      *  limitations under the License.
+      *
+      *  The above copyright notice and this permission notice shall be included in all
+      *  copies or substantial portions of the Software.
+      *
+      *                      http://www.adsero-optima.com/
+      *
+      *===============================================================
+     h nomain aut(*use)
+      *===============================================================
+      *& Handle/Action Processing
+      * EXPORT SYMBOL(AOOSRV@04A)     /* Confirm & Identify JSON Object   */
+      * EXPORT SYMBOL(AOOSRV@04B)     /* Error Response Processing        */
+      *& Prototypes ==================================================
+     d*Identify        pr             3    extproc('AOOSRV@04A')
+     d AOOSRV@04A      pr             3
+     d*ErrorResp       pr                  extproc('AOOSRV@04B')
+     d AOOSRV@04B      pr
+      *& Global Definitions ==========================================
+      /copy SRCCPY,API_EC#                       API Error Data Structure
+      /copy SRCCPY,ERR03#                        Move *DIAG and Resend *ESCAPE Messages
+      /copy SRCCPY,ERR072#                       0/1=Rcv. *LAST Msg.Id.+Text(*REMOVE)-2
+      /copy SRCCPY,ERR11#                        Send *ESCAPE Message
+      /copy SRCCPY,CMD#                          Execute Command - Processor
+      *===============================================================
+     d ParmLP          s               *   import
+     d ParmL           ds                  based(ParmLP) qualified
+     d  Applic                         *
+     d  InpPtr                         *
+     d  OutPtr                         *
+     d  QueCtl                       20
+     d  InpLen                       10i 0
+     d  OutLen                       10i 0
+      *===============================================================
+     d W               ds                  import qualified
+     d  ProgName                     10
+     d  ProgDescr                    50
+     d  Audit                          n
+     d  Handle                        6
+     d  SysName                       8
+      *================================================================
+     d NextKV          pr                  extproc('AOOSRV@02F')
+      *===============================================================
+     d KV              ds                  import qualified
+     d  Key                         256    varying
+     d  Value                       256    varying
+      *===============================================================
+     d InpDataP        s               *   import
+     d InpData         s          65535    based(InpDataP)
+     d InpData1        s              1    based(InpDataP)
+     d InpData3        s              3    based(InpDataP)
+     d InpData4        s            128    based(InpDataP)
+      *===============================================================
+     d OutDataP        s               *   import
+     d OutData         s           4096    based(OutDataP)
+      *================================================================
+     d Pos             s             10i 0
+      *& Procedures ==================================================
+      *& Confirm & Identify JSON Object <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     p AOOSRV@04A      b                   export
+     d                 pi             3
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          InpDataP = ParmL.InpPtr;
+          Pos = %scan('{':%subst(InpData:1:50));
+          //===============================================
+          if Pos = 0;  //? Not a JSON Object !
+             ERR11('ERR0010':'ERRMSGF');
+          else;
+             InpDataP += Pos;
+          endif;
+          //===============================================
+          NextKV();
+          //===============================================
+          if KV.Key = 'Handle';
+             W.Handle = KV.Value;
+          else;
+             ERR11('ERR0020':'ERRMSGF');
+          endif;
+          //===============================================
+          NextKV();
+          //===============================================
+          if KV.Key <> 'Action';
+             ERR11('ERR0040':'ERRMSGF');
+          endif;
+          //===============================================
+          OutData  = '{"Handle":"******",' +
+                      '"Error":"N",' +
+                      '"MsgDta":"",' +
+                      '"SysNam":"'+%trim(W.SysName)+'",';
+          OutDataP += %len(%trim(OutData));
+          //===============================================
+          select;
+              when KV.Value = 'Filter';
+                   return 'Flt';
+              when KV.Value = 'Add';
+                   return 'Add';
+              when KV.Value = 'Upd';
+                   return 'Upd';
+              when KV.Value = 'Dlt';
+                   return 'Dlt';
+              when KV.Value = 'Dsp';
+                   return 'Dsp';
+              other;
+                   ERR11('ERR0050':'ERRMSGF');
+          endsl;
+          //===============================================
+          return '   ';
+          //===============================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Error Response Processing <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p AOOSRV@04B      b                   export
+      *===============================================================
+     d MsgId           s              7
+     d MsgText         s            132
+     d NoErr           s              5i 0
+      *====================================================
+      /free
+       //==================================================
+       monitor;
+          //===============================================
+          OutDataP = ParmL.OutPtr;
+          OutData  = '{"Handle":"******","Error":"Y","MsgDta":[';
+          OutDataP += %len(%trim(OutData));
+          //===============================================
+          dow ERR072(MsgId:MsgText); // Fetch *LAST Error
+              NoErr += 1;
+              if NoErr > 1;
+                 OutData = ',["'+MsgId+'-'+%trim(MsgText)+'"]';
+              else;
+                 OutData = '["'+MsgId+'-'+%trim(MsgText)+'"]';
+              endif;
+              OutDataP += %len(%trim(OutData));
+          enddo;
+          //===============================================
+          OutData = ']}';
+          OutDataP += 2;
+          ParmL.OutLen = (OutDataP - ParmL.OutPtr);
+          //===============================================
+       on-error;
+          ERR03();
+       endmon;
+       //==================================================
+      /end-free
+     p                 e
+      *?==============================================================
