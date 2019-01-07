@@ -1,9 +1,0 @@
-STRPGMEXP  PGMLVL(*CURRENT) SIGNATURE('V1.0')
-           EXPORT SYMBOL($CUSTNO)     /* Customer Number                */
-           EXPORT SYMBOL($RECSTS)     /* Record Status                  */
-           EXPORT SYMBOL($CUSNME)     /* Customer Name                  */
-           EXPORT SYMBOL($ADRLN1)     /* Adress Line                    */
-           EXPORT SYMBOL($PSTCDE)     /* Post Code                      */
-           EXPORT SYMBOL($STRDTE)     /* Commencment Date               */
-           EXPORT SYMBOL($USERID)     /* User Id                        */
-ENDPGMEXP
