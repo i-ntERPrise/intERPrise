@@ -1,0 +1,456 @@
+      *& Apache License
+      *===============================================================
+      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+      *  Created by AO Foundation - www.adsero-optima.com
+      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+      *
+      *  Licensed under the Apache License, Version 2.0 (the "License");
+      *  you may not use this file except in compliance with the License.
+      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+      *
+      *  Unless required by applicable law or agreed to in writing, software
+      *  distributed under the License is distributed on an "AS IS" BASIS,
+      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      *  See the License for the specific language governing permissions and
+      *  limitations under the License.
+      *
+      *  The above copyright notice and this permission notice shall be included in all
+      *  copies or substantial portions of the Software.
+      *
+      *                      http://www.adsero-optima.com/
+      *===============================================================
+     h nomain aut(*use)
+      *===============================================================
+      *& Open Source Error Handlers #01
+      *  EXPORT SYMBOL(ERR00)  /* Clear Current Message Queue                     */
+      *  EXPORT SYMBOL(ERR00A) /* Clear "ALL" Inactive Message Queues             */
+      *  EXPORT SYMBOL(ERR01)  /* Move *DIAG Messages                             */
+      *  EXPORT SYMBOL(ERR02)  /* Re-Send *ESCAPE Message                         */
+      *  EXPORT SYMBOL(ERR03)  /* Move *DIAG and Re-Send *ESCAPE Messages         */
+      *  EXPORT SYMBOL(ERR04)  /* Retrieve *LAST Message Id                       */
+      *  EXPORT SYMBOL(ERR05)  /* Move *DIAG and *ESCAPE Messages                 */
+      *  EXPORT SYMBOL(ERR06)  /* Move *ESCAPE Messages Only                      */
+      *  EXPORT SYMBOL(ERR07)  /* Receive *LAST Msg. Id. + Text (*REMOVE) from -1 */
+      *  EXPORT SYMBOL(ERR072) /* Receive *LAST Msg. Id. + Text (*REMOVE) from -2 */
+      *  EXPORT SYMBOL(ERR08)  /* Receive All Current Prog. Messages to Pointer   */
+      *  EXPORT SYMBOL(ERR09)  /* Handle Constraint Error                         */
+      *& Copy Books ==================================================
+      /copy SRCCPY,API_EC                        API Error Data Structure
+      /copy SRCCPY,ERR00                         Clear Current Message Queue
+      /copy SRCCPY,ERR00A                        Clear "ALL" Inactive Message Queues
+      /copy SRCCPY,ERR01                         Move *DIAG Messages
+      /copy SRCCPY,ERR02                         Re-Send *ESCAPE Message
+      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+      /copy SRCCPY,ERR04                         CHAR(7)=Retrieve *LAST Message Id
+      /copy SRCCPY,ERR05                         Move *DIAG and *ESCAPE Messages
+      /copy SRCCPY,ERR06                         Move *ESCAPE Messages Only
+      /copy SRCCPY,ERR07                         Boolean=Rcv. *LAST Msg.Id.+Text(*REMOVE)
+      /copy SRCCPY,ERR072                        0/1=Rcv. *LAST Msg.Id.+Text(*REMOVE)-2
+      /copy SRCCPY,ERR08                         Rcv. All Current Pgm. Msg's into Pointer
+      /copy SRCCPY,ERR09                         Handle Constraint Error
+      *& Data Definitions ============================================
+     d GetCSE1         pr            10i 0
+      *===============================================================
+     d QMHRMVPM        pr                  extpgm('QMHRMVPM')
+     d  CSEntry                      10    const
+     d  CSCounter                    10i 0 const
+     d  MsgKey                        4    const
+     d  MsgRmv                       10    const
+     d  ErrCode                            like(EC)
+      *===============================================================
+     d QMHMOVPM        pr                  extpgm('QMHMOVPM')
+     d  MsgKey                        4    const
+     d  MsgTypes                     10    const
+     d  NoTypes                      10i 0 const
+     d  ToCSE                        10    const
+     d  ToCSE#                       10i 0 const
+     d  ErrorCode                          like(EC)
+      * Optional Parameter Group 1:
+     d  ToCSELen                     10i 0 const
+     d  ToCSEQual                    20    const
+      * Optional Parameter Group 2:
+     d  ToCSEDataType                10    const
+     d  FromCSEAddr                  16    const
+     d  FromCSECount                 10i 0 const
+      * ++++++++++++
+     d CSE             s             10i 0 inz(1)
+      *===============================================================
+     d QMHRSNEM        pr                  extpgm('QMHRSNEM')
+     d  MsgKey                        4    const
+     d  ErrorCode                          like(EC)
+      * Optional Parameter Group:
+     d  ToCSE                        10    const options(*varsize)
+     d  ToCSELen                     10i 0 const
+     d  CSEFormat                     8    const
+     d  FromCSEAddr                  16    const
+     d  FromCSECount                 10i 0 const
+      * ++++++++++++
+     d RSNM0100        ds
+     d  ToCSE#                       10i 0 inz(2)
+     d  ToCSEQual                    20    inz('*NONE     *NONE')
+     d  ToCSEIdLen                   10i 0 inz(10)
+     d  ToCSEId                      10    inz('*')
+      * ++++++++++++
+     d  ToCSELen                     10i 0 inz(%len(RSNM0100))
+      *=====================================================================
+     d QMHSNDPM        pr                  extpgm('QMHSNDPM')
+     d  MsgId                         7    const
+     d  MsgFile                      20    const
+     d  MsgData                     128    const options(*varsize)
+     d  MsgDataLen                   10i 0 const
+     d  MsgType                      10    const
+     d  CallStkEnt                   10    const
+     d  CSECount                     10i 0 const
+     d  MsgKey                        4
+     d  ErrorCode                          like(EC)
+      *===============================================================
+      * Receive Program Message (QMHRCVPM) API
+     d QMHRCVPM        pr                  extpgm('QMHRCVPM')
+     d  Msg_Inf                    2048    options(*varsize)
+     d  Msg_Inf_Len                  10i 0 const
+     d  Msg_Format                    8    const
+     d  Call_Stack_E                 10    const
+     d  Call_Stack_#                 10i 0 const
+     d  Msg_Types                    10    const
+     d  Msg_Key                       4    const
+     d  Wait_Time                    10i 0 const
+     d  Msg_Action                   10    const
+     d  Error_Code                         like(EC)
+      *===============================================================
+     d MsgL            s             10i 0 inz(%size(Msg))
+     d Msg             ds                  qualified
+     d  BR                           10i 0
+     d  BA                           10i 0
+     d  Sev                          10i 0
+     d  Id                            7
+     d  Type                          2
+     d  Key                           4
+     d  R1                            7
+     d  CCSID1                       10i 0
+     d  CCSID2                       10i 0
+     d  RDR                          10i 0
+     d  RDA                          10i 0
+     d  RD                         2048
+      *===============================================================
+     d Fmt200P         s               *   inz(%addr(Fmt200))
+     d Fmt200L         s             10i 0
+     d Fmt200          ds          4096
+     d  BR200                        10i 0
+     d  BA200                        10i 0
+      *=====================================================
+     d MessageIdP      s               *
+     d MessageId       s              7    based(MessageIdP)
+      *===============================================================
+     d MessageLenP     s               *
+     d MessageLengths  ds                  based(MessageLenP)
+     d  RplDataLenR                  10i 0
+     d  RplDataLenA                  10i 0
+     d  MsgLenR                      10i 0
+     d  MsgLenA                      10i 0
+     d  HelpLenR                     10i 0
+     d  HelpLenA                     10i 0
+      *=====================================================
+     d MessageTxtP     s               *
+     d MessageTxt      s            132    based(MessageTxtP)
+      *===============================================================
+      *& ERR00: Clear Current Message Queue <<<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR00           b                   export
+      *=====================================================
+      /free
+       monitor;
+          QMHRMVPM('*':1:' ':'*ALL':EC);
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& ERR00A: Clear All Inactive Message Queues <<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR00A          b                   export
+      *=====================================================
+      /free
+       monitor;
+          QMHRMVPM('*ALLINACT':1:' ':'*ALL':EC);
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& ERR01: Move *DIAG Messages <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR01           b                   export
+      *=====================================================
+      /free
+       monitor;
+          ToCSE# = GetCSE1();
+          QMHMOVPM(' ':'*DIAG':1:'*':ToCSE#:EC:10:ToCSEQual:'*CHAR':'*':1);
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& ERR02: Re-Send *ESCAPE Message <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR02           b                   export
+      *=====================================================
+      /free
+       monitor;
+          ToCSE# = GetCSE1();
+          QMHRSNEM(' ':EC:RSNM0100:ToCSELen:'RSNM0100':'*':1);
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& ERR03: Move *DIAG and Re-Send *ESCAPE Messages <<<<<<<<<<<<<<
+      *===============================================================
+     p ERR03           b                   export
+      *=====================================================
+      /free
+       //===================================================
+       monitor;
+          //================================================
+          ToCSE# = GetCSE1();
+          //================================================
+          if not ERR09(); // Not Constraint Error
+             QMHMOVPM(' ':'*DIAG':1:'*':ToCSE#:EC:10:ToCSEQual:'*CHAR':'*':1);
+             QMHRSNEM(' ':EC:RSNM0100:ToCSELen:'RSNM0100':'*':1);
+          endif;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+       //===================================================
+      /end-free
+     p                 e
+      *===============================================================
+      *& ERR04: Retrieve *LAST Message Id <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR04           b                   export
+     d                 pi             7
+      *=====================================================
+      /free
+       monitor;
+         QMHRCVPM(Msg:MsgL:'RCVM0100':'*':1:'*LAST':'    ':0:'*SAME':EC);
+         return Msg.Id;
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& ERR05: Move *DIAG and *ESCAPE Messages <<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR05           b                   export
+      *=====================================================
+     d MTypes          s             20    inz('*DIAG     *ESCAPE')
+      *=====================================================
+      /free
+       monitor;
+          ToCSE# = GetCSE1();
+          QMHMOVPM(' ':MTypes:2:'*':ToCSE#:EC:10:ToCSEQual:'*CHAR':'*':1);
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& ERR06: Move *ESCAPE Messages Only <<<<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR06           b                   export
+      *=====================================================
+      /free
+       monitor;
+          ToCSE# = GetCSE1();
+          QMHMOVPM(' ':'*ESCAPE':1:'*':ToCSE#:EC:10:ToCSEQual:'*CHAR':'*':1);
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& ERR07: Receive *LAST Message Id. & Text with *REMOVE <<<<<<<<
+      *===============================================================
+     p ERR07           b                   export
+     d                 pi              n
+     d  MsgId                         7
+     d  MsgText                     132
+      *=====================================================
+      /free
+       //===================================================
+       QMHRCVPM(Fmt200:8:'RCVM0200':'*':1:'*LAST':'    ':0:'*SAME':EC);
+       //===================================================
+       if BA200 = 0;
+          return *off;
+       endif;
+       //===================================================
+       QMHRCVPM(Fmt200:BA200:'RCVM0200':'*':1:'*LAST':'    ':0:'*REMOVE':EC);
+       //===================================================
+       MessageIdP  = Fmt200P + 12;
+       MessageLenP = Fmt200P + 152;
+       MessageTxtP = Fmt200P + 176 + RplDataLenR;
+       //===================================================
+       MsgId   = MessageId;
+       MsgText = %subst(MessageTxt:1:MsgLenR);
+       return *on;
+       //===================================================
+      /end-free
+     p                 e
+      *===============================================================
+      *& ERR072: Receive *LAST Message Id. & Text with *REMOVE -2 <<<<
+      *===============================================================
+     p ERR072          b                   export
+     d                 pi              n
+     d  MsgId                         7
+     d  MsgText                     132
+      *=====================================================
+      /free
+       //===================================================
+       QMHRCVPM(Fmt200:8:'RCVM0200':'*':2:'*LAST':'    ':0:'*SAME':EC);
+       //===================================================
+       if BA200 = 0;
+          return *off;
+       endif;
+       //===================================================
+       QMHRCVPM(Fmt200:BA200:'RCVM0200':'*':2:'*LAST':'    ':0:'*REMOVE':EC);
+       //===================================================
+       MessageIdP  = Fmt200P + 12;
+       MessageLenP = Fmt200P + 152;
+       MessageTxtP = Fmt200P + 176 + RplDataLenR;
+       //===================================================
+       MsgId   = MessageId;
+       MsgText = %subst(MessageTxt:1:MsgLenR);
+       return *on;
+       //===================================================
+      /end-free
+     p                 e
+      *===============================================================
+      *& ERR08: Receive Current Program Messages to Pointer <<<<<<<<<<
+      *===============================================================
+     p ERR08           b                   export
+     d                 pi
+     d  BufferP                        *                                        Input Parameter
+      *=====================================================
+     d Buffer          ds          4174    based(BufferP)                       Capacity 30 Messages
+     d  NoOfMsg                      10u 0
+      *=====================================================
+     d MsgEntryP       s               *
+     d MsgEntryL       s             10i 0 inz(%size(MsgEntry))
+     d MsgEntry        ds                  based(MsgEntryP)
+     d  MsgId                         7
+     d  MsgText                     132
+      *=====================================================
+      /free
+       //===================================================
+       NoOfMsg = 0;
+       MsgEntryP = BufferP + 4;
+       //===================================================
+       QMHRCVPM(Fmt200:8:'RCVM0200':'*':1:'*LAST':'    ':0:'*SAME':EC);
+       dow BA200 <> 0;
+           //===============================================
+           QMHRCVPM(Fmt200:BA200:'RCVM0200':'*':1:'*LAST':'    ':0:
+                                                               '*REMOVE':EC);
+           //===============================================
+           MessageIdP  = Fmt200P + 12;
+           MessageLenP = Fmt200P + 152;
+           MessageTxtP = Fmt200P + 176 + RplDataLenR;
+           //===============================================
+           MsgId   = MessageId;
+           MsgText = %subst(MessageTxt:1:MsgLenR);
+           //===============================================
+           NoOfMsg   += 1;
+           if NoOfMsg = 30;
+              leave;
+           endif;
+           MsgEntryP += MsgEntryL;
+           //===============================================
+           QMHRCVPM(Fmt200:8:'RCVM0200':'*':1:'*LAST':'    ':0:'*SAME':EC);
+           //===============================================
+       enddo;
+       //===================================================
+      /end-free
+     p                 e
+      *===============================================================
+      *& ERR09: Handle Constraint Errors <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR09           b                   export
+      *=====================================================
+     f*AOFCMLF   if   e           k disk
+      *=====================================================
+     d                 pi              n
+      *=====================================================
+     d*CMLR            ds                  likerec(AOFCMLFR)
+      *=====================================================
+     d MI              s              7    inz('CST0000')
+     d MF              s             20    inz('CSTMSGF   *LIBL')
+     d MD              ds                  qualified
+     d  Id                            7
+     d  CstN                         25
+     d MDL             s             10i 0 inz(32)
+     d MT              s             10    inz('*ESCAPE')
+     d CSE             s             10    inz('*')
+     d CSC             s             10i 0 Inz(1)
+     d MK              s              4
+      *=====================================================
+     d CPF503A         ds
+     d  V1                          176
+     d  CstName                     258
+     d  V3                           34
+      *=====================================================
+      /free
+       //===================================================
+       monitor;
+         //=================================================
+         QMHRCVPM(Msg:MsgL:'RCVM0100':'*':2:'*LAST':'    ':0:'*SAME':EC);
+         //=================================================
+         if Msg.Id <> 'RNX1022'; // Not Constraint
+            return *off;
+         endif;
+         //=================================================
+         dou Msg.Id = 'CPF502D' or
+             Msg.Id = 'CPF502E' or
+             Msg.Id = 'CPF503A';
+             QMHRCVPM(Msg:MsgL:'RCVM0100':'*':2:'*PRV':Msg.Key:0:'*SAME':EC);
+         enddo;
+         //=================================================
+         CPF503A = %subst(Msg.RD:1:Msg.RDA);
+         //=================================================
+         QMHMOVPM(' ':'*DIAG':1:'*':ToCSE#+1:EC:10:ToCSEQual:'*CHAR':'*':2);
+         //=================================================
+         //if not %open(AOFCMLF);
+         //    open AOFCMLF;
+         // endif;
+         //=================================================
+         //chain (CstName:Msg.Id) AOFCMLF CMLR;
+         //if %found;
+         //   MI = CMLR.MSGID;
+         //else;
+         //   reset MI;
+         //endif;
+         //=================================================
+         MD.Id   = Msg.Id;
+         MD.CstN = CstName;
+         QMHRMVPM('*':ToCSE#:' ':'*ALL':EC);
+         QMHSNDPM(MI:MF:MD:MDL:MT:CSE:ToCSE#+1:MK:EC);
+         //=================================================
+         return *on;
+         //=================================================
+       on-error;
+          ERR03();
+       endmon;
+       //===================================================
+      /end-free
+     p                 e
+      *===============================================================

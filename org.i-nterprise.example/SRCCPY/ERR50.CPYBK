@@ -1,0 +1,4 @@
+      */copy SRCCPY,ERR50                         Convert SQLSTATE to Error Message
+     d CAPtr           s               *   inz(%addr(SQLCA))
+     d ERR50           pr              n   extproc('ERR50')
+     d  CAPtr                          *   const

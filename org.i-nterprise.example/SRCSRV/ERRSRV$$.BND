@@ -1,0 +1,46 @@
+/*****************************************************************************************/
+/* Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.                               */
+/* Created by AO Foundation - www.adsero-optima.com                                      */
+/* Original TEMPLATE author: Tommy Atkins - Chief Development Officer                    */
+/*                                                                                       */
+/* Licensed under the Apache License, Version 2.0 (the "License");                       */
+/* you may not use this file except in compliance with the License.                      */
+/* You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0    */
+/*                                                                                       */
+/* Unless required by applicable law or agreed to in writing, software                   */
+/* distributed under the License is distributed on an "AS IS" BASIS,                     */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.              */
+/* See the License for the specific language governing permissions and                   */
+/* limitations under the License.                                                        */
+/*                                                                                       */
+/* The above copyright notice and this permission notice shall be included in all        */
+/* copies or substantial portions of the Software.                                       */
+/*                                                                                       */
+/*                     http://www.adsero-optima.com/                                     */
+/*****************************************************************************************/
+STRPGMEXP  PGMLVL(*CURRENT) SIGNATURE('V1.0')
+           EXPORT SYMBOL(RTVCSTK00) /* Job Information - Returns Internal Job Id (16)*/
+           EXPORT SYMBOL(GetCSE1)   /* Retrieve Target CSE for Error Handlers        */
+           EXPORT SYMBOL(PEP)       /* Check if CSE is PEP                           */
+           EXPORT SYMBOL(ERR00)  /* Clear Current Message Queue                      */
+           EXPORT SYMBOL(ERR00A) /* Clear "ALL" Inactive Message Queues              */
+           EXPORT SYMBOL(ERR01)  /* Move *DIAG Messages                              */
+           EXPORT SYMBOL(ERR02)  /* Re-Send *ESCAPE Message                          */
+           EXPORT SYMBOL(ERR03)  /* Move *DIAG and Re-Send *ESCAPE Messages          */
+           EXPORT SYMBOL(ERR04)  /* Retrieve *LAST Message Id                        */
+           EXPORT SYMBOL(ERR05)  /* Move *DIAG and *ESCAPE Messages                  */
+           EXPORT SYMBOL(ERR06)  /* Move *ESCAPE Messages Only                       */
+           EXPORT SYMBOL(ERR07)  /* Receive *LAST Msg. Id. + Text (*REMOVE) from -1  */
+           EXPORT SYMBOL(ERR072) /* Receive *LAST Msg. Id. + Text (*REMOVE) from -2  */
+           EXPORT SYMBOL(ERR08)  /* Receive All Current Prog. Messages to Pointer    */
+           EXPORT SYMBOL(ERR09)  /* Handle Constraint Error                          */
+           EXPORT SYMBOL(ERR10)  /* Send *DIAG Message                               */
+           EXPORT SYMBOL(ERR11)  /* Send *ESCAPE Message                             */
+           EXPORT SYMBOL(ERR12)  /* Send *INFO Message to *EXT                       */
+           EXPORT SYMBOL(ERR13)  /* Send *STATUS Message to *EXT                     */
+           EXPORT SYMBOL(ERR14)  /* Send *INFO to *SYSOPR                            */
+           EXPORT SYMBOL(ERR20)  /* Retrieve Message Text MD=128  RETURN=132         */
+           EXPORT SYMBOL(ERR21)  /* Retrieve Message Text MD=2048 RETURN=132         */
+           EXPORT SYMBOL(ERR22)  /* Retrieve Message Help MD=2048 RETURN=3000        */
+           EXPORT SYMBOL(ERR50)  /* Convert SQLSTATE to Error Message                */
+ENDPGMEXP

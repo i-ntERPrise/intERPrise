@@ -1,0 +1,4 @@
+      */copy SRCCPY,CMD                           Execute Commands (Cmd$)
+     d Cmd$            s           4096    varying
+     d Cmd             pr
+     d                             4096    varying const options(*varsize)

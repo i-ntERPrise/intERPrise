@@ -1,0 +1,433 @@
+      *& Apache License
+      *===============================================================
+      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+      *  Created by AO Foundation - www.adsero-optima.com
+      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+      *
+      *  Licensed under the Apache License, Version 2.0 (the "License");
+      *  you may not use this file except in compliance with the License.
+      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+      *
+      *  Unless required by applicable law or agreed to in writing, software
+      *  distributed under the License is distributed on an "AS IS" BASIS,
+      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      *  See the License for the specific language governing permissions and
+      *  limitations under the License.
+      *
+      *  The above copyright notice and this permission notice shall be included in all
+      *  copies or substantial portions of the Software.
+      *
+      *                      http://www.adsero-optima.com/
+      *& Exported Symbols ============================================
+      *   EXPORT SYMBOL(DRVSRV@02A)     /* WHERE: CHAR - Uppercase           */
+      *   EXPORT SYMBOL(DRVSRV@02B)     /* WHERE: CHAR - Case Sensitive      */
+      *   EXPORT SYMBOL(DRVSRV@02C)     /* WHERE: NUMERIC                    */
+      *   EXPORT SYMBOL(DRVSRV@02D)     /* WHERE: *ISO Date                  */
+      *   EXPORT SYMBOL(DRVSRV@02E)     /* EncodeJSON                        */
+      *   EXPORT SYMBOL(DRVSRV@02F)     /* Get Next Key/Value Pair           */
+      *   EXPORT SYMBOL(DRVSRV@02G)     /* Unpack Array Elements             */
+      *===============================================================
+     h nomain aut(*use)
+      *& Copy Books ==================================================
+      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+      /copy SRCCPY,ERR11                         Send *ESCAPE Message
+      *& Prototypes ==================================================
+     d*ALPHAU          pr                  extproc('DRVSRV@02A')
+     d DRVSRV@02A      pr
+     d  UIName                       50    const
+     d  DBName                       10    const
+      *===============================================================
+     d*ALPHA           pr                  extproc('DRVSRV@02B')
+     d DRVSRV@02B      pr
+     d  UIName                       50    const
+     d  DBName                       10    const
+      *===============================================================
+     d*NUMERIC         pr                  extproc('DRVSRV@02C')
+     d DRVSRV@02C      pr
+     d  UIName                       50    const
+     d  DBName                       10    const
+      *===============================================================
+     d*DateISO         pr                  extproc('DRVSRV@02D')
+     d DRVSRV@02D      pr
+     d  UIName                       50    const
+     d  DBName                       10    const
+      *===============================================================
+     d*EncodeJSON      pr           256    extproc('DRVSRV@02E')
+     d DRVSRV@02E      pr           256    varying
+     d  Value                       256
+     d  Len                           5i 0 const
+      *===============================================================
+     d*NextKV          pr                  extproc('DRVSRV@02F')
+     d DRVSRV@02F      pr
+      *===============================================================
+     d*NextElm         pr          1024    extproc('DRVSRV@02G')
+     d DRVSRV@02G      pr          1024
+      *& Global Definitions ==========================================
+     d KV              ds                  import qualified
+     d  Key                         256    varying
+     d  Value                       256    varying
+      *===============================================================
+     d IDP             s               *   import
+     d  IDLen          s             10i 0 based(IDP)
+     d InpDataP        s               *   import
+     d InpData         s           4096    based(InpDataP)
+     d InpData1        s              1    based(InpDataP)
+      *===============================================================
+     d SQL$P           s               *   import
+     d SQL$            s           4096    based(SQL$P) varying
+      *===============================================================
+     d Upper           c                   'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+     d Lower           c                   'abcdefghijklmnopqrstuvwxyz'
+      *=====================================================
+     d JSON            ds
+     d  Specials                      8    inz('{}[]",%:')
+     d  HexVal                       16    inz('7B7D5B5D222C253A')
+     d  Hex                           2    dim(8) overlay(HexVal)
+      *& Build Alpha into SQL String (Upper) <<<<<<<<<<<<<<<<<<<<<<<<<
+     p DRVSRV@02A      b                   export
+     d                 pi
+     d  UIName                       50    const
+     d  DBName                       10    const
+      *=====================================================
+     d Pos             s             10i 0
+     d Value           s           1024
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          Pos = %scan('"'+%trim(UIName)+'":"':InpData);
+          //================================================
+          if Pos = 0;
+             return;
+          endif;
+          //================================================
+          InpDataP += Pos+(%len(%trim(UIName)) + 3);
+          //================================================
+          if InpData1 = '"';
+             return;
+          endif;
+          //================================================
+          if %len(SQL$) > 0;
+             SQL$ += ' AND';
+          endif;
+          //================================================
+          SQL$ += ' UPPER('+%trim(DBName)+')';
+          //================================================
+          Pos = %scan('"':InpData);
+          Value = %subst(InpData:1:Pos-1);
+          //================================================
+          if %scan('%':Value) > 0;
+             SQL$ += ' LIKE ';
+          else;
+             SQL$ += ' = ';
+          endif;
+          //================================================
+          SQL$ += ''''+%xlate(Lower:Upper:%trim(Value))+'''';
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Build Alpha into SQL String (Case Sensitive) <<<<<<<<<<<<<<<<
+     p DRVSRV@02B      b                   export
+     d                 pi
+     d  UIName                       50    const
+     d  DBName                       10    const
+      *=====================================================
+     d Pos             s             10i 0
+     d Value           s           1024
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          Pos = %scan('"'+%trim(UIName)+'":"':InpData);
+          //================================================
+          if Pos = 0;
+             return;
+          endif;
+          //================================================
+          InpDataP += Pos+(%len(%trim(UIName)) + 3);
+          //================================================
+          if %subst(InpData:1:1) = '"';
+             return;
+          endif;
+          //================================================
+          if %len(SQL$) > 0;
+             SQL$ += ' AND ';
+          endif;
+          //================================================
+          SQL$ += %trim(DBName);
+          //================================================
+          Pos = %scan('"':InpData);
+          Value = %subst(InpData:1:Pos-1);
+          //================================================
+          if %scan('%':Value) > 0;
+             SQL$ += ' LIKE ';
+          else;
+             SQL$ += ' = ';
+          endif;
+          //================================================
+          SQL$ += ''''+%trim(Value)+'''';
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Build Numeric into SQL String <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     p DRVSRV@02C      b                   export
+     d                 pi
+     d  UIName                       50    const
+     d  DBName                       10    const
+      *=====================================================
+     d Pos             s             10i 0
+     d Value           s           1024
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          Pos = %scan('"'+%trim(UIName)+'":"':InpData);
+          //================================================
+          if Pos = 0;
+             return;
+          endif;
+          //================================================
+          InpDataP += Pos+(%len(%trim(UIName)) + 3);
+          //================================================
+          if %subst(InpData:1:1) = '"';
+             return;
+          endif;
+          //================================================
+          if %len(SQL$) > 0;
+             SQL$ += ' AND ';
+          endif;
+          //================================================
+          SQL$ += %trim(DBName);
+          //================================================
+          Pos = %scan('"':InpData);
+          Value = %subst(InpData:1:Pos-1);
+          //================================================
+          if %scan('%':Value) > 0;
+             SQL$ += ' LIKE ' + ''''+%trim(Value)+'''';
+          else;
+             SQL$ += ' = ' + %trim(Value);
+          endif;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Build ISO Date into SQL String <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     p DRVSRV@02D      b                   export
+     d                 pi
+     d  UIName                       50    const
+     d  DBName                       10    const
+      *=====================================================
+     d Pos             s             10i 0
+     d Value           s           1024
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          Pos = %scan('"'+%trim(UIName)+'":"':InpData);
+          //================================================
+          if Pos = 0;
+             return;
+          endif;
+          //================================================
+          InpDataP += Pos+(%len(%trim(UIName)) + 3);
+          //================================================
+          if %subst(InpData:1:1) = '"';
+             return;
+          endif;
+          //================================================
+          if %len(SQL$) > 0;
+             SQL$ += ' AND ';
+          endif;
+          //================================================
+          SQL$ += 'CHAR('+%trim(DBName)+',ISO)';
+          //================================================
+          Pos = %scan('"':InpData);
+          Value = %subst(InpData:1:Pos-1);
+          //================================================
+          if %scan('%':Value) > 0;
+             SQL$ += ' LIKE ';
+          else;
+             SQL$ += ' = ';
+          endif;
+          //================================================
+          SQL$ += ''''+%trim(Value)+'''';
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Encode JSON Special Characters <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     p DRVSRV@02E      b                   export
+     d                 pi           256    varying
+     d  Value                       256
+     d  Length                        5i 0 const
+      *=====================================================
+     d P1              s               *
+     d Val1            s              1    based(P1)
+      *=====================================================
+     d RetVal          s            256
+     d R1              s               *   inz(%addr(RetVal))
+     d Ret1            s              1    based(R1)
+     d Ret3            s              3    based(R1)
+      *=====================================================
+     d I               s              5i 0
+     d Pos             s              5i 0
+     d Len             s              5i 0
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          P1  = %addr(Value);
+          Len = %len(%trim(%subst(Value:1:Length)));
+          clear RetVal;
+          //================================================
+          for I = 1 to Len;
+              //============================================
+              Pos = %scan(Val1:Specials);
+              //============================================
+              if Pos = 0;
+                 Ret1 = Val1;
+                 P1 += 1;
+                 R1 += 1;
+                 iter;
+              endif;
+              //============================================
+              Ret3 = '%'+Hex(Pos);
+              P1  += 1;
+              R1  += 3;
+              iter;
+              //============================================
+          endfor;
+          //================================================
+          return %trim(RetVal);
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Unpack Next Key/Value Pair <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     p DRVSRV@02F      b                   export
+      *=====================================================
+     d P1              s             10i 0
+     d ValOut          s            256    varying
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          P1 = %check(' ':InpData);  // Skip Spaces
+          InpDataP += (P1-1);        // Start of Key
+          //================================================
+          if InpData1  = '"';
+             InpDataP += 1;
+          else;
+             ERR11('ERR0030':'ERRMSGF'); //JSON Object - Ill-formed or misaligned
+          endif;
+          //================================================
+          P1 = %scan('"':InpData);
+          KV.Key = %trim(%subst(InpData:1:P1-1));
+          //================================================
+          P1 = %scan(':':InpData);   // Key/Value Separator
+          InpDataP += P1;
+          //================================================
+          P1 = %check(' ':InpData);  // Skip Spaces
+          InpDataP += (P1-1);        // Start of Value
+          //================================================
+          if InpData1  = '[';
+             InpDataP += 1;
+             KV.Value = '[';
+             return;
+          endif;
+          //================================================
+          if InpData1  = '"';
+             InpDataP += 1;
+          endif;
+          //================================================
+          clear ValOut;
+          //================================================
+          dow 0=0;
+              select;
+                  when InpData1  = '"';
+                       InpDataP += 1;
+                  when InpData1  = ',';
+                       InpDataP += 1;
+                       leave;
+                  when InpData1  = '}';
+                       leave;
+                  other;
+                       ValOut += InpData1;
+                       InpDataP += 1;
+              endsl;
+          enddo;
+          //================================================
+          KV.Value = ValOut;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Unpack Array Elements <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     p DRVSRV@02G      b                   export
+     d                 pi          1024
+      *=====================================================
+     d P1              s             10i 0
+     d DataOut         s           1024    varying
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          P1 = %check(' ':InpData);  // Skip Spaces
+          InpDataP += (P1-1);        // Start of Key
+          //================================================
+          if InpData1 <> '"';
+             ERR11('ERR0080':'ERRMSGF'); //Column array - Ill-formed or misaligned
+          else;
+             InpDataP += 1;
+          endif;
+          //================================================
+          P1 = %scan('"':InpData);
+          DataOut = %trim(%subst(InpData:1:P1-1));
+          InpDataP += P1;
+          //================================================
+          P1 = %check(' ':InpData);  // Skip Spaces
+          InpDataP += (P1-1);        // Start of Key
+          //================================================
+          if InpData1 = ']';
+             return DataOut;
+          endif;
+          //================================================
+          if InpData1 = ',';
+             InpDataP += P1;
+          endif;
+          //================================================
+          return DataOut;
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================

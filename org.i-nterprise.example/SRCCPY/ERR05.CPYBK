@@ -1,0 +1,2 @@
+      */copy SRCCPY,ERR05                         Move *DIAG and *ESCAPE Messages
+     d ERR05           pr

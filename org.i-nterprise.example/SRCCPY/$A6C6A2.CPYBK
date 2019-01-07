@@ -1,0 +1,5 @@
+      */copy SRCCPY,$A6C6A2                       CUSTNO : Customer Number
+     d $CUSTNO         pr
+     d  Event                         1
+     d  oCUSTNO                      10i 0
+     d  nCUSTNO                      10i 0

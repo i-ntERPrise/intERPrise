@@ -1,0 +1,252 @@
+      *& Apache License
+      *===============================================================
+      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+      *  Created by AO Foundation - www.adsero-optima.com
+      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+      *
+      *  Licensed under the Apache License, Version 2.0 (the "License");
+      *  you may not use this file except in compliance with the License.
+      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+      *
+      *  Unless required by applicable law or agreed to in writing, software
+      *  distributed under the License is distributed on an "AS IS" BASIS,
+      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      *  See the License for the specific language governing permissions and
+      *  limitations under the License.
+      *
+      *  The above copyright notice and this permission notice shall be included in all
+      *  copies or substantial portions of the Software.
+      *
+      *                      http://www.adsero-optima.com/
+      *===============================================================
+     h nomain aut(*use)
+      *===============================================================
+      *& Open Source Error Handlers #02
+      *  EXPORT SYMBOL(ERR10)  /* Send *DIAG Message              */
+      *  EXPORT SYMBOL(ERR11)  /* Send *ESCAPE Message            */
+      *  EXPORT SYMBOL(ERR12)  /* Send *INFO Message to *EXT      */
+      *  EXPORT SYMBOL(ERR13)  /* Send *STATUS Message to *EXT    */
+      *  EXPORT SYMBOL(ERR14)  /* Send *INFO to *SYSOPR           */
+      *& Copy Books ==================================================
+      /copy SRCCPY,API_EC                        API Error Data Structure
+      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+      /copy SRCCPY,ERR10                         Send *DIAG Message
+      /copy SRCCPY,ERR11                         Send *ESCAPE Message
+      /copy SRCCPY,ERR12                         Send *INFO Message to *EXT
+      /copy SRCCPY,ERR13                         Send *STATUS Message to *EXT
+      /copy SRCCPY,ERR14                         Send *INFO to *SYSOPR
+      *& Data Definitions ============================================
+     d GetCSE1         pr            10i 0
+      *===============================================================
+     d QMHSNDPM        pr                  extpgm('QMHSNDPM')
+     d  MsgId                         7    const
+     d  MsgFile                      20    const
+     d  MsgData                     128    const
+     d  MsgDataLen                   10i 0 const
+     d  MsgType                      10    const
+     d  CallStkEnt                   10    const
+     d  CSECount                     10i 0 const
+     d  MsgKey                        4
+     d  ErrorCode                          like(EC)
+      * Optional Parameter Group 1:
+     d* CSELength                    10i 0 const
+     d* CSEQual                      20    const
+     d* ScreenWait                   10i 0 const
+      * Optional Parameter Group 2:
+     d* CSEDataType                  10    const
+     d* CCSID                        10i 0 const
+      *===============================================================
+     d QMHSNDM         pr                  extpgm('QMHSNDM')
+     d  MsgId                         7    const
+     d  MsgFile                      20    const
+     d  MsgData                     128    const
+     d  MsgDataLen                   10i 0 const
+     d  MsgType                      10    const
+     d  MsgQ                         20    const
+     d  MsgQNo                       10i 0 const
+     d  RplMsgQ                      20    const
+     d  MsgKey                        4
+     d  ErrorCode                          like(EC)
+      * Optional Parameter Group 1:
+     d* CCSID                        10i 0 const
+      *===============================================================
+     d MK              s              4
+     d MFL             s             20    inz('ERRMSGF   *LIBL')
+     d CSC             s             10i 0 inz(1)
+     d CSEntQ          s             20    inz('*NONE     *NONE')
+     d MDD             s            128    inz(' ')
+     d MDL             s             10i 0 inz(1)
+      *===============================================================
+      *& ERR10: Send *DIAG Message <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR10           b                   export
+     d                 pi
+     d  MI                            7    const
+     d  MF                           10    const options(*omit:*nopass)
+     d  MD                          128    const options(*nopass)
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          reset MFL;
+          reset MDD;
+          reset MDL;
+          CSC = GetCSE1();
+          //================================================
+          select;
+             when %parms = 2;
+                  MFL = MF+'*LIBL';
+             when %parms = 3;
+                  if %addr(MF) <> *NULL;
+                     MFL = MF+'*LIBL';
+                  endif;
+                  MDD = %trim(MD);
+                  MDL = %len(%trim(MDD));
+          endsl;
+          //================================================
+          QMHSNDPM(MI:MFL:MDD:MDL:'*DIAG':'*':CSC:MK:EC);
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& ERR11: Send *ESCAPE Message <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR11           b                   export
+     d                 pi
+     d  MI                            7    const
+     d  MF                           10    const options(*omit:*nopass)
+     d  MD                          128    const options(*nopass)
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          reset MFL;
+          reset MDD;
+          reset MDL;
+          CSC = GetCSE1();
+          //================================================
+          select;
+             when %parms = 2;
+                  MFL = MF+'*LIBL';
+             when %parms = 3;
+                  if %addr(MF) <> *NULL;
+                     MFL = MF+'*LIBL';
+                  endif;
+                  MDD = %trim(MD);
+                  MDL = %len(%trim(MDD));
+          endsl;
+          //================================================
+          QMHSNDPM(MI:MFL:MDD:MDL:'*ESCAPE':'*':CSC:MK:EC);
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& ERR12: Send *INFO Message to *EXT <<<<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR12           b                   export
+     d                 pi
+     d  MI                            7    const
+     d  MF                           10    const options(*omit:*nopass)
+     d  MD                          128    const options(*nopass)
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          reset MFL;
+          reset MDD;
+          reset MDL;
+          //================================================
+          select;
+             when %parms = 2;
+                  MFL = MF+'*LIBL';
+             when %parms = 3;
+                  if %addr(MF) <> *NULL;
+                     MFL = MF+'*LIBL';
+                  endif;
+                  MDD = %trim(MD);
+                  MDL = %len(%trim(MDD));
+          endsl;
+          //================================================
+          QMHSNDPM(MI:MFL:MDD:MDL:'*INFO':'*EXT':0:MK:EC);
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& ERR13: Send *STATUS Message to *EXT <<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR13           b                   export
+     d                 pi
+     d  MI                            7    const
+     d  MF                           10    const options(*omit:*nopass)
+     d  MD                          128    const options(*nopass)
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          reset MFL;
+          reset MDD;
+          reset MDL;
+          //================================================
+          select;
+             when %parms = 2;
+                  MFL = MF+'*LIBL';
+             when %parms = 3;
+                  if %addr(MF) <> *NULL;
+                     MFL = MF+'*LIBL';
+                  endif;
+                  MDD = %trim(MD);
+                  MDL = %len(%trim(MDD));
+          endsl;
+          //================================================
+          QMHSNDPM(MI:MFL:MDD:MDL:'*STATUS':'*EXT':0:MK:EC);
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& ERR14: Send *INFO to *SYSOPR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p ERR14           b                   export
+     d                 pi
+     d  MI                            7    const
+     d  MF                           10    const options(*omit:*nopass)
+     d  MD                          128    const options(*nopass)
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          select;
+             when %parms = 2;
+                  MFL = MF+'*LIBL';
+             when %parms = 3;
+                  if %addr(MF) <> *NULL;
+                     MFL = MF+'*LIBL';
+                  endif;
+                  MDD = %trim(MD);
+                  MDL = %len(%trim(MDD));
+          endsl;
+          //================================================
+          QMHSNDM(MI:MFL:MDD:MDL:'*INFO':'*SYSOPR':1:' ':MK:EC);
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================

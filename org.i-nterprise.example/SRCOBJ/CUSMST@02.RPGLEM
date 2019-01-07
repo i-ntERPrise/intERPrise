@@ -1,0 +1,265 @@
+      *===============================================================
+      *
+      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+      *  Created by AO Foundation - www.adsero-optima.com
+      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+      *
+      *  Licensed under the Apache License, Version 2.0 (the "License");
+      *  you may not use this file except in compliance with the License.
+      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+      *
+      *  Unless required by applicable law or agreed to in writing, software
+      *  distributed under the License is distributed on an "AS IS" BASIS,
+      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      *  See the License for the specific language governing permissions and
+      *  limitations under the License.
+      *
+      *  The above copyright notice and this permission notice shall be included in all
+      *  copies or substantial portions of the Software.
+      *
+      *                      http://www.adsero-optima.com/
+      *
+      *===============================================================
+     h nomain aut(*use) extbinint(*yes) option(*nodebugio) debug
+      *& Exported Symbols ============================================
+      * EXPORT SYMBOL(CUSMST@02A)     /* Add Customer Record              */
+      * EXPORT SYMBOL(CUSMST@02B)     /* Update Customer Record           */
+      * EXPORT SYMBOL(CUSMST@02C)     /* Delete Customer Record           */
+      * EXPORT SYMBOL(CUSMST@02D)     /* Display Customer Record          */
+      *& Prototypes ==================================================
+     d*AddCus          pr                  extproc('CUSMST@02A')
+     d CUSMST@02A      pr
+     d*UpdCus          pr                  extproc('CUSMST@02B')
+     d CUSMST@02B      pr
+     d*DltCus          pr                  extproc('CUSMST@02C')
+     d CUSMST@02C      pr
+     d*DspCus          pr                  extproc('CUSMST@02D')
+     d CUSMST@02D      pr
+      *& Copy Books ==================================================
+      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+      /copy SRCCPY,ERR11                         Send *ESCAPE Message
+      /copy SRCCPY,CMD                           Execute Command - Processor
+      /copy SRCCPY,CUSMSTF@                      IOS [PLKR] import
+      *& Prototypes ==================================================
+     d ALPHAU          pr                  extproc('AOOSRV@02A')
+     d  UIName                       50    const
+     d  DBName                       10    const
+     d ALPHA           pr                  extproc('AOOSRV@02B')
+     d  UIName                       50    const
+     d  DBName                       10    const
+     d NUMERIC         pr                  extproc('AOOSRV@02C')
+     d  UIName                       50    const
+     d  DBName                       10    const
+     d DATEISO         pr                  extproc('AOOSRV@02D')
+     d  UIName                       50    const
+     d  DBName                       10    const
+      *===============================================================
+     d NextElm         pr          1024    extproc('DRVSRV@02G')
+     d PutField        pr                  extproc('DRVSRV@02H')
+     d  CharField                  1024    options(*varsize)
+      *===============================================================
+     d NextKV          pr                  extproc('DRVSRV@02F')
+     d LoadCUSMSTFK    pr
+     d LoadCUSMSTFR    pr
+     d LoadJSON        pr
+      *& Global Definitions ==========================================
+     d KV              ds                  import qualified
+     d  Key                         256    varying
+     d  Value                       256    varying
+      *===============================================================
+     d IDP             s               *   import
+     d IDLen           s             10i 0 based(IDP)
+     d InpDataP        s               *   import
+     d InpData         s           4096    based(InpDataP)
+     d InpData1        s              1    based(InpDataP)
+      *===============================================================
+     d ODP             s               *   import
+     d ODLen           s             10i 0 based(ODP)
+     d OutDataP        s               *   import
+     d OutData         s           4096    based(OutDataP)
+      *===============================================================
+     d NoRecs          s             10i 0
+      *===============================================================
+      *& Add Customer Record >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+     p CUSMST@02A      b                   export
+      *=====================================================
+      /free
+       //===================================================
+       monitor;
+          //================================================
+          NextKV();
+          //================================================
+          if KV.Key <> 'Columns' or KV.Value <> '[';
+             ERR11('ERR0070':'ERRMSGF':'Add');
+          endif;
+          //================================================
+          LoadCUSMSTFR();
+          CUSMSTF@('I');
+          CUSMSTF@('R');
+          LoadJSON();
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Update Customer Record >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+     p CUSMST@02B      b                   export
+      *=====================================================
+      /free
+       //===================================================
+       monitor;
+          //================================================
+          NextKV();
+          //================================================
+          if KV.Key <> 'Columns' or KV.Value <> '[';
+             ERR11('ERR0070':'ERRMSGF':'Upd');
+          endif;
+          //================================================
+          LoadCUSMSTFR();
+          CUSMSTF@('U');
+          CUSMSTF@('R');
+          LoadJSON();
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Delete Customer Record >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+     p CUSMST@02C      b                   export
+      *=====================================================
+      /free
+       //===================================================
+       monitor;
+          //================================================
+          NextKV();
+          //================================================
+          if KV.Key <> 'Keys' or KV.Value <> '[';
+             ERR11('ERR0070':'ERRMSGF':'Dlt');
+          endif;
+          //================================================
+          LoadCUSMSTFK();
+          CUSMSTF@('R':CUSMSTFK);
+          CUSMSTF@('D':CUSMSTFK);
+          LoadJSON();
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Display Customer Record >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+     p CUSMST@02D      b                   export
+      *=====================================================
+      /free
+       //===================================================
+       monitor;
+          //================================================
+          NextKV();
+          //================================================
+          if KV.Key <> 'Keys' or KV.Value <> '[';
+             ERR11('ERR0070':'ERRMSGF':'Dsp');
+          endif;
+          //================================================
+          LoadCUSMSTFK();
+          CUSMSTF@('R':CUSMSTFK);
+          LoadJSON();
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Load CUSMSTFK from JSON Array (Keys)
+     p LoadCUSMSTFK    b
+      *=====================================================
+      /free
+       //===================================================
+       monitor;
+          //================================================
+          clear CUSMSTFK;
+          CUSMSTFK.CUSTNO = %int(NextElm());
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Load CUSMSTFR from JSON Array (Columns)
+     p LoadCUSMSTFR    b
+      *=====================================================
+      /free
+       //===================================================
+       monitor;
+          //================================================
+          clear CUSMSTFR;
+          CUSMSTFR.CUSTNO = %int(NextElm());
+          CUSMSTFR.RECSTS = NextElm();
+          CUSMSTFR.CUSNME = NextElm();
+          CUSMSTFR.ADRLN1 = NextElm();
+          CUSMSTFR.ADRLN2 = NextElm();
+          CUSMSTFR.ADRLN3 = NextElm();
+          CUSMSTFR.PSTCDE = NextElm();
+          CUSMSTFR.STRDTE = %date(NextElm());
+          CUSMSTFR.PHONEN = NextElm();
+          CUSMSTFR.REPCDE = %int(NextElm());
+          CUSMSTFR.USERID = NextElm();
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Load JSON Array from CUSMSTFR
+     p LoadJSON        b
+      *=====================================================
+      /free
+       //===================================================
+       monitor;
+          //================================================
+          OutData  = '"Columns":[';
+          OutDataP += %len(%trim(OutData));
+          //================================================
+          OutData  = '"' + %trim(%char(CUSMSTFR.CUSTNO)) + '",';
+          OutDataP += %len(%trim(OutData));
+          OutData  = '"' + %trim(CUSMSTFR.RECSTS) + '",';
+          OutDataP += %len(%trim(OutData));
+          OutData  = '"' + %trim(CUSMSTFR.CUSNME) + '",';
+          OutDataP += %len(%trim(OutData));
+          OutData  = '"' + %trim(CUSMSTFR.ADRLN1) + '",';
+          OutDataP += %len(%trim(OutData));
+          OutData  = '"' + %trim(CUSMSTFR.ADRLN2) + '",';
+          OutDataP += %len(%trim(OutData));
+          OutData  = '"' + %trim(CUSMSTFR.ADRLN3) + '",';
+          OutDataP += %len(%trim(OutData));
+          OutData  = '"' + %trim(CUSMSTFR.PSTCDE) + '",';
+          OutDataP += %len(%trim(OutData));
+          OutData  = '"' + %trim(%char(CUSMSTFR.STRDTE:*ISO)) + '",';
+          OutDataP += %len(%trim(OutData));
+          OutData  = '"' + %trim(CUSMSTFR.PHONEN) + '",';
+          OutDataP += %len(%trim(OutData));
+          OutData  = '"' + %trim(%char(CUSMSTFR.REPCDE)) + '",';
+          OutDataP += %len(%trim(OutData));
+          OutData  = '"' + %trim(CUSMSTFR.USERID) + '"]}';
+          OutDataP += %len(%trim(OutData));
+          //================================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================

@@ -1,0 +1,5 @@
+      */copy SRCCPY,$A6C6A9                       STRDTE: Comencement Date
+     d $STRDTE         pr
+     d  Event                         1
+     d  oSTRDTE                        d
+     d  nSTRDTE                        d

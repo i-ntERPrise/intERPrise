@@ -1,0 +1,9 @@
+      */copy SRCCPY,CUSMSTF@                      IOS [PLKR] import
+     d CUSMSTF@        pr              n
+     d  Action                        5    const
+     d  RecKey                             const options(*nopass) like(CUSMSTFK)
+     d CUSMSTFP        s               *   import
+     d CUSMSTFL        s             10I 0 inz(%size(CUSMSTFR))
+     d CUSMSTFK      e ds                    extname(CUSMSTF:*KEY) qualified
+     d CUSMSTFR      e ds                    extname(CUSMSTF)      qualified
+     d                                         based(CUSMSTFP)

@@ -1,0 +1,5 @@
+      */copy SRCCPY,$A6C6A3                       RECSTS : Record Status
+     d $RECSTS         pr
+     d  Event                         1
+     d  oRECSTS                       2
+     d  nRECSTS                       2

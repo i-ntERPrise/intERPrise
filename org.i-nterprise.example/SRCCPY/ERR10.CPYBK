@@ -1,0 +1,5 @@
+      */copy SRCCPY,ERR10                         Send *DIAG Message
+     d ERR10           pr
+     d  MI                            7    const
+     d  MF                           10    const options(*omit:*nopass)
+     d  MD                          128    const options(*nopass)

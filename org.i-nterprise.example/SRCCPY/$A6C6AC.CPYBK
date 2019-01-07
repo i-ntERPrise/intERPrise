@@ -1,0 +1,5 @@
+      */copy SRCCPY,$A6C6AC                       USERID : Last User Id.
+     d $USERID         pr
+     d  Event                         1
+     d  oUSERID                      10
+     d  nUSERID                      10

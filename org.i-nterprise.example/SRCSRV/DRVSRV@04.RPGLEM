@@ -1,0 +1,149 @@
+      *& Apache License
+      *===============================================================
+      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+      *  Created by AO Foundation - www.adsero-optima.com
+      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+      *
+      *  Licensed under the Apache License, Version 2.0 (the "License");
+      *  you may not use this file except in compliance with the License.
+      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+      *
+      *  Unless required by applicable law or agreed to in writing, software
+      *  distributed under the License is distributed on an "AS IS" BASIS,
+      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      *  See the License for the specific language governing permissions and
+      *  limitations under the License.
+      *
+      *  The above copyright notice and this permission notice shall be included in all
+      *  copies or substantial portions of the Software.
+      *
+      *                      http://www.adsero-optima.com/
+      *& Exported Symbols ============================================
+      *   EXPORT SYMBOL(DRVSRV@04A)     /* Confirm & Identify JSON Object   */
+      *   EXPORT SYMBOL(DRVSRV@04B)     /* Error Response Processing        */
+      *===============================================================
+     h nomain aut(*use)
+      *& Copy Books ==================================================
+      /copy SRCCPY,API_EC                        API Error Data Structure
+      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+      /copy SRCCPY,ERR072                        0/1=Rcv. *LAST Msg.Id.+Text(*REMOVE)-2
+      /copy SRCCPY,ERR11                         Send *ESCAPE Message
+      /copy SRCCPY,CMD                           Execute Command - Processor
+      *& Prototypes ==================================================
+     d*Identify        pr             3    extproc('DRVSRV@04A')
+     d DRVSRV@04A      pr             3
+     d*ErrorResp       pr                  extproc('DRVSRV@04B')
+     d DRVSRV@04B      pr
+      *& Global Definitions ==========================================
+     d NextKV          pr                  extproc('DRVSRV@02F')
+      *===============================================================
+     d KV              ds                  import qualified
+     d  Key                         256    varying
+     d  Value                       256    varying
+      *===============================================================
+     d IDP             s               *   import
+     d IDLen           s             10i 0 based(IDP)
+     d InpDataP        s               *   import
+     d InpData         s           4096    based(InpDataP)
+     d InpData1        s              1    based(InpDataP)
+     d InpData3        s              3    based(InpDataP)
+     d InpData4        s            128    based(InpDataP)
+      *===============================================================
+     d ODP             s               *   import
+     d ODLen           s             10i 0 based(ODP)
+     d OutDataP        s               *   import
+     d OutData         s           4096    based(OutDataP)
+      *===============================================================
+     d Pos             s             10i 0
+      *& Confirm & Identify JSON Object <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     p DRVSRV@04A      b                   export
+     d                 pi             3
+      *=====================================================
+      /free
+       monitor;
+          //================================================
+          Pos = %scan('{':%subst(InpData:1:50));
+          //===============================================
+          if Pos = 0;  //? Not a JSON Object !
+             ERR11('ERR0010':'ERRMSGF');
+          else;
+             InpDataP += Pos;
+          endif;
+          //===============================================
+          NextKV();
+          //===============================================
+          if KV.Key <> 'Handle';
+             ERR11('ERR0020':'ERRMSGF');
+          endif;
+          //===============================================
+          NextKV();
+          //===============================================
+          if KV.Key <> 'Action';
+             ERR11('ERR0040':'ERRMSGF');
+          endif;
+          //===============================================
+          OutData  = '{"Handle":"******",' +
+                      '"Error":"N",' +
+                      '"MsgDta":"",';
+          OutDataP += %len(%trim(OutData));
+          //===============================================
+          select;
+              when KV.Value = 'Filter';
+                   return 'Flt';
+              when KV.Value = 'Add';
+                   return 'Add';
+              when KV.Value = 'Upd';
+                   return 'Upd';
+              when KV.Value = 'Dlt';
+                   return 'Dlt';
+              when KV.Value = 'Dsp';
+                   return 'Dsp';
+              other;
+                   ERR11('ERR0050':'ERRMSGF');
+          endsl;
+          //===============================================
+          return '   ';
+          //===============================================
+       on-error;
+          ERR03();
+       endmon;
+      /end-free
+      *=====================================================
+     p                 e
+      *===============================================================
+      *& Error Response Processing <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      *===============================================================
+     p DRVSRV@04B      b                   export
+      *===============================================================
+     d MsgId           s              7
+     d MsgText         s            132
+     d NoErr           s              5i 0
+      *====================================================
+      /free
+       //==================================================
+       monitor;
+          //===============================================
+          OutData  = '{"Handle":"******","Error":"Y","MsgDta":[';
+          OutDataP += %len(%trim(OutData));
+          //===============================================
+          dow ERR072(MsgId:MsgText); // Fetch *LAST Error
+              NoErr += 1;
+              if NoErr > 1;
+                 OutData = ',["'+MsgId+'-'+%trim(MsgText)+'"]';
+              else;
+                 OutData = '["'+MsgId+'-'+%trim(MsgText)+'"]';
+              endif;
+              OutDataP += %len(%trim(OutData));
+          enddo;
+          //===============================================
+          OutData = ']}';
+          OutDataP += 2;
+          ODLen = (OutDataP - (ODP+4));
+          //===============================================
+       on-error;
+          ERR03();
+       endmon;
+       //==================================================
+      /end-free
+     p                 e
+      *?==============================================================

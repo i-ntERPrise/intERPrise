@@ -1,0 +1,5 @@
+      */copy SRCCPY,$A6C6A8                       PSTCDE : Post Code
+     d $PSTCDE         pr
+     d  Event                         1
+     d  oPSTCDE                       5
+     d  nPSTCDE                       5

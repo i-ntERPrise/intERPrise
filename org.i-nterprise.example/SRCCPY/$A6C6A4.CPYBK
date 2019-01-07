@@ -1,0 +1,5 @@
+      */copy SRCCPY,$A6C6A4                       CUSNME : Customer Name
+     d $CUSNME         pr
+     d  Event                         1
+     d  oCUSNME                      30
+     d  nCUSNME                      30

@@ -1,0 +1,5 @@
+      */copy SRCCPY,ERR22                         Retrieve Message Help MD=2048 RETURN=3000
+     d ERR22           pr          3000
+     d  MI                            7    const
+     d  MF                           10    const options(*omit:*nopass)
+     d  MD                         2048    const options(*nopass)
