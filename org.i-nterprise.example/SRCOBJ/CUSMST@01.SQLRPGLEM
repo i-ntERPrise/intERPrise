@@ -1,0 +1,168 @@
+000100181221      *& Apache License
+000200181221      *===============================================================
+000300181221      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+000400181221      *  Created by AO Foundation - www.adsero-optima.com
+000500181221      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+000600181221      *
+000700181221      *  Licensed under the Apache License, Version 2.0 (the "License");
+000800181221      *  you may not use this file except in compliance with the License.
+000900181221      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+001000181221      *
+001100181221      *  Unless required by applicable law or agreed to in writing, software
+001200181221      *  distributed under the License is distributed on an "AS IS" BASIS,
+001300181221      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+001400181221      *  See the License for the specific language governing permissions and
+001500181221      *  limitations under the License.
+001600181221      *
+001700181221      *  The above copyright notice and this permission notice shall be included in all
+001800181221      *  copies or substantial portions of the Software.
+001900181221      *
+002000181221      *                      http://www.adsero-optima.com/
+002100181221      *& Exported Symbols ============================================
+002200181221      *   EXPORT SYMBOL(CUSMST@01A)     /* Process "Filter" Request         */
+002300181111      *===============================================================
+002400180226     h nomain aut(*use) extbinint(*yes) option(*nodebugio) debug
+002500181221      *& Copy Books ==================================================
+002600181221      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+002700181221      /copy SRCCPY,ERR11                         Send *ESCAPE Message
+002800181221      /copy SRCCPY,ERR50                         Convert SQLSTATE to Error Message
+002900181221      /copy SRCCPY,CMD                           Execute Command - Processor
+003000180928      *& Prototypes ==================================================
+003100180928     d*Filter          pr                  extproc('CUSMST@01A')
+003200180928     d CUSMST@01A      pr
+003300181227     d ALPHAU          pr                  extproc('DRVSRV@02A')
+003400180928     d  UIName                       50    const
+003500180928     d  DBName                       10    const
+003600181227     d ALPHA           pr                  extproc('DRVSRV@02B')
+003700180928     d  UIName                       50    const
+003800180928     d  DBName                       10    const
+003900181227     d NUMERIC         pr                  extproc('DRVSRV@02C')
+004000180928     d  UIName                       50    const
+004100180928     d  DBName                       10    const
+004200181227     d DATEISO         pr                  extproc('DRVSRV@02D')
+004300180928     d  UIName                       50    const
+004400180928     d  DBName                       10    const
+004500180928      *===============================================================
+004600181227     d Encode          pr           256    extproc('DRVSRV@02E') varying
+004700180928     d  Value                       256    options(*varsize)
+004800180928     d  Length                        5i 0 const
+004900180928      *===============================================================
+005000180928     d AddRow          pr
+005100181227      *& Global Definitions ==========================================
+005200181228     d CUSMSTFR      e ds                  extname(CUSMSTF) qualified
+005300181227      *===============================================================
+005400180928     d SQL$P           s               *   import
+005500180928     d SQL$            s           4096    varying based(SQL$P)
+005600180928     d SQLEXE          s           4096
+005700180928      *===============================================================
+005800181227     d ODP             s               *   import
+005900190124     d OutData         s           4096    based(ODP)
+006000180928      *===============================================================
+006100180928     d NoRecs          s             10i 0
+006200180928      *===============================================================
+006300180928      *& Procedures ==================================================
+006400180928      *& Process "Filter" Request >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+006500180928     p CUSMST@01A      b                   export
+006600180226      *=====================================================
+006700180226      /free
+006800180928       //===================================================
+006900180226       monitor;
+007000180928          exec sql set option commit=*none, datfmt=*iso, datsep='-';
+007100180928          // Create Reusable ODP Control Data Area
+007200180929          Cmd('CRTDTAARA QTEMP/QSQPSCLS1 TYPE(*CHAR) LEN(1) VALUE()' +
+007300180929              ' TEXT(''' + 'Reusable ODP Control' + ''')');
+007400180928       on-error;
+007500180928       endmon;
+007600180928       //==================================================
+007700180928       monitor;
+007800180928          //================================================
+007900180928          clear SQL$;
+008000180924          //================================================
+008100180928          NUMERIC('CUSTNO':'CUSTNO');
+008200180928          ALPHAU('RECSTS':'RECSTS');
+008300180928          ALPHAU('CUSNME':'CUSNME');
+008400180928          ALPHAU('ADRLN1':'ADRLN1');
+008500180928          ALPHAU('ADRLN2':'ADRLN2');
+008600180928          ALPHAU('ADRLN3':'ADRLN3');
+008700180928          ALPHAU('PSTCDE':'PSTCDE');
+008800180928          DATEISO('STRDTE':'STRDTE');
+008900180928          ALPHAU('PHONEN':'PHONEN');
+009000180928          NUMERIC('REPCDE':'REPCDE');
+009100180928          ALPHAU('USERID':'USERID');
+009200180928          //================================================
+009300180928          if %len(SQL$) = 0;
+009400180928             SQLEXE = 'SELECT * FROM CUSMSTF ORDER BY CUSTNO';
+009500180928          else;
+009600180928             SQLEXE = 'SELECT * FROM CUSMSTF WHERE ' + %trim(SQL$) +
+009700180928                      ' ORDER BY CUSTNO ';
+009800180928          endif;
+009900180924          //================================================
+010000180928          exec sql prepare CUSMSTF_S from :SQLEXE;
+010100180928          exec sql declare CUSMSTF_C cursor for CUSMSTF_S;
+010200180928          exec sql open    CUSMSTF_C;
+010300180928          //================================================
+010400180928          clear NoRecs;
+010500180928          CAPtr = %addr(SQLCA);
+010600180928          //================================================
+010700180928          OutData   = '"Rows":[';
+010800190124          ODP += 8;
+010900180928          //================================================
+011000180928          dow 0 = 0;
+011100180928              exec sql fetch next from CUSMSTF_C into :CUSMSTFR;
+011200180928              if not ERR50(CAPtr);
+011300180928                 if NoRecs = 0;
+011400180928                    ERR11('ERR0060':'ERRMSGF');
+011500180928                 else;
+011600180928                    leave;
+011700180928                 endif;
+011800180928              else;
+011900180928                 NoRecs += 1;
+012000180928                 AddRow();
+012100180928              endif;
+012200180928          enddo;
+012300180226          //================================================
+012400180928          OutData = ']}';
+012500190124          ODP += 2;
+012600180928          //================================================
+012700180928          exec sql close CUSMSTF_C;
+012800180928          //================================================
+012900180226       on-error;
+013000180924          ERR03();
+013100180226       endmon;
+013200180226      /end-free
+013300180226      *=====================================================
+013400180423     p                 e
+013500180226      *===============================================================
+013600180928      *& Add Row to Response Data <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+013700180928      *===============================================================
+013800180928     p AddRow          b
+013900180928      *=====================================================
+014000180928      /free
+014100180928       monitor;
+014200180928          //================================================
+014300180928          if NoRecs > 1;
+014400180928             OutData = ',';
+014500190124             ODP += 1;
+014600180928          endif;
+014700180928          //================================================
+014800180928          OutData = '["'+%char(CUSMSTFR.CUSTNO)+'","'+
+014900180928                         %trim(CUSMSTFR.RECSTS)+'","'+
+015000180928                        Encode(CUSMSTFR.CUSNME:30)+'","'+
+015100180928                        Encode(CUSMSTFR.ADRLN1:30)+'","'+
+015200180928                        Encode(CUSMSTFR.ADRLN2:30)+'","'+
+015300180928                        Encode(CUSMSTFR.ADRLN3:30)+'","'+
+015400180928                        Encode(CUSMSTFR.PSTCDE:5)+'","'+
+015500180928                         %char(CUSMSTFR.STRDTE:*ISO)+'","'+
+015600180928                         %trim(CUSMSTFR.PHONEN)+'","'+
+015700180928                         %char(CUSMSTFR.REPCDE)+'","'+
+015800180928                         %trim(CUSMSTFR.USERID)+'"]';
+015900180928          //================================================
+016000190124          ODP += %len(%trim(OutData));
+016100180928          //================================================
+016200180928       on-error;
+016300180928          ERR03();
+016400180928       endmon;
+016500180928      /end-free
+016600180928      *=====================================================
+016700180928     p                 e
+016800180928      *===============================================================

@@ -1,77 +1,77 @@
-      *& Apache License
-      *===============================================================
-      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
-      *  Created by AO Foundation - www.adsero-optima.com
-      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
-      *
-      *  Licensed under the Apache License, Version 2.0 (the "License");
-      *  you may not use this file except in compliance with the License.
-      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-      *
-      *  Unless required by applicable law or agreed to in writing, software
-      *  distributed under the License is distributed on an "AS IS" BASIS,
-      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-      *  See the License for the specific language governing permissions and
-      *  limitations under the License.
-      *
-      *  The above copyright notice and this permission notice shall be included in all
-      *  copies or substantial portions of the Software.
-      *
-      *                      http://www.adsero-optima.com/
-      *===============================================================
-     h nomain aut(*use)
-      *===============================================================
-      *& Open Source Error Handlers #05
-      *  EXPORT SYMBOL(ERR50)  /* Convert SQLSTATE to Error Message  */
-      *& Copy Books ==================================================
-      /copy SRCCPY,API_EC                        API Error Data Structure
-      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
-      /copy SRCCPY,ERR11                         Send *ESCAPE Message
-      /copy SRCCPY,ERR50                         Convert SQLSTATE to Error Message
-      *& Data Definitions ============================================
-     d SQLCA           ds
-     d  SQLAID                        8
-     d  SQLABC                       10i 0
-     d  SQLCODE                      10i 0
-     d  SQLMSGL                       5i 0
-     d  SQLMSGD                      70
-     d  SQLERRP                       8
-     d  SQLERRD                      10i 0 dim(6)
-     d  SQLWARN                       1    dim(11)
-     d  SQLSTATE                      5
-      *===============================================================
-      *& ERR50: Convert SQLSTATE to Error Message <<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR50           b                   export
-     d ERR50           pi              n
-     d  Ptr                            *   const
-      *=====================================================
-     d SQLMSG          ds             7
-     d  C3                     3      3
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          CAPtr = Ptr;
-          //================================================
-          select;
-             when SQLCODE = 100;
-                  return *off;
-             when SQLCODE >= 0;
-                  return *on;
-          endsl;
-          //================================================
-          SQLMSG = 'SQ' + %subst(%editc(%abs(SQLCODE):'X'):6:5);
-          if C3 = '0';
-             C3 = 'L';
-          endif;
-          //================================================
-          ERR11(SQLMSG:'QSQLMSG':%subst(SQLMSGD:1:SQLMSGL));
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *=====================================================================
+000100181221      *& Apache License
+000200181221      *===============================================================
+000300181221      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+000400181221      *  Created by AO Foundation - www.adsero-optima.com
+000500181221      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+000600181221      *
+000700181221      *  Licensed under the Apache License, Version 2.0 (the "License");
+000800181221      *  you may not use this file except in compliance with the License.
+000900181221      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+001000181221      *
+001100181221      *  Unless required by applicable law or agreed to in writing, software
+001200181221      *  distributed under the License is distributed on an "AS IS" BASIS,
+001300181221      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+001400181221      *  See the License for the specific language governing permissions and
+001500181221      *  limitations under the License.
+001600181221      *
+001700181221      *  The above copyright notice and this permission notice shall be included in all
+001800181221      *  copies or substantial portions of the Software.
+001900181221      *
+002000181221      *                      http://www.adsero-optima.com/
+002100181221      *===============================================================
+002200121016     h nomain aut(*use)
+002300121016      *===============================================================
+002400180922      *& Open Source Error Handlers #05
+002500181203      *  EXPORT SYMBOL(ERR50)  /* Convert SQLSTATE to Error Message  */
+002600181221      *& Copy Books ==================================================
+002700181221      /copy SRCCPY,API_EC                        API Error Data Structure
+002800181221      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+002900181221      /copy SRCCPY,ERR11                         Send *ESCAPE Message
+003000181221      /copy SRCCPY,ERR50                         Convert SQLSTATE to Error Message
+003100181221      *& Data Definitions ============================================
+003200181203     d SQLCA           ds
+003300121016     d  SQLAID                        8
+003400121016     d  SQLABC                       10i 0
+003500121016     d  SQLCODE                      10i 0
+003600121016     d  SQLMSGL                       5i 0
+003700121016     d  SQLMSGD                      70
+003800121016     d  SQLERRP                       8
+003900121016     d  SQLERRD                      10i 0 dim(6)
+004000121016     d  SQLWARN                       1    dim(11)
+004100121016     d  SQLSTATE                      5
+004200121016      *===============================================================
+004300180922      *& ERR50: Convert SQLSTATE to Error Message <<<<<<<<<<<<<<<<<<<<
+004400121016      *===============================================================
+004500180922     p ERR50           b                   export
+004600180922     d ERR50           pi              n
+004700180922     d  Ptr                            *   const
+004800121016      *=====================================================
+004900121016     d SQLMSG          ds             7
+005000121016     d  C3                     3      3
+005100121016      *=====================================================
+005200121016      /free
+005300121016       monitor;
+005400121016          //================================================
+005500180922          CAPtr = Ptr;
+005600180922          //================================================
+005700121016          select;
+005800180501             when SQLCODE = 100;
+005900180501                  return *off;
+006000180501             when SQLCODE >= 0;
+006100180501                  return *on;
+006200121016          endsl;
+006300121016          //================================================
+006400121016          SQLMSG = 'SQ' + %subst(%editc(%abs(SQLCODE):'X'):6:5);
+006500121016          if C3 = '0';
+006600121016             C3 = 'L';
+006700121016          endif;
+006800121016          //================================================
+006900180922          ERR11(SQLMSG:'QSQLMSG':%subst(SQLMSGD:1:SQLMSGL));
+007000121016          //================================================
+007100121016       on-error;
+007200180922          ERR03();
+007300121016       endmon;
+007400121016      /end-free
+007500180414      *=====================================================
+007600180501     p                 e
+007700121016      *=====================================================================

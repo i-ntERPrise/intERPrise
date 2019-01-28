@@ -1,174 +1,174 @@
-      *& Apache License
-      *===============================================================
-      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
-      *  Created by AO Foundation - www.adsero-optima.com
-      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
-      *
-      *  Licensed under the Apache License, Version 2.0 (the "License");
-      *  you may not use this file except in compliance with the License.
-      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-      *
-      *  Unless required by applicable law or agreed to in writing, software
-      *  distributed under the License is distributed on an "AS IS" BASIS,
-      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-      *  See the License for the specific language governing permissions and
-      *  limitations under the License.
-      *
-      *  The above copyright notice and this permission notice shall be included in all
-      *  copies or substantial portions of the Software.
-      *
-      *                      http://www.adsero-optima.com/
-      *===============================================================
-     h nomain aut(*use)
-      *===============================================================
-      *& Open Source Error Handlers #03
-      *  EXPORT SYMBOL(RTVCSTK00) /* Basic Current Job Information - Returns Internal Job Id (16)*/
-      *  EXPORT SYMBOL(GetCSE1)   /* Retrieve Target CSE for Error Handlers                      */
-      *  EXPORT SYMBOL(PEP)       /* Check if CSE is PEP                                         */
-      * These routines are used exclusively by the other "Error Handler" modules
-      * and will not be used by external programs, Therefore no CPYBK's are provided.
-      *& Copy Books ==================================================
-      /copy SRCCPY,API_EC                        API Error Data Structure
-      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
-      *& Data Definitions ============================================
-     d RTVCSTK00       pr
-     d GetCSE1         pr            10i 0
-     d PEP             pr              n
-      *===============================================================
-     d QWVRCSTK        pr                  extpgm('QWVRCSTK')
-     d  Rcvr                       4096    options(*varsize)
-     d  RcvrL                        10i 0
-     d  RcvFmt                        8    const
-     d  JobIdInf                     26    const options(*varsize)
-     d  JobIdFmt                      8    const
-     d  ErrorCode                          like(EC)
-      *++++++++
-     d JobIdInf        ds
-     d  JobName                      10    inz('*')
-     d  UserName                     10    inz(' ')
-     d  JobNo                         6    inz(' ')
-     d  IntJobId                     16    inz(' ')
-     d  Rsvd1                         2    inz(x'0000')
-     d  ThreadInd                    10i 0 inz(1)
-     d  ThreadId                      8    inz(x'0000000000000000')
-      *++++++++
-     d CS0100P         s               *   inz(%addr(CS0100))
-     d CS0100L         s             10i 0 inz(%len(CS0100))
-     d CS0100          ds         65534
-     d   BytesRet                    10i 0
-     d   BytesAvail                  10i 0
-     d   NoEntriesTh                 10i 0
-     d   CallStackOS                 10i 0
-     d   NoEntriesRet                10i 0
-     d   ThreadIdRet                  8
-     d   InfStatus                    1
-     d   Resvd                        1
-      *  ++++++++
-     d CSEntryP        s               *
-     d CSE             ds         65535    based(CSEntryP) qualified
-     d  Length                       10i 0
-     d  StmIdOS                      10i 0
-     d  StmIdNo                      10i 0
-     d  ProcNameOS                   10i 0
-     d  ProcNameLen                  10i 0
-     d  ReqLev                       10i 0
-     d  ProgName                     10
-     d  ProgLib                      10
-     d  MIInstrNo                    10i 0
-     d  ModName                      10
-     d  ModLib                       10
-     d  CntrlBndry                    1
-     d  Resvd                         3
-     d  ActGrpNo                     10u 0
-     d  ActGrpName                   10
-     d  Resvd2                        2
-     d  ProgASPName                  10
-     d  ProgLibName                  10
-     d  ProgASPNo                    10i 0
-     d  ProgLibASPNo                 10i 0
-     d  ActGrpNoLong                 20u 0
-      *   Reserved CHAR(*)
-      *   Statement identifiers  ARRAY(*) of CHAR(10)
-      *   Procedure name  CHAR(*)
-      *++++++++
-     d ProcNameP       s               *
-     d ProcName        s            256    based(ProcNameP)
-     d Procedure       s            256
-      *===============================================================
-      *& RTVCSTK00: Retrieve Call Stack Procedures <<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p RTVCSTK00       b                   export
-      *=====================================================
-     d I               s             10i 0
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          QWVRCSTK(CS0100:CS0100L:'CSTK0100':JobIdInf:'JIDF0100':EC);
-          CSEntryP = CS0100P+CallStackOS;
-          //================================================
-          for I = 1 to NoEntriesRet;
-              ProcNameP = CSEntryP + CSE.ProcNameOS;
-              Procedure = %subst(ProcName:1:CSE.ProcNameLen);
-              CSEntryP += CSE.Length;
-          endfor;
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-          //================================================
-      /end-free
-      *=====================================================
-     p RTVCSTK00       e
-      *===============================================================
-      *& GetCSE1: Retrieve Target CSE for Error Handlers <<<<<<<<<<<<<
-      *===============================================================
-     p GetCSE1         b                   export
-     d GetCSE1         pi            10i 0
-      *=====================================================
-     d I               s             10i 0
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          QWVRCSTK(CS0100:CS0100L:'CSTK0100':JobIdInf:'JIDF0100':EC);
-          CSEntryP = CS0100P+CallStackOS;
-          CSEntryP += CSE.Length;
-          CSEntryP += CSE.Length;
-          //================================================
-          if PEP();
-             return 3;
-          else;
-             return 2;
-          endif;
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p GetCSE1         e
-      *===============================================================
-      *& PEP: Check if CSE is PEP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p PEP             b                   export
-     d PEP             pi              n
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          ProcNameP = CSEntryP + CSE.ProcNameOS;
-          Procedure = %subst(ProcName:1:CSE.ProcNameLen);
-          if %scan('PEP':Procedure) <> 0;
-              return *on;
-          else;
-              return *off;
-          endif;
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p PEP             e
-      *===============================================================
+000100181221      *& Apache License
+000200181221      *===============================================================
+000300181221      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+000400181221      *  Created by AO Foundation - www.adsero-optima.com
+000500181221      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+000600181221      *
+000700181221      *  Licensed under the Apache License, Version 2.0 (the "License");
+000800181221      *  you may not use this file except in compliance with the License.
+000900181221      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+001000181221      *
+001100181221      *  Unless required by applicable law or agreed to in writing, software
+001200181221      *  distributed under the License is distributed on an "AS IS" BASIS,
+001300181221      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+001400181221      *  See the License for the specific language governing permissions and
+001500181221      *  limitations under the License.
+001600181221      *
+001700181221      *  The above copyright notice and this permission notice shall be included in all
+001800181221      *  copies or substantial portions of the Software.
+001900181221      *
+002000181221      *                      http://www.adsero-optima.com/
+002100181221      *===============================================================
+002200180413     h nomain aut(*use)
+002300180413      *===============================================================
+002400180922      *& Open Source Error Handlers #03
+002500181203      *  EXPORT SYMBOL(RTVCSTK00) /* Basic Current Job Information - Returns Internal Job Id (16)*/
+002600181203      *  EXPORT SYMBOL(GetCSE1)   /* Retrieve Target CSE for Error Handlers                      */
+002700181203      *  EXPORT SYMBOL(PEP)       /* Check if CSE is PEP                                         */
+002800180922      * These routines are used exclusively by the other "Error Handler" modules
+002900181203      * and will not be used by external programs, Therefore no CPYBK's are provided.
+003000181221      *& Copy Books ==================================================
+003100181221      /copy SRCCPY,API_EC                        API Error Data Structure
+003200181221      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+003300181221      *& Data Definitions ============================================
+003400180413     d RTVCSTK00       pr
+003500180413     d GetCSE1         pr            10i 0
+003600180413     d PEP             pr              n
+003700181221      *===============================================================
+003800121016     d QWVRCSTK        pr                  extpgm('QWVRCSTK')
+003900121016     d  Rcvr                       4096    options(*varsize)
+004000121016     d  RcvrL                        10i 0
+004100121016     d  RcvFmt                        8    const
+004200121016     d  JobIdInf                     26    const options(*varsize)
+004300121016     d  JobIdFmt                      8    const
+004400121016     d  ErrorCode                          like(EC)
+004500121016      *++++++++
+004600121016     d JobIdInf        ds
+004700121016     d  JobName                      10    inz('*')
+004800121016     d  UserName                     10    inz(' ')
+004900121016     d  JobNo                         6    inz(' ')
+005000121016     d  IntJobId                     16    inz(' ')
+005100121016     d  Rsvd1                         2    inz(x'0000')
+005200121016     d  ThreadInd                    10i 0 inz(1)
+005300121016     d  ThreadId                      8    inz(x'0000000000000000')
+005400121016      *++++++++
+005500121016     d CS0100P         s               *   inz(%addr(CS0100))
+005600121016     d CS0100L         s             10i 0 inz(%len(CS0100))
+005700121016     d CS0100          ds         65534
+005800121016     d   BytesRet                    10i 0
+005900121016     d   BytesAvail                  10i 0
+006000121016     d   NoEntriesTh                 10i 0
+006100121016     d   CallStackOS                 10i 0
+006200121016     d   NoEntriesRet                10i 0
+006300121016     d   ThreadIdRet                  8
+006400121016     d   InfStatus                    1
+006500121016     d   Resvd                        1
+006600121016      *  ++++++++
+006700121016     d CSEntryP        s               *
+006800121016     d CSE             ds         65535    based(CSEntryP) qualified
+006900121016     d  Length                       10i 0
+007000121016     d  StmIdOS                      10i 0
+007100121016     d  StmIdNo                      10i 0
+007200121016     d  ProcNameOS                   10i 0
+007300121016     d  ProcNameLen                  10i 0
+007400121016     d  ReqLev                       10i 0
+007500121016     d  ProgName                     10
+007600121016     d  ProgLib                      10
+007700121016     d  MIInstrNo                    10i 0
+007800121016     d  ModName                      10
+007900121016     d  ModLib                       10
+008000121016     d  CntrlBndry                    1
+008100121016     d  Resvd                         3
+008200121016     d  ActGrpNo                     10u 0
+008300121016     d  ActGrpName                   10
+008400121016     d  Resvd2                        2
+008500121016     d  ProgASPName                  10
+008600121016     d  ProgLibName                  10
+008700121016     d  ProgASPNo                    10i 0
+008800121016     d  ProgLibASPNo                 10i 0
+008900121016     d  ActGrpNoLong                 20u 0
+009000121016      *   Reserved CHAR(*)
+009100121016      *   Statement identifiers  ARRAY(*) of CHAR(10)
+009200121016      *   Procedure name  CHAR(*)
+009300121016      *++++++++
+009400121016     d ProcNameP       s               *
+009500121016     d ProcName        s            256    based(ProcNameP)
+009600121016     d Procedure       s            256
+009700180413      *===============================================================
+009800180413      *& RTVCSTK00: Retrieve Call Stack Procedures <<<<<<<<<<<<<<<<<<<
+009900180413      *===============================================================
+010000121016     p RTVCSTK00       b                   export
+010100180413      *=====================================================
+010200121016     d I               s             10i 0
+010300180413      *=====================================================
+010400121016      /free
+010500121016       monitor;
+010600180413          //================================================
+010700121016          QWVRCSTK(CS0100:CS0100L:'CSTK0100':JobIdInf:'JIDF0100':EC);
+010800121016          CSEntryP = CS0100P+CallStackOS;
+010900180413          //================================================
+011000121016          for I = 1 to NoEntriesRet;
+011100121016              ProcNameP = CSEntryP + CSE.ProcNameOS;
+011200121016              Procedure = %subst(ProcName:1:CSE.ProcNameLen);
+011300121016              CSEntryP += CSE.Length;
+011400121016          endfor;
+011500180413          //================================================
+011600121016       on-error;
+011700180922          ERR03();
+011800121016       endmon;
+011900180413          //================================================
+012000121016      /end-free
+012100180413      *=====================================================
+012200121016     p RTVCSTK00       e
+012300180413      *===============================================================
+012400180413      *& GetCSE1: Retrieve Target CSE for Error Handlers <<<<<<<<<<<<<
+012500180413      *===============================================================
+012600121016     p GetCSE1         b                   export
+012700121016     d GetCSE1         pi            10i 0
+012800180413      *=====================================================
+012900121016     d I               s             10i 0
+013000180413      *=====================================================
+013100121016      /free
+013200121016       monitor;
+013300180413          //================================================
+013400121016          QWVRCSTK(CS0100:CS0100L:'CSTK0100':JobIdInf:'JIDF0100':EC);
+013500121016          CSEntryP = CS0100P+CallStackOS;
+013600180420          CSEntryP += CSE.Length;
+013700180420          CSEntryP += CSE.Length;
+013800180413          //================================================
+013900180413          if PEP();
+014000180413             return 3;
+014100180413          else;
+014200180413             return 2;
+014300121016          endif;
+014400180413          //================================================
+014500121016       on-error;
+014600180922          ERR03();
+014700121016       endmon;
+014800121016      /end-free
+014900180413      *=====================================================
+015000121016     p GetCSE1         e
+015100180413      *===============================================================
+015200180413      *& PEP: Check if CSE is PEP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+015300180413      *===============================================================
+015400121016     p PEP             b                   export
+015500121016     d PEP             pi              n
+015600180413      *=====================================================
+015700121016      /free
+015800121016       monitor;
+015900180413          //================================================
+016000121016          ProcNameP = CSEntryP + CSE.ProcNameOS;
+016100121016          Procedure = %subst(ProcName:1:CSE.ProcNameLen);
+016200121016          if %scan('PEP':Procedure) <> 0;
+016300180413              return *on;
+016400121016          else;
+016500180413              return *off;
+016600121016          endif;
+016700180413          //================================================
+016800121016       on-error;
+016900180922          ERR03();
+017000121016       endmon;
+017100121016      /end-free
+017200180413      *=====================================================
+017300121016     p PEP             e
+017400180413      *===============================================================

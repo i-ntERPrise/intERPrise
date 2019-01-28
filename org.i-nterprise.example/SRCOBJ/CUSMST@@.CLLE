@@ -1,35 +1,35 @@
-/*======================================================================================*/
-/* Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.                              */
-/* Created by AO Foundation - www.adsero-optima.com                                     */
-/* Original TEMPLATE author: Tommy Atkins - Chief Development Officer                   */
-/*                                                                                      */
-/* Licensed under the Apache License, Version 2.0 (the "License");                      */
-/* you may not use this file except in compliance with the License.                     */
-/* You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0   */
-/*                                                                                      */
-/* Unless required by applicable law or agreed to in writing, software                  */
-/* distributed under the License is distributed on an "AS IS" BASIS,                    */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.             */
-/* See the License for the specific language governing permissions and                  */
-/* limitations under the License.                                                       */
-/*                                                                                      */
-/* The above copyright notice and this permission notice shall be included in all       */
-/* copies or substantial portions of the Software.                                      */
-/*                                                                                      */
-/*                     http://www.adsero-optima.com/                                    */
-/*======================================================================================*/
-             PGM
-             CRTSRVPGM  SRVPGM(IRPEXP/CUSMST@@) +
-                        MODULE(CUSMST@01 +
-                               CUSMST@02 +
-                              ) +
-                        BNDSRVPGM((ERRSRV@@) +
-                                  (DRVSRV@@) +
-                                  (CUSIOS@@) +
-                                 ) +
-                        EXPORT(*SRCFILE) +
-                        SRCFILE(IRPEXP/SRCOBJ) +
-                        SRCMBR(CUSMST@$) +
-                        TEXT('Customer Master Enterprize Services') +
-                        USRPRF(*OWNER)
-             ENDPGM
+000100181111/*======================================================================================*/
+000200181111/* Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.                              */
+000300181111/* Created by AO Foundation - www.adsero-optima.com                                     */
+000400181111/* Original TEMPLATE author: Tommy Atkins - Chief Development Officer                   */
+000500181111/*                                                                                      */
+000600181111/* Licensed under the Apache License, Version 2.0 (the "License");                      */
+000700181111/* you may not use this file except in compliance with the License.                     */
+000800181111/* You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0   */
+000900181111/*                                                                                      */
+001000181111/* Unless required by applicable law or agreed to in writing, software                  */
+001100181111/* distributed under the License is distributed on an "AS IS" BASIS,                    */
+001200181111/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.             */
+001300181111/* See the License for the specific language governing permissions and                  */
+001400181111/* limitations under the License.                                                       */
+001500181111/*                                                                                      */
+001600181111/* The above copyright notice and this permission notice shall be included in all       */
+001700181111/* copies or substantial portions of the Software.                                      */
+001800181111/*                                                                                      */
+001900181111/*                     http://www.adsero-optima.com/                                    */
+002000181111/*======================================================================================*/
+002100181111             PGM
+002200181227             CRTSRVPGM  SRVPGM(IRPEXP/CUSMST@@) +
+002300180930                        MODULE(CUSMST@01 +
+002400181002                               CUSMST@02 +
+002500150922                              ) +
+002600180925                        BNDSRVPGM((ERRSRV@@) +
+002700181227                                  (DRVSRV@@) +
+002800181002                                  (CUSIOS@@) +
+002900180413                                 ) +
+003000150922                        EXPORT(*SRCFILE) +
+003100181227                        SRCFILE(IRPEXP/SRCOBJ) +
+003200181001                        SRCMBR(CUSMST@$) +
+003300180930                        TEXT('Customer Master Enterprize Services') +
+003400150922                        USRPRF(*OWNER)
+003500150922             ENDPGM

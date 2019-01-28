@@ -1,36 +1,36 @@
-/*====================================================================================*/
-/*  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.                           */
-/*  Created by AO Foundation - www.adsero-optima.com                                  */
-/*  Original TEMPLATE author: Tommy Atkins - Chief Development Officer                */
-/*                                                                                    */
-/*  Licensed under the Apache License, Version 2.0 (the "License");                   */
-/*  you may not use this file except in compliance with the License.                  */
-/*  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0*/
-/*                                                                                    */
-/*  Unless required by applicable law or agreed to in writing, software               */
-/*  distributed under the License is distributed on an "AS IS" BASIS,                 */
-/*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.          */
-/*  See the License for the specific language governing permissions and               */
-/*  limitations under the License.                                                    */
-/*                                                                                    */
-/*  The above copyright notice and this permission notice shall be included in all    */
-/*  copies or substantial portions of the Software.                                   */
-/*                                                                                    */
-/*                      http://www.adsero-optima.com/                                 */
-/*====================================================================================*/
-             PGM
-             CRTSRVPGM  SRVPGM(IRPEXP/ERRSRV@@) +
-                        MODULE(ERRSRV@01 +
-                               ERRSRV@02 +
-                               ERRSRV@03 +
-                               ERRSRV@04 +
-                               ERRSRV@05 +
-                              ) +
-                        BNDSRVPGM( +
-                                 ) +
-                        EXPORT(*SRCFILE) +
-                        SRCFILE(IRPEXP/SRCSRV) +
-                        SRCMBR(ERRSRV$$) +
-                        TEXT('Open Source Error Handlers') +
-                        USRPRF(*OWNER)
-             ENDPGM
+000100181221/*====================================================================================*/
+000200181209/*  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.                           */
+000300181209/*  Created by AO Foundation - www.adsero-optima.com                                  */
+000400181209/*  Original TEMPLATE author: Tommy Atkins - Chief Development Officer                */
+000500181209/*                                                                                    */
+000600181209/*  Licensed under the Apache License, Version 2.0 (the "License");                   */
+000700181209/*  you may not use this file except in compliance with the License.                  */
+000800181209/*  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0*/
+000900181209/*                                                                                    */
+001000181209/*  Unless required by applicable law or agreed to in writing, software               */
+001100181209/*  distributed under the License is distributed on an "AS IS" BASIS,                 */
+001200181209/*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.          */
+001300181209/*  See the License for the specific language governing permissions and               */
+001400181209/*  limitations under the License.                                                    */
+001500181209/*                                                                                    */
+001600181209/*  The above copyright notice and this permission notice shall be included in all    */
+001700181209/*  copies or substantial portions of the Software.                                   */
+001800181209/*                                                                                    */
+001900181209/*                      http://www.adsero-optima.com/                                 */
+002000181221/*====================================================================================*/
+002100181012             PGM
+002200181221             CRTSRVPGM  SRVPGM(IRPEXP/ERRSRV@@) +
+002300180922                        MODULE(ERRSRV@01 +
+002400180922                               ERRSRV@02 +
+002500180922                               ERRSRV@03 +
+002600180922                               ERRSRV@04 +
+002700180922                               ERRSRV@05 +
+002800130902                              ) +
+002900180414                        BNDSRVPGM( +
+003000180414                                 ) +
+003100130902                        EXPORT(*SRCFILE) +
+003200181221                        SRCFILE(IRPEXP/SRCSRV) +
+003300180922                        SRCMBR(ERRSRV$$) +
+003400180922                        TEXT('Open Source Error Handlers') +
+003500130902                        USRPRF(*OWNER)
+003600130902             ENDPGM

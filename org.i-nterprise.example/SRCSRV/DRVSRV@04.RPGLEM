@@ -1,149 +1,158 @@
-      *& Apache License
-      *===============================================================
-      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
-      *  Created by AO Foundation - www.adsero-optima.com
-      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
-      *
-      *  Licensed under the Apache License, Version 2.0 (the "License");
-      *  you may not use this file except in compliance with the License.
-      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-      *
-      *  Unless required by applicable law or agreed to in writing, software
-      *  distributed under the License is distributed on an "AS IS" BASIS,
-      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-      *  See the License for the specific language governing permissions and
-      *  limitations under the License.
-      *
-      *  The above copyright notice and this permission notice shall be included in all
-      *  copies or substantial portions of the Software.
-      *
-      *                      http://www.adsero-optima.com/
-      *& Exported Symbols ============================================
-      *   EXPORT SYMBOL(DRVSRV@04A)     /* Confirm & Identify JSON Object   */
-      *   EXPORT SYMBOL(DRVSRV@04B)     /* Error Response Processing        */
-      *===============================================================
-     h nomain aut(*use)
-      *& Copy Books ==================================================
-      /copy SRCCPY,API_EC                        API Error Data Structure
-      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
-      /copy SRCCPY,ERR072                        0/1=Rcv. *LAST Msg.Id.+Text(*REMOVE)-2
-      /copy SRCCPY,ERR11                         Send *ESCAPE Message
-      /copy SRCCPY,CMD                           Execute Command - Processor
-      *& Prototypes ==================================================
-     d*Identify        pr             3    extproc('DRVSRV@04A')
-     d DRVSRV@04A      pr             3
-     d*ErrorResp       pr                  extproc('DRVSRV@04B')
-     d DRVSRV@04B      pr
-      *& Global Definitions ==========================================
-     d NextKV          pr                  extproc('DRVSRV@02F')
-      *===============================================================
-     d KV              ds                  import qualified
-     d  Key                         256    varying
-     d  Value                       256    varying
-      *===============================================================
-     d IDP             s               *   import
-     d IDLen           s             10i 0 based(IDP)
-     d InpDataP        s               *   import
-     d InpData         s           4096    based(InpDataP)
-     d InpData1        s              1    based(InpDataP)
-     d InpData3        s              3    based(InpDataP)
-     d InpData4        s            128    based(InpDataP)
-      *===============================================================
-     d ODP             s               *   import
-     d ODLen           s             10i 0 based(ODP)
-     d OutDataP        s               *   import
-     d OutData         s           4096    based(OutDataP)
-      *===============================================================
-     d Pos             s             10i 0
-      *& Confirm & Identify JSON Object <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-     p DRVSRV@04A      b                   export
-     d                 pi             3
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          Pos = %scan('{':%subst(InpData:1:50));
-          //===============================================
-          if Pos = 0;  //? Not a JSON Object !
-             ERR11('ERR0010':'ERRMSGF');
-          else;
-             InpDataP += Pos;
-          endif;
-          //===============================================
-          NextKV();
-          //===============================================
-          if KV.Key <> 'Handle';
-             ERR11('ERR0020':'ERRMSGF');
-          endif;
-          //===============================================
-          NextKV();
-          //===============================================
-          if KV.Key <> 'Action';
-             ERR11('ERR0040':'ERRMSGF');
-          endif;
-          //===============================================
-          OutData  = '{"Handle":"******",' +
-                      '"Error":"N",' +
-                      '"MsgDta":"",';
-          OutDataP += %len(%trim(OutData));
-          //===============================================
-          select;
-              when KV.Value = 'Filter';
-                   return 'Flt';
-              when KV.Value = 'Add';
-                   return 'Add';
-              when KV.Value = 'Upd';
-                   return 'Upd';
-              when KV.Value = 'Dlt';
-                   return 'Dlt';
-              when KV.Value = 'Dsp';
-                   return 'Dsp';
-              other;
-                   ERR11('ERR0050':'ERRMSGF');
-          endsl;
-          //===============================================
-          return '   ';
-          //===============================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& Error Response Processing <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p DRVSRV@04B      b                   export
-      *===============================================================
-     d MsgId           s              7
-     d MsgText         s            132
-     d NoErr           s              5i 0
-      *====================================================
-      /free
-       //==================================================
-       monitor;
-          //===============================================
-          OutData  = '{"Handle":"******","Error":"Y","MsgDta":[';
-          OutDataP += %len(%trim(OutData));
-          //===============================================
-          dow ERR072(MsgId:MsgText); // Fetch *LAST Error
-              NoErr += 1;
-              if NoErr > 1;
-                 OutData = ',["'+MsgId+'-'+%trim(MsgText)+'"]';
-              else;
-                 OutData = '["'+MsgId+'-'+%trim(MsgText)+'"]';
-              endif;
-              OutDataP += %len(%trim(OutData));
-          enddo;
-          //===============================================
-          OutData = ']}';
-          OutDataP += 2;
-          ODLen = (OutDataP - (ODP+4));
-          //===============================================
-       on-error;
-          ERR03();
-       endmon;
-       //==================================================
-      /end-free
-     p                 e
-      *?==============================================================
+000100181221      *& Apache License
+000200181221      *===============================================================
+000300181221      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+000400181221      *  Created by AO Foundation - www.adsero-optima.com
+000500181221      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+000600181221      *
+000700181221      *  Licensed under the Apache License, Version 2.0 (the "License");
+000800181221      *  you may not use this file except in compliance with the License.
+000900181221      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+001000181221      *
+001100181221      *  Unless required by applicable law or agreed to in writing, software
+001200181221      *  distributed under the License is distributed on an "AS IS" BASIS,
+001300181221      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+001400181221      *  See the License for the specific language governing permissions and
+001500181221      *  limitations under the License.
+001600181221      *
+001700181221      *  The above copyright notice and this permission notice shall be included in all
+001800181221      *  copies or substantial portions of the Software.
+001900181221      *
+002000181221      *                      http://www.adsero-optima.com/
+002100181221      *& Exported Symbols ============================================
+002200181227      *   EXPORT SYMBOL(DRVSRV@04A)     /* Confirm & Identify JSON Object   */
+002300181227      *   EXPORT SYMBOL(DRVSRV@04B)     /* Error Response Processing        */
+002400181108      *===============================================================
+002500190121     h nomain aut(*use) extbinint(*yes) option(*nodebugio) debug
+002600181221      *& Copy Books ==================================================
+002700181221      /copy SRCCPY,API_EC                        API Error Data Structure
+002800181221      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+002900181221      /copy SRCCPY,ERR072                        0/1=Rcv. *LAST Msg.Id.+Text(*REMOVE)-2
+003000181221      /copy SRCCPY,ERR11                         Send *ESCAPE Message
+003100181221      /copy SRCCPY,CMD                           Execute Command - Processor
+003200190124      *===============================================================
+003300190124     d iWebPL          ds                  import
+003400190124     d  Action                        7
+003500190124     d  Applic                         *
+003600190124     d  QueCtl                       20
+003700190124     d  InpLen                       10i 0
+003800190124     d  InpPtr                         *
+003900190124     d  OutLen                       10i 0
+004000190124     d  OutPtr                         *
+004100180926      *& Prototypes ==================================================
+004200181227     d*Identify        pr             3    extproc('DRVSRV@04A')
+004300181227     d DRVSRV@04A      pr             3
+004400181227     d*ErrorResp       pr                  extproc('DRVSRV@04B')
+004500181227     d DRVSRV@04B      pr
+004600180926      *& Global Definitions ==========================================
+004700181227     d NextKV          pr                  extproc('DRVSRV@02F')
+004800180926      *===============================================================
+004900181003     d KV              ds                  import qualified
+005000180926     d  Key                         256    varying
+005100180926     d  Value                       256    varying
+005200180925      *===============================================================
+005300181227     d IDP             s               *   import
+005400190124     d InpData         s           4096    based(IDP)
+005500190124     d InpData1        s              1    based(IDP)
+005600190124     d InpData3        s              3    based(IDP)
+005700190124     d InpData4        s            128    based(IDP)
+005800181227      *===============================================================
+005900181227     d ODP             s               *   import
+006000190124     d OutData         s           4096    based(ODP)
+006100181001      *===============================================================
+006200180926     d Pos             s             10i 0
+006300180928      *& Confirm & Identify JSON Object <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+006400181227     p DRVSRV@04A      b                   export
+006500180925     d                 pi             3
+006600160608      *=====================================================
+006700160608      /free
+006800160608       monitor;
+006900160608          //================================================
+007000180927          Pos = %scan('{':%subst(InpData:1:50));
+007100180925          //===============================================
+007200180925          if Pos = 0;  //? Not a JSON Object !
+007300180925             ERR11('ERR0010':'ERRMSGF');
+007400180925          else;
+007500190124             IDP += Pos;
+007600180925          endif;
+007700180925          //===============================================
+007800180926          NextKV();
+007900180926          //===============================================
+008000181227          if KV.Key <> 'Handle';
+008100180926             ERR11('ERR0020':'ERRMSGF');
+008200180926          endif;
+008300180926          //===============================================
+008400180926          NextKV();
+008500180926          //===============================================
+008600180926          if KV.Key <> 'Action';
+008700180926             ERR11('ERR0040':'ERRMSGF');
+008800180926          endif;
+008900180926          //===============================================
+009000181001          OutData  = '{"Handle":"******",' +
+009100181001                      '"Error":"N",' +
+009200181227                      '"MsgDta":"",';
+009300190124          ODP     += %len(%trim(OutData));
+009400181001          //===============================================
+009500180926          select;
+009600180929              when KV.Value = 'Filter';
+009700180929                   return 'Flt';
+009800180926              when KV.Value = 'Add';
+009900180929                   return 'Add';
+010000180926              when KV.Value = 'Upd';
+010100180929                   return 'Upd';
+010200180926              when KV.Value = 'Dlt';
+010300180929                   return 'Dlt';
+010400180926              when KV.Value = 'Dsp';
+010500180929                   return 'Dsp';
+010600180926              other;
+010700180926                   ERR11('ERR0050':'ERRMSGF');
+010800180926          endsl;
+010900180926          //===============================================
+011000180926          return '   ';
+011100180926          //===============================================
+011200180926       on-error;
+011300180926          ERR03();
+011400180926       endmon;
+011500180926      /end-free
+011600180926      *=====================================================
+011700180926     p                 e
+011800180926      *===============================================================
+011900180930      *& Error Response Processing <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+012000180930      *===============================================================
+012100181227     p DRVSRV@04B      b                   export
+012200180930      *===============================================================
+012300180930     d MsgId           s              7
+012400180930     d MsgText         s            132
+012500180930     d NoErr           s              5i 0
+012600180930      *====================================================
+012700180930      /free
+012800180930       //==================================================
+012900180930       monitor;
+013000180930          //===============================================
+013100190127          OutLen = 0;
+013101190127          ODP    = OutPtr;
+013102190127          clear    OutData;
+013200190121          //===============================================
+013300180930          OutData  = '{"Handle":"******","Error":"Y","MsgDta":[';
+013400190124          ODP     += %len(%trim(OutData));
+013500180930          //===============================================
+013600181003          dow ERR072(MsgId:MsgText); // Fetch *LAST Error
+013700181003              NoErr += 1;
+013800181003              if NoErr > 1;
+013900181003                 OutData = ',["'+MsgId+'-'+%trim(MsgText)+'"]';
+014000181003              else;
+014100181003                 OutData = '["'+MsgId+'-'+%trim(MsgText)+'"]';
+014200181003              endif;
+014300190124              ODP += %len(%trim(OutData));
+014400180930          enddo;
+014500180930          //===============================================
+014600180930          OutData = ']}';
+014700190124          ODP   += 2;
+014800190124          OutLen = (ODP - OutPtr);
+014900180930          //===============================================
+015000180930       on-error;
+015100180930          ERR03();
+015200180930       endmon;
+015300180930       //==================================================
+015400180930      /end-free
+015500180930     p                 e
+015600180930      *?==============================================================

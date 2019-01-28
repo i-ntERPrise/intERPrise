@@ -1,252 +1,252 @@
-      *& Apache License
-      *===============================================================
-      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
-      *  Created by AO Foundation - www.adsero-optima.com
-      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
-      *
-      *  Licensed under the Apache License, Version 2.0 (the "License");
-      *  you may not use this file except in compliance with the License.
-      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-      *
-      *  Unless required by applicable law or agreed to in writing, software
-      *  distributed under the License is distributed on an "AS IS" BASIS,
-      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-      *  See the License for the specific language governing permissions and
-      *  limitations under the License.
-      *
-      *  The above copyright notice and this permission notice shall be included in all
-      *  copies or substantial portions of the Software.
-      *
-      *                      http://www.adsero-optima.com/
-      *===============================================================
-     h nomain aut(*use)
-      *===============================================================
-      *& Open Source Error Handlers #02
-      *  EXPORT SYMBOL(ERR10)  /* Send *DIAG Message              */
-      *  EXPORT SYMBOL(ERR11)  /* Send *ESCAPE Message            */
-      *  EXPORT SYMBOL(ERR12)  /* Send *INFO Message to *EXT      */
-      *  EXPORT SYMBOL(ERR13)  /* Send *STATUS Message to *EXT    */
-      *  EXPORT SYMBOL(ERR14)  /* Send *INFO to *SYSOPR           */
-      *& Copy Books ==================================================
-      /copy SRCCPY,API_EC                        API Error Data Structure
-      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
-      /copy SRCCPY,ERR10                         Send *DIAG Message
-      /copy SRCCPY,ERR11                         Send *ESCAPE Message
-      /copy SRCCPY,ERR12                         Send *INFO Message to *EXT
-      /copy SRCCPY,ERR13                         Send *STATUS Message to *EXT
-      /copy SRCCPY,ERR14                         Send *INFO to *SYSOPR
-      *& Data Definitions ============================================
-     d GetCSE1         pr            10i 0
-      *===============================================================
-     d QMHSNDPM        pr                  extpgm('QMHSNDPM')
-     d  MsgId                         7    const
-     d  MsgFile                      20    const
-     d  MsgData                     128    const
-     d  MsgDataLen                   10i 0 const
-     d  MsgType                      10    const
-     d  CallStkEnt                   10    const
-     d  CSECount                     10i 0 const
-     d  MsgKey                        4
-     d  ErrorCode                          like(EC)
-      * Optional Parameter Group 1:
-     d* CSELength                    10i 0 const
-     d* CSEQual                      20    const
-     d* ScreenWait                   10i 0 const
-      * Optional Parameter Group 2:
-     d* CSEDataType                  10    const
-     d* CCSID                        10i 0 const
-      *===============================================================
-     d QMHSNDM         pr                  extpgm('QMHSNDM')
-     d  MsgId                         7    const
-     d  MsgFile                      20    const
-     d  MsgData                     128    const
-     d  MsgDataLen                   10i 0 const
-     d  MsgType                      10    const
-     d  MsgQ                         20    const
-     d  MsgQNo                       10i 0 const
-     d  RplMsgQ                      20    const
-     d  MsgKey                        4
-     d  ErrorCode                          like(EC)
-      * Optional Parameter Group 1:
-     d* CCSID                        10i 0 const
-      *===============================================================
-     d MK              s              4
-     d MFL             s             20    inz('ERRMSGF   *LIBL')
-     d CSC             s             10i 0 inz(1)
-     d CSEntQ          s             20    inz('*NONE     *NONE')
-     d MDD             s            128    inz(' ')
-     d MDL             s             10i 0 inz(1)
-      *===============================================================
-      *& ERR10: Send *DIAG Message <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR10           b                   export
-     d                 pi
-     d  MI                            7    const
-     d  MF                           10    const options(*omit:*nopass)
-     d  MD                          128    const options(*nopass)
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          reset MFL;
-          reset MDD;
-          reset MDL;
-          CSC = GetCSE1();
-          //================================================
-          select;
-             when %parms = 2;
-                  MFL = MF+'*LIBL';
-             when %parms = 3;
-                  if %addr(MF) <> *NULL;
-                     MFL = MF+'*LIBL';
-                  endif;
-                  MDD = %trim(MD);
-                  MDL = %len(%trim(MDD));
-          endsl;
-          //================================================
-          QMHSNDPM(MI:MFL:MDD:MDL:'*DIAG':'*':CSC:MK:EC);
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& ERR11: Send *ESCAPE Message <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR11           b                   export
-     d                 pi
-     d  MI                            7    const
-     d  MF                           10    const options(*omit:*nopass)
-     d  MD                          128    const options(*nopass)
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          reset MFL;
-          reset MDD;
-          reset MDL;
-          CSC = GetCSE1();
-          //================================================
-          select;
-             when %parms = 2;
-                  MFL = MF+'*LIBL';
-             when %parms = 3;
-                  if %addr(MF) <> *NULL;
-                     MFL = MF+'*LIBL';
-                  endif;
-                  MDD = %trim(MD);
-                  MDL = %len(%trim(MDD));
-          endsl;
-          //================================================
-          QMHSNDPM(MI:MFL:MDD:MDL:'*ESCAPE':'*':CSC:MK:EC);
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& ERR12: Send *INFO Message to *EXT <<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR12           b                   export
-     d                 pi
-     d  MI                            7    const
-     d  MF                           10    const options(*omit:*nopass)
-     d  MD                          128    const options(*nopass)
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          reset MFL;
-          reset MDD;
-          reset MDL;
-          //================================================
-          select;
-             when %parms = 2;
-                  MFL = MF+'*LIBL';
-             when %parms = 3;
-                  if %addr(MF) <> *NULL;
-                     MFL = MF+'*LIBL';
-                  endif;
-                  MDD = %trim(MD);
-                  MDL = %len(%trim(MDD));
-          endsl;
-          //================================================
-          QMHSNDPM(MI:MFL:MDD:MDL:'*INFO':'*EXT':0:MK:EC);
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& ERR13: Send *STATUS Message to *EXT <<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR13           b                   export
-     d                 pi
-     d  MI                            7    const
-     d  MF                           10    const options(*omit:*nopass)
-     d  MD                          128    const options(*nopass)
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          reset MFL;
-          reset MDD;
-          reset MDL;
-          //================================================
-          select;
-             when %parms = 2;
-                  MFL = MF+'*LIBL';
-             when %parms = 3;
-                  if %addr(MF) <> *NULL;
-                     MFL = MF+'*LIBL';
-                  endif;
-                  MDD = %trim(MD);
-                  MDL = %len(%trim(MDD));
-          endsl;
-          //================================================
-          QMHSNDPM(MI:MFL:MDD:MDL:'*STATUS':'*EXT':0:MK:EC);
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& ERR14: Send *INFO to *SYSOPR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR14           b                   export
-     d                 pi
-     d  MI                            7    const
-     d  MF                           10    const options(*omit:*nopass)
-     d  MD                          128    const options(*nopass)
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          select;
-             when %parms = 2;
-                  MFL = MF+'*LIBL';
-             when %parms = 3;
-                  if %addr(MF) <> *NULL;
-                     MFL = MF+'*LIBL';
-                  endif;
-                  MDD = %trim(MD);
-                  MDL = %len(%trim(MDD));
-          endsl;
-          //================================================
-          QMHSNDM(MI:MFL:MDD:MDL:'*INFO':'*SYSOPR':1:' ':MK:EC);
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
+000100181221      *& Apache License
+000200181221      *===============================================================
+000300181221      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+000400181221      *  Created by AO Foundation - www.adsero-optima.com
+000500181221      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+000600181221      *
+000700181221      *  Licensed under the Apache License, Version 2.0 (the "License");
+000800181221      *  you may not use this file except in compliance with the License.
+000900181221      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+001000181221      *
+001100181221      *  Unless required by applicable law or agreed to in writing, software
+001200181221      *  distributed under the License is distributed on an "AS IS" BASIS,
+001300181221      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+001400181221      *  See the License for the specific language governing permissions and
+001500181221      *  limitations under the License.
+001600181221      *
+001700181221      *  The above copyright notice and this permission notice shall be included in all
+001800181221      *  copies or substantial portions of the Software.
+001900181221      *
+002000181221      *                      http://www.adsero-optima.com/
+002100181221      *===============================================================
+002200180413     h nomain aut(*use)
+002300180413      *===============================================================
+002400180922      *& Open Source Error Handlers #02
+002500181203      *  EXPORT SYMBOL(ERR10)  /* Send *DIAG Message              */
+002600181203      *  EXPORT SYMBOL(ERR11)  /* Send *ESCAPE Message            */
+002700181203      *  EXPORT SYMBOL(ERR12)  /* Send *INFO Message to *EXT      */
+002800181203      *  EXPORT SYMBOL(ERR13)  /* Send *STATUS Message to *EXT    */
+002900181203      *  EXPORT SYMBOL(ERR14)  /* Send *INFO to *SYSOPR           */
+003000181221      *& Copy Books ==================================================
+003100181221      /copy SRCCPY,API_EC                        API Error Data Structure
+003200181221      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+003300181221      /copy SRCCPY,ERR10                         Send *DIAG Message
+003400181221      /copy SRCCPY,ERR11                         Send *ESCAPE Message
+003500181221      /copy SRCCPY,ERR12                         Send *INFO Message to *EXT
+003600181221      /copy SRCCPY,ERR13                         Send *STATUS Message to *EXT
+003700181221      /copy SRCCPY,ERR14                         Send *INFO to *SYSOPR
+003800181221      *& Data Definitions ============================================
+003900180413     d GetCSE1         pr            10i 0
+004000180413      *===============================================================
+004100121016     d QMHSNDPM        pr                  extpgm('QMHSNDPM')
+004200121016     d  MsgId                         7    const
+004300121016     d  MsgFile                      20    const
+004400121016     d  MsgData                     128    const
+004500121016     d  MsgDataLen                   10i 0 const
+004600121016     d  MsgType                      10    const
+004700121016     d  CallStkEnt                   10    const
+004800121016     d  CSECount                     10i 0 const
+004900121016     d  MsgKey                        4
+005000121016     d  ErrorCode                          like(EC)
+005100121016      * Optional Parameter Group 1:
+005200121016     d* CSELength                    10i 0 const
+005300121016     d* CSEQual                      20    const
+005400121016     d* ScreenWait                   10i 0 const
+005500121016      * Optional Parameter Group 2:
+005600121016     d* CSEDataType                  10    const
+005700121016     d* CCSID                        10i 0 const
+005800180413      *===============================================================
+005900170905     d QMHSNDM         pr                  extpgm('QMHSNDM')
+006000170905     d  MsgId                         7    const
+006100170905     d  MsgFile                      20    const
+006200170905     d  MsgData                     128    const
+006300170905     d  MsgDataLen                   10i 0 const
+006400170905     d  MsgType                      10    const
+006500170905     d  MsgQ                         20    const
+006600170905     d  MsgQNo                       10i 0 const
+006700170905     d  RplMsgQ                      20    const
+006800170905     d  MsgKey                        4
+006900170905     d  ErrorCode                          like(EC)
+007000170905      * Optional Parameter Group 1:
+007100170905     d* CCSID                        10i 0 const
+007200180413      *===============================================================
+007300121016     d MK              s              4
+007400121016     d MFL             s             20    inz('ERRMSGF   *LIBL')
+007500121016     d CSC             s             10i 0 inz(1)
+007600121016     d CSEntQ          s             20    inz('*NONE     *NONE')
+007700121016     d MDD             s            128    inz(' ')
+007800180413     d MDL             s             10i 0 inz(1)
+007900180413      *===============================================================
+008000180922      *& ERR10: Send *DIAG Message <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+008100180413      *===============================================================
+008200180922     p ERR10           b                   export
+008300180922     d                 pi
+008400121016     d  MI                            7    const
+008500121016     d  MF                           10    const options(*omit:*nopass)
+008600180413     d  MD                          128    const options(*nopass)
+008700180413      *=====================================================
+008800121016      /free
+008900121016       monitor;
+009000180413          //================================================
+009100180413          reset MFL;
+009200180413          reset MDD;
+009300180413          reset MDL;
+009400180413          CSC = GetCSE1();
+009500180413          //================================================
+009600180413          select;
+009700180413             when %parms = 2;
+009800180413                  MFL = MF+'*LIBL';
+009900180413             when %parms = 3;
+010000180413                  if %addr(MF) <> *NULL;
+010100180413                     MFL = MF+'*LIBL';
+010200180413                  endif;
+010300180413                  MDD = %trim(MD);
+010400180413                  MDL = %len(%trim(MDD));
+010500180413          endsl;
+010600180413          //================================================
+010700180413          QMHSNDPM(MI:MFL:MDD:MDL:'*DIAG':'*':CSC:MK:EC);
+010800180413          //================================================
+010900121016       on-error;
+011000180922          ERR03();
+011100121016       endmon;
+011200121016      /end-free
+011300180413      *=====================================================
+011400180922     p                 e
+011500180413      *===============================================================
+011600180922      *& ERR11: Send *ESCAPE Message <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+011700180413      *===============================================================
+011800180922     p ERR11           b                   export
+011900180922     d                 pi
+012000121016     d  MI                            7    const
+012100121016     d  MF                           10    const options(*omit:*nopass)
+012200180413     d  MD                          128    const options(*nopass)
+012300180413      *=====================================================
+012400121016      /free
+012500121016       monitor;
+012600180413          //================================================
+012700180413          reset MFL;
+012800180413          reset MDD;
+012900180413          reset MDL;
+013000180413          CSC = GetCSE1();
+013100180413          //================================================
+013200180413          select;
+013300180413             when %parms = 2;
+013400180413                  MFL = MF+'*LIBL';
+013500180413             when %parms = 3;
+013600180413                  if %addr(MF) <> *NULL;
+013700180413                     MFL = MF+'*LIBL';
+013800180413                  endif;
+013900180413                  MDD = %trim(MD);
+014000180413                  MDL = %len(%trim(MDD));
+014100180413          endsl;
+014200180413          //================================================
+014300180413          QMHSNDPM(MI:MFL:MDD:MDL:'*ESCAPE':'*':CSC:MK:EC);
+014400180413          //================================================
+014500121016       on-error;
+014600180922          ERR03();
+014700121016       endmon;
+014800121016      /end-free
+014900180413      *=====================================================
+015000180922     p                 e
+015100180413      *===============================================================
+015200180922      *& ERR12: Send *INFO Message to *EXT <<<<<<<<<<<<<<<<<<<<<<<<<<<
+015300180413      *===============================================================
+015400180922     p ERR12           b                   export
+015500180922     d                 pi
+015600121016     d  MI                            7    const
+015700121016     d  MF                           10    const options(*omit:*nopass)
+015800180413     d  MD                          128    const options(*nopass)
+015900180413      *=====================================================
+016000121016      /free
+016100121016       monitor;
+016200180413          //================================================
+016300180413          reset MFL;
+016400180413          reset MDD;
+016500180413          reset MDL;
+016600180413          //================================================
+016700180413          select;
+016800180413             when %parms = 2;
+016900180413                  MFL = MF+'*LIBL';
+017000180413             when %parms = 3;
+017100180413                  if %addr(MF) <> *NULL;
+017200180413                     MFL = MF+'*LIBL';
+017300180413                  endif;
+017400180413                  MDD = %trim(MD);
+017500180413                  MDL = %len(%trim(MDD));
+017600180413          endsl;
+017700180413          //================================================
+017800180413          QMHSNDPM(MI:MFL:MDD:MDL:'*INFO':'*EXT':0:MK:EC);
+017900180413          //================================================
+018000121016       on-error;
+018100180922          ERR03();
+018200121016       endmon;
+018300121016      /end-free
+018400180413      *=====================================================
+018500180922     p                 e
+018600180413      *===============================================================
+018700180922      *& ERR13: Send *STATUS Message to *EXT <<<<<<<<<<<<<<<<<<<<<<<<<
+018800180413      *===============================================================
+018900180922     p ERR13           b                   export
+019000180922     d                 pi
+019100121016     d  MI                            7    const
+019200121016     d  MF                           10    const options(*omit:*nopass)
+019300180413     d  MD                          128    const options(*nopass)
+019400180413      *=====================================================
+019500121016      /free
+019600121016       monitor;
+019700180413          //================================================
+019800180413          reset MFL;
+019900180413          reset MDD;
+020000180413          reset MDL;
+020100180413          //================================================
+020200180413          select;
+020300180413             when %parms = 2;
+020400180413                  MFL = MF+'*LIBL';
+020500180413             when %parms = 3;
+020600180413                  if %addr(MF) <> *NULL;
+020700180413                     MFL = MF+'*LIBL';
+020800180413                  endif;
+020900180413                  MDD = %trim(MD);
+021000180413                  MDL = %len(%trim(MDD));
+021100180413          endsl;
+021200180413          //================================================
+021300180413          QMHSNDPM(MI:MFL:MDD:MDL:'*STATUS':'*EXT':0:MK:EC);
+021400180413          //================================================
+021500121016       on-error;
+021600180922          ERR03();
+021700121016       endmon;
+021800121016      /end-free
+021900180413      *=====================================================
+022000180922     p                 e
+022100180413      *===============================================================
+022200180922      *& ERR14: Send *INFO to *SYSOPR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+022300180413      *===============================================================
+022400180922     p ERR14           b                   export
+022500180922     d                 pi
+022600170905     d  MI                            7    const
+022700170905     d  MF                           10    const options(*omit:*nopass)
+022800170905     d  MD                          128    const options(*nopass)
+022900170905      *=====================================================
+023000170905      /free
+023100170905       monitor;
+023200170905          //================================================
+023300180413          select;
+023400180413             when %parms = 2;
+023500180413                  MFL = MF+'*LIBL';
+023600180413             when %parms = 3;
+023700180413                  if %addr(MF) <> *NULL;
+023800180413                     MFL = MF+'*LIBL';
+023900180413                  endif;
+024000180413                  MDD = %trim(MD);
+024100180413                  MDL = %len(%trim(MDD));
+024200180413          endsl;
+024300180413          //================================================
+024400180413          QMHSNDM(MI:MFL:MDD:MDL:'*INFO':'*SYSOPR':1:' ':MK:EC);
+024500170905          //================================================
+024600170905       on-error;
+024700180922          ERR03();
+024800170905       endmon;
+024900170905      /end-free
+025000180413      *=====================================================
+025100180922     p                 e
+025200180413      *===============================================================

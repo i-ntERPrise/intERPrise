@@ -1,131 +1,369 @@
-      *& Apache License
-      *===============================================================
-      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
-      *  Created by AO Foundation - www.adsero-optima.com
-      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
-      *
-      *  Licensed under the Apache License, Version 2.0 (the "License");
-      *  you may not use this file except in compliance with the License.
-      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-      *
-      *  Unless required by applicable law or agreed to in writing, software
-      *  distributed under the License is distributed on an "AS IS" BASIS,
-      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-      *  See the License for the specific language governing permissions and
-      *  limitations under the License.
-      *
-      *  The above copyright notice and this permission notice shall be included in all
-      *  copies or substantial portions of the Software.
-      *
-      *                      http://www.adsero-optima.com/
-      *& Exported Symbols ============================================
-      *   EXPORT SYMBOL(KV)                /* Key/Value DS                 */
-      *   EXPORT SYMBOL(SQL$P)             /* SQL String Pointer           */
-      *   EXPORT SYMBOL(IDP)               /* Input Data Pointer > Len     */
-      *   EXPORT SYMBOL(InpDataP)          /* Current Input Data Pointer   */
-      *   EXPORT SYMBOL(ODP)               /* OutPut Data Pointer > Len    */
-      *   EXPORT SYMBOL(OutDataP)          /* Current OutPut Data Pointer  */
-      *
-      *   EXPORT SYMBOL(GETSYS)            /* Get System Name              */
-      *   EXPORT SYMBOL(Cmd)               /* Execute Command              */
-      *   EXPORT SYMBOL(Initialize)        /* Initialize Exports           */
-      *===============================================================
-     h nomain aut(*use)
-      *& Copy Books ==================================================
-      /copy SRCCPY,API_EC                        API Error Data Structure
-      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
-      /copy SRCCPY,CMD                           Execute Command - Processor
-      *& Data Definitions ============================================
-     d GETSYS          pr             8
-     d Initialize      pr
-      *===============================================================
-     d KV              ds                  export qualified
-     d  Key                         256    varying
-     d  Value                       256    varying
-      *===============================================================
-     d QWCRNETA        pr                  extpgm('QWCRNETA')
-     d  RV                           20
-     d  RVL                          10i 0 const
-     d  NoAttr                       10i 0 const
-     d  Attr                         10    const
-     d  Err                                like(EC)
-      ***************
-     d RVP             s               *   inz(%addr(RV))
-     d RV              ds            40    qualified
-     d  NoAttr                       10i 0
-     d  AttrOS                       10i 0
-      *===============================================================
-     d SQL$P           s               *   inz(%addr(SQL$)) export
-     d SQL$            s           4096    varying
-      *===============================================================
-     d IDP             s               *   export
-     d IDLen           s             10i 0 based(IDP)
-     d InpDataP        s               *   export
-     d InpData         s           4096    based(InpDataP)
-      *===============================================================
-     d ODP             s               *   export
-     d ODLen           s             10i 0 based(ODP)
-     d OutDataP        s               *   export
-     d OutData         s           4096    based(OutDataP)
-      *===============================================================
-      *& Retrieve System Name <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p GETSYS          b                   export
-     d                 pi             8
-      *=====================================================
-     d NAP             s               *
-     d NA              ds                  based(NAP)
-     d  Attr                         10
-     d  DataT                         1
-     d  InfSts                        1
-     d  DataL                        10i 0
-     d  Data                          8
-      *=====================================================
-      /free
-       monitor;
-          QWCRNETA(RV:40:1:'SYSNAME':EC);
-          NAP = RVP + RV.AttrOS;
-          return Data;
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& Execute Command <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p Cmd             b                   export
-     d                 pi
-     d  Cmd$                       4096    const varying options(*varsize)
-      *=====================================================
-     d QCMDEXC         pr                  extpgm('QCMDEXC')
-     d                             4096    const options(*varsize)
-     d                               15p 5 const
-      *=====================================================
-      /free
-       //===================================================
-       monitor;
-          //================================================
-          QCMDEXC(Cmd$:%len(Cmd$));
-          //====ParmL=======================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-     p                 e
-      *===============================================================
-      *& Initialize <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p Initialize      b                   export
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-     p                 e
-      *===============================================================
+000100181221      *& Apache License
+000200181221      *===============================================================
+000300181108      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+000400181108      *  Created by AO Foundation - www.adsero-optima.com
+000500181108      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+000600181108      *
+000700181108      *  Licensed under the Apache License, Version 2.0 (the "License");
+000800181108      *  you may not use this file except in compliance with the License.
+000900181108      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+001000181108      *
+001100181108      *  Unless required by applicable law or agreed to in writing, software
+001200181108      *  distributed under the License is distributed on an "AS IS" BASIS,
+001300181108      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+001400181108      *  See the License for the specific language governing permissions and
+001500181108      *  limitations under the License.
+001600181108      *
+001700181108      *  The above copyright notice and this permission notice shall be included in all
+001800181108      *  copies or substantial portions of the Software.
+001900181108      *
+002000181108      *                      http://www.adsero-optima.com/
+002100181221      *& Exported Symbols ============================================
+002200190124      *   EXPORT SYMBOL(IWEBPL)            /* iWeb Parameter List          */
+002300190124      *   EXPORT SYMBOL(W)                 /* Working Data Structure       */
+002400190124      *   EXPORT SYMBOL(KV)                /* Key/Value Structure          */
+002500181221      *   EXPORT SYMBOL(SQL$P)             /* SQL String Pointer           */
+002600190124      *   EXPORT SYMBOL(IDP)               /* Current Input Data Pointer   */
+002700190124      *   EXPORT SYMBOL(ODP)               /* Current OutPut Data Pointer  */
+002800181221      *
+002900181221      *   EXPORT SYMBOL(GETSYS)            /* Get System Name              */
+003000181221      *   EXPORT SYMBOL(Cmd)               /* Execute Command              */
+003100181221      *   EXPORT SYMBOL(Initialize)        /* Initialize Exports           */
+003200190124      *   EXPORT SYMBOL(PrintAudit)        /* Print Audit Procedure        */
+003300181221      *===============================================================
+003400190121     h nomain aut(*use) extbinint(*yes) option(*nodebugio) debug
+003500190124      *===============================================================
+003600190124     fQSYSPRT   o    f  198        printer usropn oflind(*inof)
+003700181221      *& Copy Books ==================================================
+003800181221      /copy SRCCPY,API_EC                        API Error Data Structure
+003900181221      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+004000181221      /copy SRCCPY,CMD                           Execute Command - Processor
+004100181221      *& Data Definitions ============================================
+004200120324     d GETSYS          pr             8
+004300180925     d Initialize      pr
+004400190124     d  Pointer                        *
+004500181003      *===============================================================
+004600190124     d iWebPL          ds                  export qualified
+004700190124     d  Action                        7
+004800190124     d  Applic                         *
+004900190124     d  QueCtl                       20
+005000190124     d  InpLen                       10i 0
+005100190124     d  InpPtr                         *
+005200190124     d  OutLen                       10i 0
+005300190124     d  OutPtr                         *
+005400190124      *===============================================================
+005500190124     d W               ds                  export qualified
+005600190124     d  ProgName                     10
+005700190124     d  ProgDescr                    50
+005800190124     d  Audit                          n
+005900190124     d  Handle                        6
+006000190124     d  SysName                       8
+006100190124      *===============================================================
+006200190124      * START: Global Area for AUDIT Procedure
+006300190124      *===============================================================
+006400190124     d InzPrint        pr
+006500190124     d CenterText      pr
+006600190124     d   Text                        50
+006700190124      *=====================================================
+006800190124      * Program Status Data Structure
+006900190124     d PSDS           sds
+007000190124     d  Job                  244    253
+007100190124     d  User                 254    263
+007200190124     d  JobNo                264    269
+007300190124      *===============================================================
+007400190124     d SysCtlDA        ds          2000    DtaAra(SysCtl)
+007500190124     d  OrgName                      50
+007600190124      *=====================================================
+007700190124     d wDate           s             10
+007800190124     d wTime           s              8
+007900190124     d PgmNme          s             10
+008000190124     d Head1           s             50
+008100190124     d Head2           s             50
+008200190124     d Head3           s             50
+008300190124     d EOR             s            198    Inz(*All'*')
+008400190124     d DashLine        s            198    Inz(*All'-')
+008500190124      *===============================================================
+008600190124     d PrintLineP      s               *
+008700190124     d PrintLine       s            198    based(PrintLineP)
+008800190124     d PrintLineW      s            198
+008900190124     d PrintLen        s             10i 0
+009000190124      *===============================================================
+009100190124     d WEBSRVCFG     e ds                  extname(WEBSRVCFG)    qualified
+009200190124     d                                       based(iWebPL.Applic)
+009300190124      *===============================================================
+009400181003     d KV              ds                  export qualified
+009500181003     d  Key                         256    varying
+009600181003     d  Value                       256    varying
+009700180510      *===============================================================
+009800120324     d QWCRNETA        pr                  extpgm('QWCRNETA')
+009900120324     d  RV                           20
+010000120324     d  RVL                          10i 0 const
+010100120324     d  NoAttr                       10i 0 const
+010200120324     d  Attr                         10    const
+010300120324     d  Err                                like(EC)
+010400180413      ***************
+010500180413     d RVP             s               *   inz(%addr(RV))
+010600180413     d RV              ds            40    qualified
+010700120324     d  NoAttr                       10i 0
+010800120324     d  AttrOS                       10i 0
+010900180510      *===============================================================
+011000180925     d SQL$P           s               *   inz(%addr(SQL$)) export
+011100180928     d SQL$            s           4096    varying
+011200180927      *===============================================================
+011300181227     d IDP             s               *   export
+011400190124     d InpData         s           4096    based(IDP)
+011500181227      *===============================================================
+011600181227     d ODP             s               *   export
+011700190124     d OutData         s           4096    based(ODP)
+011800190124      *===============================================================
+011900190124      * Output Specifications <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+012000190124      *===============================================================
+012100190124     oQSYSPRT   e            #HDG1            01
+012200190124     o         or    of
+012300190124     o                                          + 0 'User:'
+012400190124     o                       User               + 1
+012500190124     o                       Head1              124
+012600190124     o                                          187 'Date:'
+012700190124     o                       wDate              + 1
+012800190124      *---------------------------------------------------------------
+012900190124     o          e            #HDG1       1
+013000190124     o         or    of
+013100190124     o                                          + 0 ' Job:'
+013200190124     o                       Job                + 1
+013300190124     o                       Head2              124
+013400190124     o                                          187 'Time:'
+013500190124     o                       wTime              198
+013600190124      *---------------------------------------------------------------
+013700190124     o          e            #HDG1       1
+013800190124     o         or    of
+013900190124     o                                          + 0 ' Pgm:'
+014000190124     o                       PgmNme             + 1
+014100190124     o                       Head3              124
+014200190124     o                       Page          4    198
+014300190124     o                                          187 'Page:'
+014400190124      *---------------------------------------------------------------
+014500190124     o          e            #HDG1       1
+014600190124     o         or    of
+014700190124     o                       EOR                + 0
+014800190124      *---------------------------------------------------------------
+014900190124     o          ef           #AUDIT      1
+015000190124     o                       PrintLine          + 0
+015100190124      *---------------------------------------------------------------
+015200190124     o          ef           #AUDITW     1
+015300190124     o                       PrintLineW         + 0
+015400190124      *---------------------------------------------------------------
+015500190124     o          e            #EOR        1
+015600190124     o                       EOR              +   0
+015700190124      *===============================================================
+015800180414      *& Retrieve System Name <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+015900180413      *===============================================================
+016000120324     p GETSYS          b                   export
+016100180925     d                 pi             8
+016200180413      *=====================================================
+016300180413     d NAP             s               *
+016400180413     d NA              ds                  based(NAP)
+016500180413     d  Attr                         10
+016600180413     d  DataT                         1
+016700180413     d  InfSts                        1
+016800180413     d  DataL                        10i 0
+016900180413     d  Data                          8
+017000180413      *=====================================================
+017100120324      /free
+017200120324       monitor;
+017300120324          QWCRNETA(RV:40:1:'SYSNAME':EC);
+017400180413          NAP = RVP + RV.AttrOS;
+017500120324          return Data;
+017600120324       on-error;
+017700180925          ERR03();
+017800120324       endmon;
+017900120324      /end-free
+018000180413      *=====================================================
+018100180925     p                 e
+018200180413      *===============================================================
+018300180414      *& Execute Command <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+018400180413      *===============================================================
+018500180413     p Cmd             b                   export
+018600180925     d                 pi
+018700180413     d  Cmd$                       4096    const varying options(*varsize)
+018800180413      *=====================================================
+018900180413     d QCMDEXC         pr                  extpgm('QCMDEXC')
+019000180413     d                             4096    const options(*varsize)
+019100180413     d                               15p 5 const
+019200180413      *=====================================================
+019300180413      /free
+019400180413       //===================================================
+019500180413       monitor;
+019600180413          //================================================
+019700180413          QCMDEXC(Cmd$:%len(Cmd$));
+019800190124          //================================================
+019900180413       on-error;
+020000180925          ERR03();
+020100180413       endmon;
+020200180413      /end-free
+020300180925     p                 e
+020400180413      *===============================================================
+020500180925      *& Initialize <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+020600180510      *===============================================================
+020700180925     p Initialize      b                   export
+020800190124     d                 pi
+020900190124     d  WebCfgPtr                      *
+021000180925      *=====================================================
+021100180925      /free
+021200180925       monitor;
+021300180925          //================================================
+021400190124          clear iWebPL;
+021500190124                iWebPL.Applic = WebCfgPtr;
+021600190124          clear W;
+021700190124          W.SysName = GetSys();
+021800181001          //================================================
+021900190124          if WEBSRVCFG.WSPRTA = 'Y';
+022000190124             W.Audit = *on;
+022100190124          endif;
+022200190124          //================================================
+022300180925       on-error;
+022400180925          ERR03();
+022500180925       endmon;
+022600180925      /end-free
+022700180925     p                 e
+022800180925      *===============================================================
+022900190124      *& Print Audit Report <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+023000190124      *===============================================================
+023100190124     p PrintAudit      b                   export
+023200190124      *=====================================================
+023300190124      /free
+023400190124       monitor;
+023500190124          //===============================================
+023600190124          select;
+023700190124              when not W.Audit and not %open(QSYSPRT);
+023800190124                   return;
+023900190124              when not W.Audit and %open(QSYSPRT);
+024000190124                   %Subst(EOR:92:15) = ' End-of-Report ';
+024100190124                   except #EOR;
+024200190124                   close QSYSPRT;
+024300190124              when W.Audit and not %open(QSYSPRT);
+024400190124                   InzPrint();
+024500190124          endsl;
+024600190124          //===============================================
+024700190124          PrintLineW = '   Time Stamp: ' + %Char(%TimeStamp());
+024800190124          Except #AUDITW;
+024900190124          PrintLineW = 'Queue Control: ' + iWebPL.QueCtl;
+025000190124          Except #AUDITW;
+025100190124          //================================================
+025200190124          PrintLineW = 'Input: Len = '+%char(iWebPL.InpLen);
+025300190124          Except #AUDITW;
+025400190124          //================================================
+025500190124          PrintLineP = iWebPL.InpPtr;
+025600190124          PrintLen   = iWebPL.InpLen;
+025700190124          //================================================
+025800190124          dow PrintLen > 0;
+025900190124              except #AUDIT;
+026000190124              PrintLineP += 198;
+026100190124              PrintLen   -= 198;
+026200190124          enddo;
+026300190124          //================================================
+026400190124          PrintLineP = %addr(SQL$:*data);
+026500190124          PrintLen   = %len(SQL$);
+026600190124          //================================================
+026700190124          dow PrintLen > 0;
+026800190124              except #AUDIT;
+026900190124              PrintLineP += 198;
+027000190124              PrintLen   -= 198;
+027100190124          enddo;
+027200190124          //================================================
+027300190124          PrintLineW = 'Output: Len = '+%char(iWebPL.OutLen);
+027400190124          Except #AUDITW;
+027500190124          //================================================
+027600190124          PrintLineP = iWebPL.OutPtr;
+027700190124          PrintLen   = iWebPL.OutLen;
+027800190124          //================================================
+027900190124          dow PrintLen > 0;
+028000190124              except #AUDIT;
+028100190124              PrintLineP += 198;
+028200190124              PrintLen   -= 198;
+028300190124          enddo;
+028400190124          //================================================
+028500190124          PrintLineW = DashLine;
+028600190124          Except #AUDITW;
+028700190124          //================================================
+028800190124       on-error;
+028900190124          ERR03();
+029000190124       endmon;
+029100190124      /end-free
+029200190124      *=====================================================
+029300190124     p                 e
+029400190124      *===============================================================
+029500190124      * Initialize Print File <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+029600190124      *===============================================================
+029700190124     p InzPrint        b
+029800190124      *=====================================================
+029900190124      /free
+030000190124       monitor;
+030100190124          //================================================
+030200190124          in SysCtlDA;           //?System Control Data Area;
+030300190124          Head1 = OrgName;
+030400190124          CenterText(Head1);
+030500190124          wDate = %Char(%date():*ISO);
+030600190124          //================================================
+030700190124          Head2 = W.ProgDescr;
+030800190124          CenterText(Head2);
+030900190124          wTime = %Char(%time():*ISO);
+031000190124          //================================================
+031100190124          PgmNme = W.ProgName;
+031200190124          Head3 = 'System: ' + %Trim(GetSys());
+031300190124          CenterText(Head3);
+031400190124          //================================================
+031500190124          Cmd('OVRPRTF FILE(QSYSPRT) PAGESIZE(72 198) CPI(15) OVRFLW(69)' +
+031600190124              ' MAXRCDS(*NOMAX) USRDTA('+%trim(W.ProgName)+')');
+031700190124          //================================================
+031800190124          Open QSYSPRT;
+031900190124          Except #HDG1;
+032000190124          //================================================
+032100190124          PrintLineW = 'WEBSRVCFG:' +
+032200190124                      ' WSCODE="' + %trim(WEBSRVCFG.WSCODE) + '"' +
+032300190124                      ' WSENV="'  + %trim(WEBSRVCFG.WSENV)  + '"' +
+032400190124                      ' WSDESC="' + %trim(WEBSRVCFG.WSDESC) + '"' +
+032500190124                      ' WSAVL="'  + %trim(WEBSRVCFG.WSAVL)  + '"' +
+032600190124                      ' WSSYNC="' + %trim(WEBSRVCFG.WSSYNC) + '"';
+032700190124          Except #AUDITW;
+032800190124          //================================================
+032900190124          PrintLineW = DashLine;
+033000190124          Except #AUDITW;
+033100190124          //================================================
+033200190124       on-error;
+033300190124          ERR03();
+033400190124       endmon;
+033500190124      /end-free
+033600190124      *=====================================================
+033700190124     p                 e
+033800190124      *==============================================================
+033900190124      * CenterText <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+034000190124      *==============================================================
+034100190124     p CenterText      b
+034200190124     d                 pi
+034300190124     d  Text                         50
+034400190124      *=====================================================
+034500190124     d Len             s              5i 0
+034600190124     d Pos             s              5i 0
+034700190124     d Work            s             50
+034800190124      *=====================================================
+034900190124      /free
+035000190124       monitor;
+035100190124          //================================================
+035200190124          Len = %len(%trim(Text));
+035300190124          //================================================
+035400190124          if Len = 0;
+035500190124             return;
+035600190124          else;
+035700190124             Work = Text;
+035800190124             Pos  = (50 - Len)/2;
+035900190124             clear Text;
+036000190124             %Subst(Text:Pos:Len) = Work;
+036100190124          endif;
+036200190124          //================================================
+036300190124       on-error;
+036400190124          ERR03();
+036500190124       endmon;
+036600190124      /end-free
+036700190124      *=====================================================
+036800190124     p                 e
+036900190124     ?*=========================================================================*

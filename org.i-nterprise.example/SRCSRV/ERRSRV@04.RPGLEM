@@ -1,196 +1,196 @@
-      *& Apache License
-      *===============================================================
-      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
-      *  Created by AO Foundation - www.adsero-optima.com
-      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
-      *
-      *  Licensed under the Apache License, Version 2.0 (the "License");
-      *  you may not use this file except in compliance with the License.
-      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-      *
-      *  Unless required by applicable law or agreed to in writing, software
-      *  distributed under the License is distributed on an "AS IS" BASIS,
-      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-      *  See the License for the specific language governing permissions and
-      *  limitations under the License.
-      *
-      *  The above copyright notice and this permission notice shall be included in all
-      *  copies or substantial portions of the Software.
-      *
-      *                      http://www.adsero-optima.com/
-      *===============================================================
-     h nomain aut(*use)
-      *===============================================================
-      *& Open Source Error Handlers #04
-      *  EXPORT SYMBOL(ERR20)  /* Retrieve Message Text MD=128  RETURN=132  */
-      *  EXPORT SYMBOL(ERR21)  /* Retrieve Message Text MD=2048 RETURN=132  */
-      *  EXPORT SYMBOL(ERR22)  /* Retrieve Message Help MD=2048 RETURN=3000 */
-      *& Copy Books ==================================================
-      /copy SRCCPY,API_EC                        API Error Data Structure
-      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
-      /copy SRCCPY,ERR20                         Retrieve Message Text MD=128,  RETURN=132
-      /copy SRCCPY,ERR21                         Retrieve Message Text MD=2048, RETURN=132
-      /copy SRCCPY,ERR22                         Retrieve Message Help MD=2048, RETURN=3000
-      *& Data Definitions ============================================
-     d QMHRTVM         pr                  ExtPgm( 'QMHRTVM' )
-     d  RV                         4096    options(*varsize)
-     d  RVL                          10i 0 const
-     d  Fmt                           8    const
-     d  MsgId                         7    const
-     d  MsgFL                        20    const
-     d  MsgDta                      128    const  options(*varsize)
-     d  MsgDtaL                      10i 0 const
-     d  RplSubVal                    10    const
-     d  RtnFmtChr                    10    const
-     d  Err                                like(EC)
-      *
-     d* RtvOpt                       10    const  options(*nopass)
-     d* CvtCcsId                     10i 0 const  options(*nopass)
-     d* RplCcsId                     10i 0 const  options(*nopass)
-      *===============================================================
-     d RVP             s               *   inz(%addr(RV))
-     d RVL             s             10i 0 inz(%size(RV))
-     d RV              ds          4096
-     d  BytesR                       10i 0
-     d  BytesA                       10i 0
-     d  MsgLR                        10i 0
-     d  MsgLA                        10i 0
-     d  HelpLR                       10i 0
-     d  HelpLA                       10i 0
-     d  Msg                         132
-     d HP              s               *
-     d Help            s           3000    based(HP)
-      *===============================================================
-     d MFL             s             20    inz('ERRMSGF   *LIBL')
-     d MDD             s            128    inz(' ')
-     d MDDL            s           2048    inz(' ')
-     d MDL             s             10i 0 inz(1)
-      *===============================================================
-      *& ERR20: Retrieve Message Text MD=128  RETURN=132 <<<<<<<<<<<<<
-      *===============================================================
-     p ERR20           b                   export
-     d ERR20           pi           132
-     d  MI                            7    const
-     d  MF                           10    const options(*omit:*nopass)
-     d  MD                          128    const options(*nopass)
-      *===============================================================
-      /free
-       //=============================================================
-       monitor;
-          //==========================================================
-          reset MFL;
-          reset MDD;
-          reset MDL;
-          //==========================================================
-          select;
-             when %parms = 1;
-             when %parms = 2;
-                  MFL = MF+'*LIBL';
-             when %parms = 3;
-                  if %addr(MF) <> *NULL;
-                     MFL = MF+'*LIBL';
-                  endif;
-                  MDD = %trim(MD);
-                  MDL = %len(%trim(MDD));
-          endsl;
-          //==========================================================
-          QMHRTVM(RV:RVL:'RTVM0100':MI:MFL:MDD:MDL:'*YES':'*NO':EC);
-          //==========================================================
-          return %subst(Msg:1:MsgLR);
-          //==========================================================
-       on-error;
-          ERR03();
-       endmon;
-       //=============================================================
-      /end-free
-     p ERR20           e
-      *===============================================================
-      *& ERR21: Retrieve Message Text MD=2048 RETURN=132 <<<<<<<<<<<<<
-      *===============================================================
-     p ERR21           b                   export
-     d ERR21           pi           132
-     d  MI                            7    const
-     d  MF                           10    const options(*omit:*nopass)
-     d  MD                         2048    const options(*nopass)
-      *===============================================================
-      /free
-       //=============================================================
-       monitor;
-          //==========================================================
-          reset MFL;
-          reset MDDL;
-          reset MDL;
-          //==========================================================
-          select;
-             when %parms = 1;
-             when %parms = 2;
-                  MFL = MF+'*LIBL';
-             when %parms = 3;
-                  if %addr(MF) <> *NULL;
-                     MFL = MF+'*LIBL';
-                  endif;
-                  MDDL = %trim(MD);
-                  MDL = %len(%trim(MDDL));
-          endsl;
-          //==========================================================
-          QMHRTVM(RV:RVL:'RTVM0100':MI:MFL:MDDL:MDL:'*YES':'*NO':EC);
-          //==========================================================
-          return %subst(Msg:1:MsgLR);
-          //==========================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p ERR21           e
-      *===============================================================
-      *& ERR22: Retrieve Message Help MD=2048 RETURN=3000 <<<<<<<<<<<<
-      *===============================================================
-     p ERR22           b                   export
-     d ERR22           pi          3000
-     d  MI                            7    const
-     d  MF                           10    const options(*omit:*nopass)
-     d  MD                         2048    const options(*nopass)
-      *- - - - - - - - - - - - - - - - - -
-      /free
-       //=============================================================
-       monitor;
-          //==========================================================
-          reset MFL;
-          reset MDDL;
-          reset MDL;
-          //==========================================================
-          select;
-             when %parms = 1;
-             when %parms = 2;
-                  MFL = MF+'*LIBL';
-             when %parms = 3;
-                  if %addr(MF) <> *NULL;
-                     MFL = MF+'*LIBL';
-                  endif;
-                  MDDL = %trim(MD);
-                  MDL = %len(%trim(MDDL));
-          endsl;
-          select;
-              when %parms = 1;
-                   QMHRTVM(RV:RVL:'RTVM0100':MI:MFL:' ':1
-                           :'*YES':'*NO':EC);
-              when %parms = 2;
-                   QMHRTVM(RV:RVL:'RTVM0100':MI:MF+'*LIBL':' ':1
-                           :'*YES':'*NO':EC);
-              when %parms = 3;
-                   MDL = %len(%trim(MD));
-          endsl;
-          //==========================================================
-          QMHRTVM(RV:RVL:'RTVM0100':MI:MFL:MDDL:MDL:'*YES':'*NO':EC);
-          //==========================================================
-          HP = %addr(Msg) + MsgLR;
-          return %subst(Help:1:HelpLR);
-          //==========================================================
-       on-error;
-          ERR03();
-       endmon;
-       //=============================================================
-      /end-free
-     p ERR22           e
-      *===============================================================
+000100181012      *& Apache License
+000200181221      *===============================================================
+000300181221      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+000400181221      *  Created by AO Foundation - www.adsero-optima.com
+000500181221      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+000600181221      *
+000700181221      *  Licensed under the Apache License, Version 2.0 (the "License");
+000800181221      *  you may not use this file except in compliance with the License.
+000900181221      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+001000181221      *
+001100181221      *  Unless required by applicable law or agreed to in writing, software
+001200181221      *  distributed under the License is distributed on an "AS IS" BASIS,
+001300181221      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+001400181221      *  See the License for the specific language governing permissions and
+001500181221      *  limitations under the License.
+001600181221      *
+001700181221      *  The above copyright notice and this permission notice shall be included in all
+001800181221      *  copies or substantial portions of the Software.
+001900181221      *
+002000181221      *                      http://www.adsero-optima.com/
+002100181221      *===============================================================
+002200180413     h nomain aut(*use)
+002300180413      *===============================================================
+002400180922      *& Open Source Error Handlers #04
+002500181203      *  EXPORT SYMBOL(ERR20)  /* Retrieve Message Text MD=128  RETURN=132  */
+002600181203      *  EXPORT SYMBOL(ERR21)  /* Retrieve Message Text MD=2048 RETURN=132  */
+002700181203      *  EXPORT SYMBOL(ERR22)  /* Retrieve Message Help MD=2048 RETURN=3000 */
+002800181221      *& Copy Books ==================================================
+002900181221      /copy SRCCPY,API_EC                        API Error Data Structure
+003000181221      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+003100181221      /copy SRCCPY,ERR20                         Retrieve Message Text MD=128,  RETURN=132
+003200181221      /copy SRCCPY,ERR21                         Retrieve Message Text MD=2048, RETURN=132
+003300181221      /copy SRCCPY,ERR22                         Retrieve Message Help MD=2048, RETURN=3000
+003400181221      *& Data Definitions ============================================
+003500130403     d QMHRTVM         pr                  ExtPgm( 'QMHRTVM' )
+003600130403     d  RV                         4096    options(*varsize)
+003700130403     d  RVL                          10i 0 const
+003800130403     d  Fmt                           8    const
+003900130403     d  MsgId                         7    const
+004000130403     d  MsgFL                        20    const
+004100130403     d  MsgDta                      128    const  options(*varsize)
+004200130403     d  MsgDtaL                      10i 0 const
+004300130403     d  RplSubVal                    10    const
+004400130403     d  RtnFmtChr                    10    const
+004500130403     d  Err                                like(EC)
+004600130403      *
+004700130403     d* RtvOpt                       10    const  options(*nopass)
+004800130403     d* CvtCcsId                     10i 0 const  options(*nopass)
+004900130403     d* RplCcsId                     10i 0 const  options(*nopass)
+005000130403      *===============================================================
+005100130403     d RVP             s               *   inz(%addr(RV))
+005200130403     d RVL             s             10i 0 inz(%size(RV))
+005300130403     d RV              ds          4096
+005400130403     d  BytesR                       10i 0
+005500130403     d  BytesA                       10i 0
+005600130403     d  MsgLR                        10i 0
+005700130403     d  MsgLA                        10i 0
+005800130403     d  HelpLR                       10i 0
+005900130403     d  HelpLA                       10i 0
+006000130403     d  Msg                         132
+006100130403     d HP              s               *
+006200180414     d Help            s           3000    based(HP)
+006300130403      *===============================================================
+006400130403     d MFL             s             20    inz('ERRMSGF   *LIBL')
+006500180413     d MDD             s            128    inz(' ')
+006600180413     d MDDL            s           2048    inz(' ')
+006700180413     d MDL             s             10i 0 inz(1)
+006800130403      *===============================================================
+006900180922      *& ERR20: Retrieve Message Text MD=128  RETURN=132 <<<<<<<<<<<<<
+007000130403      *===============================================================
+007100180922     p ERR20           b                   export
+007200180922     d ERR20           pi           132
+007300130403     d  MI                            7    const
+007400130403     d  MF                           10    const options(*omit:*nopass)
+007500180413     d  MD                          128    const options(*nopass)
+007600180413      *===============================================================
+007700130403      /free
+007800130403       //=============================================================
+007900130403       monitor;
+008000130403          //==========================================================
+008100180413          reset MFL;
+008200180413          reset MDD;
+008300180413          reset MDL;
+008400180413          //==========================================================
+008500130403          select;
+008600180414             when %parms = 1;
+008700180414             when %parms = 2;
+008800180413                  MFL = MF+'*LIBL';
+008900180413             when %parms = 3;
+009000180413                  if %addr(MF) <> *NULL;
+009100180413                     MFL = MF+'*LIBL';
+009200180413                  endif;
+009300180413                  MDD = %trim(MD);
+009400180413                  MDL = %len(%trim(MDD));
+009500130403          endsl;
+009600130403          //==========================================================
+009700180413          QMHRTVM(RV:RVL:'RTVM0100':MI:MFL:MDD:MDL:'*YES':'*NO':EC);
+009800180413          //==========================================================
+009900130403          return %subst(Msg:1:MsgLR);
+010000130403          //==========================================================
+010100130403       on-error;
+010200180922          ERR03();
+010300130403       endmon;
+010400130403       //=============================================================
+010500130403      /end-free
+010600180922     p ERR20           e
+010700130403      *===============================================================
+010800180922      *& ERR21: Retrieve Message Text MD=2048 RETURN=132 <<<<<<<<<<<<<
+010900130403      *===============================================================
+011000180922     p ERR21           b                   export
+011100180922     d ERR21           pi           132
+011200130403     d  MI                            7    const
+011300130403     d  MF                           10    const options(*omit:*nopass)
+011400130403     d  MD                         2048    const options(*nopass)
+011500180413      *===============================================================
+011600180413      /free
+011700180413       //=============================================================
+011800180413       monitor;
+011900180413          //==========================================================
+012000180413          reset MFL;
+012100180413          reset MDDL;
+012200180413          reset MDL;
+012300180413          //==========================================================
+012400180413          select;
+012500180414             when %parms = 1;
+012600180414             when %parms = 2;
+012700180413                  MFL = MF+'*LIBL';
+012800180413             when %parms = 3;
+012900180413                  if %addr(MF) <> *NULL;
+013000180413                     MFL = MF+'*LIBL';
+013100180413                  endif;
+013200180413                  MDDL = %trim(MD);
+013300180413                  MDL = %len(%trim(MDDL));
+013400180413          endsl;
+013500180413          //==========================================================
+013600180413          QMHRTVM(RV:RVL:'RTVM0100':MI:MFL:MDDL:MDL:'*YES':'*NO':EC);
+013700180413          //==========================================================
+013800180413          return %subst(Msg:1:MsgLR);
+013900180413          //==========================================================
+014000180413       on-error;
+014100180922          ERR03();
+014200180413       endmon;
+014300130403      /end-free
+014400180413      *=====================================================
+014500180922     p ERR21           e
+014600130403      *===============================================================
+014700180922      *& ERR22: Retrieve Message Help MD=2048 RETURN=3000 <<<<<<<<<<<<
+014800130403      *===============================================================
+014900180922     p ERR22           b                   export
+015000180922     d ERR22           pi          3000
+015100130403     d  MI                            7    const
+015200130403     d  MF                           10    const options(*omit:*nopass)
+015300130403     d  MD                         2048    const options(*nopass)
+015400130403      *- - - - - - - - - - - - - - - - - -
+015500130403      /free
+015600130403       //=============================================================
+015700130403       monitor;
+015800180414          //==========================================================
+015900180414          reset MFL;
+016000180414          reset MDDL;
+016100180414          reset MDL;
+016200130403          //==========================================================
+016300180414          select;
+016400180414             when %parms = 1;
+016500180414             when %parms = 2;
+016600180414                  MFL = MF+'*LIBL';
+016700180414             when %parms = 3;
+016800180414                  if %addr(MF) <> *NULL;
+016900180414                     MFL = MF+'*LIBL';
+017000180414                  endif;
+017100180414                  MDDL = %trim(MD);
+017200180414                  MDL = %len(%trim(MDDL));
+017300180414          endsl;
+017400130403          select;
+017500130403              when %parms = 1;
+017600130403                   QMHRTVM(RV:RVL:'RTVM0100':MI:MFL:' ':1
+017700130403                           :'*YES':'*NO':EC);
+017800130403              when %parms = 2;
+017900130403                   QMHRTVM(RV:RVL:'RTVM0100':MI:MF+'*LIBL':' ':1
+018000130403                           :'*YES':'*NO':EC);
+018100130403              when %parms = 3;
+018200130403                   MDL = %len(%trim(MD));
+018300130403          endsl;
+018400180414          //==========================================================
+018500180414          QMHRTVM(RV:RVL:'RTVM0100':MI:MFL:MDDL:MDL:'*YES':'*NO':EC);
+018600130403          //==========================================================
+018700130403          HP = %addr(Msg) + MsgLR;
+018800130403          return %subst(Help:1:HelpLR);
+018900130403          //==========================================================
+019000130403       on-error;
+019100180922          ERR03();
+019200130403       endmon;
+019300130403       //=============================================================
+019400130403      /end-free
+019500180922     p ERR22           e
+019600130403      *===============================================================

@@ -1,48 +1,49 @@
-/*****************************************************************************************/
-/* Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.                               */
-/* Created by AO Foundation - www.adsero-optima.com                                      */
-/* Original TEMPLATE author: Tommy Atkins - Chief Development Officer                    */
-/*                                                                                       */
-/* Licensed under the Apache License, Version 2.0 (the "License");                       */
-/* you may not use this file except in compliance with the License.                      */
-/* You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0    */
-/*                                                                                       */
-/* Unless required by applicable law or agreed to in writing, software                   */
-/* distributed under the License is distributed on an "AS IS" BASIS,                     */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.              */
-/* See the License for the specific language governing permissions and                   */
-/* limitations under the License.                                                        */
-/*                                                                                       */
-/* The above copyright notice and this permission notice shall be included in all        */
-/* copies or substantial portions of the Software.                                       */
-/*                                                                                       */
-/*                     http://www.adsero-optima.com/                                     */
-/*****************************************************************************************/
-STRPGMEXP PGMLVL(*CURRENT) SIGNATURE('V1.0')
-          EXPORT SYMBOL(KV)                /* Key/Value DS                     */
-          EXPORT SYMBOL(SQL$P)             /* SQL String Pointer               */
-          EXPORT SYMBOL(IDP)               /* Input Data Pointer > Len         */
-          EXPORT SYMBOL(InpDataP)          /* Current Input Data Pointer       */
-          EXPORT SYMBOL(ODP)               /* OutPut Data Pointer > Len        */
-          EXPORT SYMBOL(OutDataP)          /* Current OutPut Data Pointer      */
-
-          EXPORT SYMBOL(GETSYS)            /* Get System Name                  */
-          EXPORT SYMBOL(Cmd)               /* Execute Command                  */
-          EXPORT SYMBOL(Initialize)        /* Initialize Exports               */
-
-          EXPORT SYMBOL(DRVSRV@02A)        /* WHERE: CHAR - Uppercase          */
-          EXPORT SYMBOL(DRVSRV@02B)        /* WHERE: CHAR - Case Sensitive     */
-          EXPORT SYMBOL(DRVSRV@02C)        /* WHERE: NUMERIC                   */
-          EXPORT SYMBOL(DRVSRV@02D)        /* WHERE: *ISO Date                 */
-          EXPORT SYMBOL(DRVSRV@02E)        /* EncodeJSON                       */
-          EXPORT SYMBOL(DRVSRV@02F)        /* Get Next Key/Value Pair          */
-          EXPORT SYMBOL(DRVSRV@02G)        /* Unpack Array Elements            */
-
-          EXPORT SYMBOL(CRTUS)             /* Create User Space                */
-          EXPORT SYMBOL(DLTUS)             /* Delete User Space                */
-          EXPORT SYMBOL(RTVUSP)            /* Retrieve User Space Pointer      */
-          EXPORT SYMBOL(RTVUSI)            /* Retrieve User Space Info.        */
-
-          EXPORT SYMBOL(DRVSRV@04A)        /* Confirm & Identify JSON Object   */
-          EXPORT SYMBOL(DRVSRV@04B)        /* Error Response Processing        */
-ENDPGMEXP
+000100181221/*****************************************************************************************/
+000200181221/* Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.                               */
+000300181221/* Created by AO Foundation - www.adsero-optima.com                                      */
+000400181221/* Original TEMPLATE author: Tommy Atkins - Chief Development Officer                    */
+000500181221/*                                                                                       */
+000600181221/* Licensed under the Apache License, Version 2.0 (the "License");                       */
+000700181221/* you may not use this file except in compliance with the License.                      */
+000800181221/* You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0    */
+000900181221/*                                                                                       */
+001000181221/* Unless required by applicable law or agreed to in writing, software                   */
+001100181221/* distributed under the License is distributed on an "AS IS" BASIS,                     */
+001200181221/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.              */
+001300181221/* See the License for the specific language governing permissions and                   */
+001400181221/* limitations under the License.                                                        */
+001500181221/*                                                                                       */
+001600181221/* The above copyright notice and this permission notice shall be included in all        */
+001700181221/* copies or substantial portions of the Software.                                       */
+001800181221/*                                                                                       */
+001900181221/*                     http://www.adsero-optima.com/                                     */
+002000181221/*****************************************************************************************/
+002100181221STRPGMEXP PGMLVL(*CURRENT) SIGNATURE('V1.0')
+002200190124          EXPORT SYMBOL(IWEBPL)            /* iWeb Parameter List          */
+002300190124          EXPORT SYMBOL(W)                 /* Working Data Structure       */
+002400190124          EXPORT SYMBOL(KV)                /* Key/Value Structure          */
+002500190124          EXPORT SYMBOL(SQL$P)             /* SQL String Pointer           */
+002600190124          EXPORT SYMBOL(IDP)               /* Current Input Data Pointer   */
+002700190124          EXPORT SYMBOL(ODP)               /* Current OutPut Data Pointer  */
+002800190124
+002900190124          EXPORT SYMBOL(GETSYS)            /* Get System Name              */
+003000190124          EXPORT SYMBOL(Cmd)               /* Execute Command              */
+003100190124          EXPORT SYMBOL(Initialize)        /* Initialize Exports           */
+003200190124          EXPORT SYMBOL(PrintAudit)        /* Print Audit Procedure        */
+003300180926
+003400181227          EXPORT SYMBOL(DRVSRV@02A)        /* WHERE: CHAR - Uppercase          */
+003500181227          EXPORT SYMBOL(DRVSRV@02B)        /* WHERE: CHAR - Case Sensitive     */
+003600181227          EXPORT SYMBOL(DRVSRV@02C)        /* WHERE: NUMERIC                   */
+003700181227          EXPORT SYMBOL(DRVSRV@02D)        /* WHERE: *ISO Date                 */
+003800181227          EXPORT SYMBOL(DRVSRV@02E)        /* EncodeJSON                       */
+003900181227          EXPORT SYMBOL(DRVSRV@02F)        /* Get Next Key/Value Pair          */
+004000181227          EXPORT SYMBOL(DRVSRV@02G)        /* Unpack Array Elements            */
+004100180926
+004200181221          EXPORT SYMBOL(CRTUS)             /* Create User Space                */
+004300181221          EXPORT SYMBOL(DLTUS)             /* Delete User Space                */
+004400181221          EXPORT SYMBOL(RTVUSP)            /* Retrieve User Space Pointer      */
+004500181221          EXPORT SYMBOL(RTVUSI)            /* Retrieve User Space Info.        */
+004600181221
+004700181227          EXPORT SYMBOL(DRVSRV@04A)        /* Confirm & Identify JSON Object   */
+004800181227          EXPORT SYMBOL(DRVSRV@04B)        /* Error Response Processing        */
+004900150922ENDPGMEXP

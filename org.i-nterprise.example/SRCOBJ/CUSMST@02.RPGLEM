@@ -1,265 +1,270 @@
-      *===============================================================
-      *
-      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
-      *  Created by AO Foundation - www.adsero-optima.com
-      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
-      *
-      *  Licensed under the Apache License, Version 2.0 (the "License");
-      *  you may not use this file except in compliance with the License.
-      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-      *
-      *  Unless required by applicable law or agreed to in writing, software
-      *  distributed under the License is distributed on an "AS IS" BASIS,
-      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-      *  See the License for the specific language governing permissions and
-      *  limitations under the License.
-      *
-      *  The above copyright notice and this permission notice shall be included in all
-      *  copies or substantial portions of the Software.
-      *
-      *                      http://www.adsero-optima.com/
-      *
-      *===============================================================
-     h nomain aut(*use) extbinint(*yes) option(*nodebugio) debug
-      *& Exported Symbols ============================================
-      * EXPORT SYMBOL(CUSMST@02A)     /* Add Customer Record              */
-      * EXPORT SYMBOL(CUSMST@02B)     /* Update Customer Record           */
-      * EXPORT SYMBOL(CUSMST@02C)     /* Delete Customer Record           */
-      * EXPORT SYMBOL(CUSMST@02D)     /* Display Customer Record          */
-      *& Prototypes ==================================================
-     d*AddCus          pr                  extproc('CUSMST@02A')
-     d CUSMST@02A      pr
-     d*UpdCus          pr                  extproc('CUSMST@02B')
-     d CUSMST@02B      pr
-     d*DltCus          pr                  extproc('CUSMST@02C')
-     d CUSMST@02C      pr
-     d*DspCus          pr                  extproc('CUSMST@02D')
-     d CUSMST@02D      pr
-      *& Copy Books ==================================================
-      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
-      /copy SRCCPY,ERR11                         Send *ESCAPE Message
-      /copy SRCCPY,CMD                           Execute Command - Processor
-      /copy SRCCPY,CUSMSTF@                      IOS [PLKR] import
-      *& Prototypes ==================================================
-     d ALPHAU          pr                  extproc('AOOSRV@02A')
-     d  UIName                       50    const
-     d  DBName                       10    const
-     d ALPHA           pr                  extproc('AOOSRV@02B')
-     d  UIName                       50    const
-     d  DBName                       10    const
-     d NUMERIC         pr                  extproc('AOOSRV@02C')
-     d  UIName                       50    const
-     d  DBName                       10    const
-     d DATEISO         pr                  extproc('AOOSRV@02D')
-     d  UIName                       50    const
-     d  DBName                       10    const
-      *===============================================================
-     d NextElm         pr          1024    extproc('DRVSRV@02G')
-     d PutField        pr                  extproc('DRVSRV@02H')
-     d  CharField                  1024    options(*varsize)
-      *===============================================================
-     d NextKV          pr                  extproc('DRVSRV@02F')
-     d LoadCUSMSTFK    pr
-     d LoadCUSMSTFR    pr
-     d LoadJSON        pr
-      *& Global Definitions ==========================================
-     d KV              ds                  import qualified
-     d  Key                         256    varying
-     d  Value                       256    varying
-      *===============================================================
-     d IDP             s               *   import
-     d IDLen           s             10i 0 based(IDP)
-     d InpDataP        s               *   import
-     d InpData         s           4096    based(InpDataP)
-     d InpData1        s              1    based(InpDataP)
-      *===============================================================
-     d ODP             s               *   import
-     d ODLen           s             10i 0 based(ODP)
-     d OutDataP        s               *   import
-     d OutData         s           4096    based(OutDataP)
-      *===============================================================
-     d NoRecs          s             10i 0
-      *===============================================================
-      *& Add Customer Record >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-     p CUSMST@02A      b                   export
-      *=====================================================
-      /free
-       //===================================================
-       monitor;
-          //================================================
-          NextKV();
-          //================================================
-          if KV.Key <> 'Columns' or KV.Value <> '[';
-             ERR11('ERR0070':'ERRMSGF':'Add');
-          endif;
-          //================================================
-          LoadCUSMSTFR();
-          CUSMSTF@('I');
-          CUSMSTF@('R');
-          LoadJSON();
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& Update Customer Record >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-     p CUSMST@02B      b                   export
-      *=====================================================
-      /free
-       //===================================================
-       monitor;
-          //================================================
-          NextKV();
-          //================================================
-          if KV.Key <> 'Columns' or KV.Value <> '[';
-             ERR11('ERR0070':'ERRMSGF':'Upd');
-          endif;
-          //================================================
-          LoadCUSMSTFR();
-          CUSMSTF@('U');
-          CUSMSTF@('R');
-          LoadJSON();
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& Delete Customer Record >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-     p CUSMST@02C      b                   export
-      *=====================================================
-      /free
-       //===================================================
-       monitor;
-          //================================================
-          NextKV();
-          //================================================
-          if KV.Key <> 'Keys' or KV.Value <> '[';
-             ERR11('ERR0070':'ERRMSGF':'Dlt');
-          endif;
-          //================================================
-          LoadCUSMSTFK();
-          CUSMSTF@('R':CUSMSTFK);
-          CUSMSTF@('D':CUSMSTFK);
-          LoadJSON();
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& Display Customer Record >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-     p CUSMST@02D      b                   export
-      *=====================================================
-      /free
-       //===================================================
-       monitor;
-          //================================================
-          NextKV();
-          //================================================
-          if KV.Key <> 'Keys' or KV.Value <> '[';
-             ERR11('ERR0070':'ERRMSGF':'Dsp');
-          endif;
-          //================================================
-          LoadCUSMSTFK();
-          CUSMSTF@('R':CUSMSTFK);
-          LoadJSON();
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& Load CUSMSTFK from JSON Array (Keys)
-     p LoadCUSMSTFK    b
-      *=====================================================
-      /free
-       //===================================================
-       monitor;
-          //================================================
-          clear CUSMSTFK;
-          CUSMSTFK.CUSTNO = %int(NextElm());
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& Load CUSMSTFR from JSON Array (Columns)
-     p LoadCUSMSTFR    b
-      *=====================================================
-      /free
-       //===================================================
-       monitor;
-          //================================================
-          clear CUSMSTFR;
-          CUSMSTFR.CUSTNO = %int(NextElm());
-          CUSMSTFR.RECSTS = NextElm();
-          CUSMSTFR.CUSNME = NextElm();
-          CUSMSTFR.ADRLN1 = NextElm();
-          CUSMSTFR.ADRLN2 = NextElm();
-          CUSMSTFR.ADRLN3 = NextElm();
-          CUSMSTFR.PSTCDE = NextElm();
-          CUSMSTFR.STRDTE = %date(NextElm());
-          CUSMSTFR.PHONEN = NextElm();
-          CUSMSTFR.REPCDE = %int(NextElm());
-          CUSMSTFR.USERID = NextElm();
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& Load JSON Array from CUSMSTFR
-     p LoadJSON        b
-      *=====================================================
-      /free
-       //===================================================
-       monitor;
-          //================================================
-          OutData  = '"Columns":[';
-          OutDataP += %len(%trim(OutData));
-          //================================================
-          OutData  = '"' + %trim(%char(CUSMSTFR.CUSTNO)) + '",';
-          OutDataP += %len(%trim(OutData));
-          OutData  = '"' + %trim(CUSMSTFR.RECSTS) + '",';
-          OutDataP += %len(%trim(OutData));
-          OutData  = '"' + %trim(CUSMSTFR.CUSNME) + '",';
-          OutDataP += %len(%trim(OutData));
-          OutData  = '"' + %trim(CUSMSTFR.ADRLN1) + '",';
-          OutDataP += %len(%trim(OutData));
-          OutData  = '"' + %trim(CUSMSTFR.ADRLN2) + '",';
-          OutDataP += %len(%trim(OutData));
-          OutData  = '"' + %trim(CUSMSTFR.ADRLN3) + '",';
-          OutDataP += %len(%trim(OutData));
-          OutData  = '"' + %trim(CUSMSTFR.PSTCDE) + '",';
-          OutDataP += %len(%trim(OutData));
-          OutData  = '"' + %trim(%char(CUSMSTFR.STRDTE:*ISO)) + '",';
-          OutDataP += %len(%trim(OutData));
-          OutData  = '"' + %trim(CUSMSTFR.PHONEN) + '",';
-          OutDataP += %len(%trim(OutData));
-          OutData  = '"' + %trim(%char(CUSMSTFR.REPCDE)) + '",';
-          OutDataP += %len(%trim(OutData));
-          OutData  = '"' + %trim(CUSMSTFR.USERID) + '"]}';
-          OutDataP += %len(%trim(OutData));
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
+000100190121      *& Apache License
+000200190121      *===============================================================
+000300190121      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+000400190121      *  Created by AO Foundation - www.adsero-optima.com
+000500190121      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+000600190121      *
+000700190121      *  Licensed under the Apache License, Version 2.0 (the "License");
+000800190121      *  you may not use this file except in compliance with the License.
+000900190121      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+001000190121      *
+001100190121      *  Unless required by applicable law or agreed to in writing, software
+001200190121      *  distributed under the License is distributed on an "AS IS" BASIS,
+001300190121      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+001400190121      *  See the License for the specific language governing permissions and
+001500190121      *  limitations under the License.
+001600190121      *
+001700190121      *  The above copyright notice and this permission notice shall be included in all
+001800190121      *  copies or substantial portions of the Software.
+001900190121      *
+002000190121      *                      http://www.adsero-optima.com/
+002100190121      *& Exported Symbols ============================================
+002200181002      * EXPORT SYMBOL(CUSMST@02A)     /* Add Customer Record              */
+002300181004      * EXPORT SYMBOL(CUSMST@02B)     /* Update Customer Record           */
+002400181004      * EXPORT SYMBOL(CUSMST@02C)     /* Delete Customer Record           */
+002500181004      * EXPORT SYMBOL(CUSMST@02D)     /* Display Customer Record          */
+002600190121     h nomain aut(*use) extbinint(*yes) option(*nodebugio) debug
+002700180928      *& Prototypes ==================================================
+002800181002     d*AddCus          pr                  extproc('CUSMST@02A')
+002900181002     d CUSMST@02A      pr
+003000181004     d*UpdCus          pr                  extproc('CUSMST@02B')
+003100181004     d CUSMST@02B      pr
+003200181004     d*DltCus          pr                  extproc('CUSMST@02C')
+003300181004     d CUSMST@02C      pr
+003400181004     d*DspCus          pr                  extproc('CUSMST@02D')
+003500181004     d CUSMST@02D      pr
+003600181227      *& Copy Books ==================================================
+003700181227      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+003800181227      /copy SRCCPY,ERR11                         Send *ESCAPE Message
+003900181227      /copy SRCCPY,CMD                           Execute Command - Processor
+004000181227      /copy SRCCPY,CUSMSTF@                      IOS [PLKR] import
+004100181227      *& Prototypes ==================================================
+004200180928     d ALPHAU          pr                  extproc('AOOSRV@02A')
+004300180928     d  UIName                       50    const
+004400180928     d  DBName                       10    const
+004500180928     d ALPHA           pr                  extproc('AOOSRV@02B')
+004600180928     d  UIName                       50    const
+004700180928     d  DBName                       10    const
+004800180928     d NUMERIC         pr                  extproc('AOOSRV@02C')
+004900180928     d  UIName                       50    const
+005000180928     d  DBName                       10    const
+005100180928     d DATEISO         pr                  extproc('AOOSRV@02D')
+005200180928     d  UIName                       50    const
+005300180928     d  DBName                       10    const
+005400180928      *===============================================================
+005500181227     d NextElm         pr          1024    extproc('DRVSRV@02G')
+005600181227     d PutField        pr                  extproc('DRVSRV@02H')
+005700181003     d  CharField                  1024    options(*varsize)
+005800181002      *===============================================================
+005900181227     d NextKV          pr                  extproc('DRVSRV@02F')
+006000181004     d LoadCUSMSTFK    pr
+006100181004     d LoadCUSMSTFR    pr
+006200181004     d LoadJSON        pr
+006300181227      *& Global Definitions ==========================================
+006302190128     d iWebPL          ds                  import qualified
+006303190128     d  Action                        7
+006304190128     d  Applic                         *
+006305190128     d  QueCtl                       20
+006306190128     d  InpLen                       10i 0
+006307190128     d  InpPtr                         *
+006308190128     d  OutLen                       10i 0
+006309190128     d  OutPtr                         *
+006310190128      *===============================================================
+006400181227     d KV              ds                  import qualified
+006500181227     d  Key                         256    varying
+006600181227     d  Value                       256    varying
+006700181227      *===============================================================
+006800181227     d IDP             s               *   import
+006900190124     d InpData         s           4096    based(IDP)
+007000190124     d InpData1        s              1    based(IDP)
+007100180928      *===============================================================
+007200181227     d ODP             s               *   import
+007300190124     d OutData         s           4096    based(ODP)
+007400180928      *===============================================================
+007500180928     d NoRecs          s             10i 0
+007600180928      *===============================================================
+007700181002      *& Add Customer Record >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+007800181002     p CUSMST@02A      b                   export
+007900180226      *=====================================================
+008000180226      /free
+008100180928       //===================================================
+008200180928       monitor;
+008300181003          //================================================
+008400181002          NextKV();
+008500181002          //================================================
+008600181002          if KV.Key <> 'Columns' or KV.Value <> '[';
+008700181004             ERR11('ERR0070':'ERRMSGF':'Add');
+008800181002          endif;
+008900181002          //================================================
+009000181004          LoadCUSMSTFR();
+009100181004          CUSMSTF@('I');
+009200181004          CUSMSTF@('R');
+009300181004          LoadJSON();
+009400180924          //================================================
+009500180226       on-error;
+009600180924          ERR03();
+009700180226       endmon;
+009800180226      /end-free
+009900180226      *=====================================================
+010000180423     p                 e
+010100180226      *===============================================================
+010200181004      *& Update Customer Record >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+010300181004     p CUSMST@02B      b                   export
+010400181004      *=====================================================
+010500181004      /free
+010600181004       //===================================================
+010700181004       monitor;
+010800181004          //================================================
+010900181004          NextKV();
+011000181004          //================================================
+011100181004          if KV.Key <> 'Columns' or KV.Value <> '[';
+011200181004             ERR11('ERR0070':'ERRMSGF':'Upd');
+011300181004          endif;
+011400181004          //================================================
+011500181004          LoadCUSMSTFR();
+011600181004          CUSMSTF@('U');
+011700181004          CUSMSTF@('R');
+011800181004          LoadJSON();
+011900181004          //================================================
+012000181004       on-error;
+012100181004          ERR03();
+012200181004       endmon;
+012300181004      /end-free
+012400181004      *=====================================================
+012500181004     p                 e
+012600181004      *===============================================================
+012700181004      *& Delete Customer Record >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+012800181004     p CUSMST@02C      b                   export
+012900181004      *=====================================================
+013000181004      /free
+013100181004       //===================================================
+013200181004       monitor;
+013300181004          //================================================
+013400181004          NextKV();
+013500181004          //================================================
+013600181004          if KV.Key <> 'Keys' or KV.Value <> '[';
+013700181004             ERR11('ERR0070':'ERRMSGF':'Dlt');
+013800181004          endif;
+013900181004          //================================================
+014000181004          LoadCUSMSTFK();
+014100181004          CUSMSTF@('R':CUSMSTFK);
+014200181004          CUSMSTF@('D':CUSMSTFK);
+014300181004          LoadJSON();
+014400181004          //================================================
+014500181004       on-error;
+014600181004          ERR03();
+014700181004       endmon;
+014800181004      /end-free
+014900181004      *=====================================================
+015000181004     p                 e
+015100181004      *===============================================================
+015200181004      *& Display Customer Record >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+015300181004     p CUSMST@02D      b                   export
+015400181004      *=====================================================
+015500181004      /free
+015600181004       //===================================================
+015700181004       monitor;
+015800181004          //================================================
+015900181004          NextKV();
+016000181004          //================================================
+016100181004          if KV.Key <> 'Keys' or KV.Value <> '[';
+016200181004             ERR11('ERR0070':'ERRMSGF':'Dsp');
+016300181004          endif;
+016400181004          //================================================
+016500181004          LoadCUSMSTFK();
+016600181004          CUSMSTF@('R':CUSMSTFK);
+016700181004          LoadJSON();
+016800181004          //================================================
+016900181004       on-error;
+017000181004          ERR03();
+017100181004       endmon;
+017200181004      /end-free
+017300181004      *=====================================================
+017400181004     p                 e
+017500181004      *===============================================================
+017600181004      *& Load CUSMSTFK from JSON Array (Keys)
+017700181004     p LoadCUSMSTFK    b
+017800181004      *=====================================================
+017900181004      /free
+018000181004       //===================================================
+018100181004       monitor;
+018200181004          //================================================
+018300181004          clear CUSMSTFK;
+018400181004          CUSMSTFK.CUSTNO = %int(NextElm());
+018500181004          //================================================
+018600181004       on-error;
+018700181004          ERR03();
+018800181004       endmon;
+018900181004      /end-free
+019000181004      *=====================================================
+019100181004     p                 e
+019200181004      *===============================================================
+019300181004      *& Load CUSMSTFR from JSON Array (Columns)
+019400181004     p LoadCUSMSTFR    b
+019500181004      *=====================================================
+019600181004      /free
+019700181004       //===================================================
+019800181004       monitor;
+019900181004          //================================================
+020000181004          clear CUSMSTFR;
+020100181004          CUSMSTFR.CUSTNO = %int(NextElm());
+020200181004          CUSMSTFR.RECSTS = NextElm();
+020300181004          CUSMSTFR.CUSNME = NextElm();
+020400181004          CUSMSTFR.ADRLN1 = NextElm();
+020500181004          CUSMSTFR.ADRLN2 = NextElm();
+020600181004          CUSMSTFR.ADRLN3 = NextElm();
+020700181004          CUSMSTFR.PSTCDE = NextElm();
+020800181004          CUSMSTFR.STRDTE = %date(NextElm());
+020900181004          CUSMSTFR.PHONEN = NextElm();
+021000181004          CUSMSTFR.REPCDE = %int(NextElm());
+021100181004          CUSMSTFR.USERID = NextElm();
+021200181004          //================================================
+021300181004       on-error;
+021400181004          ERR03();
+021500181004       endmon;
+021600181004      /end-free
+021700181004      *=====================================================
+021800181004     p                 e
+021900181004      *===============================================================
+022000181004      *& Load JSON Array from CUSMSTFR
+022100181004     p LoadJSON        b
+022200181004      *=====================================================
+022300181004      /free
+022400181004       //===================================================
+022500181004       monitor;
+022600181004          //================================================
+022700181004          OutData  = '"Columns":[';
+022800190124          ODP += %len(%trim(OutData));
+022900181004          //================================================
+023000181004          OutData  = '"' + %trim(%char(CUSMSTFR.CUSTNO)) + '",';
+023100190124          ODP += %len(%trim(OutData));
+023200181004          OutData  = '"' + %trim(CUSMSTFR.RECSTS) + '",';
+023300190124          ODP += %len(%trim(OutData));
+023400181004          OutData  = '"' + %trim(CUSMSTFR.CUSNME) + '",';
+023500190124          ODP += %len(%trim(OutData));
+023600181004          OutData  = '"' + %trim(CUSMSTFR.ADRLN1) + '",';
+023700190124          ODP += %len(%trim(OutData));
+023800181004          OutData  = '"' + %trim(CUSMSTFR.ADRLN2) + '",';
+023900190124          ODP += %len(%trim(OutData));
+024000181004          OutData  = '"' + %trim(CUSMSTFR.ADRLN3) + '",';
+024100190124          ODP += %len(%trim(OutData));
+024200181004          OutData  = '"' + %trim(CUSMSTFR.PSTCDE) + '",';
+024300190124          ODP += %len(%trim(OutData));
+024400181004          OutData  = '"' + %trim(%char(CUSMSTFR.STRDTE:*ISO)) + '",';
+024500190124          ODP += %len(%trim(OutData));
+024600181004          OutData  = '"' + %trim(CUSMSTFR.PHONEN) + '",';
+024700190124          ODP += %len(%trim(OutData));
+024800181004          OutData  = '"' + %trim(%char(CUSMSTFR.REPCDE)) + '",';
+024900190124          ODP += %len(%trim(OutData));
+025000181004          OutData  = '"' + %trim(CUSMSTFR.USERID) + '"]}';
+025100190124          ODP += %len(%trim(OutData));
+025200181004          //================================================
+025201190128          iWebPL.OutLen = (ODP - iWebPL.OutPtr);
+025202190128          //================================================
+025300181004       on-error;
+025400181004          ERR03();
+025500181004       endmon;
+025600181004      /end-free
+025700181004      *=====================================================
+025800181004     p                 e
+025900181004      *===============================================================

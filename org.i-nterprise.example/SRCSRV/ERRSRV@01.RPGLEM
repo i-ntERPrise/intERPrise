@@ -1,456 +1,456 @@
-      *& Apache License
-      *===============================================================
-      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
-      *  Created by AO Foundation - www.adsero-optima.com
-      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
-      *
-      *  Licensed under the Apache License, Version 2.0 (the "License");
-      *  you may not use this file except in compliance with the License.
-      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-      *
-      *  Unless required by applicable law or agreed to in writing, software
-      *  distributed under the License is distributed on an "AS IS" BASIS,
-      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-      *  See the License for the specific language governing permissions and
-      *  limitations under the License.
-      *
-      *  The above copyright notice and this permission notice shall be included in all
-      *  copies or substantial portions of the Software.
-      *
-      *                      http://www.adsero-optima.com/
-      *===============================================================
-     h nomain aut(*use)
-      *===============================================================
-      *& Open Source Error Handlers #01
-      *  EXPORT SYMBOL(ERR00)  /* Clear Current Message Queue                     */
-      *  EXPORT SYMBOL(ERR00A) /* Clear "ALL" Inactive Message Queues             */
-      *  EXPORT SYMBOL(ERR01)  /* Move *DIAG Messages                             */
-      *  EXPORT SYMBOL(ERR02)  /* Re-Send *ESCAPE Message                         */
-      *  EXPORT SYMBOL(ERR03)  /* Move *DIAG and Re-Send *ESCAPE Messages         */
-      *  EXPORT SYMBOL(ERR04)  /* Retrieve *LAST Message Id                       */
-      *  EXPORT SYMBOL(ERR05)  /* Move *DIAG and *ESCAPE Messages                 */
-      *  EXPORT SYMBOL(ERR06)  /* Move *ESCAPE Messages Only                      */
-      *  EXPORT SYMBOL(ERR07)  /* Receive *LAST Msg. Id. + Text (*REMOVE) from -1 */
-      *  EXPORT SYMBOL(ERR072) /* Receive *LAST Msg. Id. + Text (*REMOVE) from -2 */
-      *  EXPORT SYMBOL(ERR08)  /* Receive All Current Prog. Messages to Pointer   */
-      *  EXPORT SYMBOL(ERR09)  /* Handle Constraint Error                         */
-      *& Copy Books ==================================================
-      /copy SRCCPY,API_EC                        API Error Data Structure
-      /copy SRCCPY,ERR00                         Clear Current Message Queue
-      /copy SRCCPY,ERR00A                        Clear "ALL" Inactive Message Queues
-      /copy SRCCPY,ERR01                         Move *DIAG Messages
-      /copy SRCCPY,ERR02                         Re-Send *ESCAPE Message
-      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
-      /copy SRCCPY,ERR04                         CHAR(7)=Retrieve *LAST Message Id
-      /copy SRCCPY,ERR05                         Move *DIAG and *ESCAPE Messages
-      /copy SRCCPY,ERR06                         Move *ESCAPE Messages Only
-      /copy SRCCPY,ERR07                         Boolean=Rcv. *LAST Msg.Id.+Text(*REMOVE)
-      /copy SRCCPY,ERR072                        0/1=Rcv. *LAST Msg.Id.+Text(*REMOVE)-2
-      /copy SRCCPY,ERR08                         Rcv. All Current Pgm. Msg's into Pointer
-      /copy SRCCPY,ERR09                         Handle Constraint Error
-      *& Data Definitions ============================================
-     d GetCSE1         pr            10i 0
-      *===============================================================
-     d QMHRMVPM        pr                  extpgm('QMHRMVPM')
-     d  CSEntry                      10    const
-     d  CSCounter                    10i 0 const
-     d  MsgKey                        4    const
-     d  MsgRmv                       10    const
-     d  ErrCode                            like(EC)
-      *===============================================================
-     d QMHMOVPM        pr                  extpgm('QMHMOVPM')
-     d  MsgKey                        4    const
-     d  MsgTypes                     10    const
-     d  NoTypes                      10i 0 const
-     d  ToCSE                        10    const
-     d  ToCSE#                       10i 0 const
-     d  ErrorCode                          like(EC)
-      * Optional Parameter Group 1:
-     d  ToCSELen                     10i 0 const
-     d  ToCSEQual                    20    const
-      * Optional Parameter Group 2:
-     d  ToCSEDataType                10    const
-     d  FromCSEAddr                  16    const
-     d  FromCSECount                 10i 0 const
-      * ++++++++++++
-     d CSE             s             10i 0 inz(1)
-      *===============================================================
-     d QMHRSNEM        pr                  extpgm('QMHRSNEM')
-     d  MsgKey                        4    const
-     d  ErrorCode                          like(EC)
-      * Optional Parameter Group:
-     d  ToCSE                        10    const options(*varsize)
-     d  ToCSELen                     10i 0 const
-     d  CSEFormat                     8    const
-     d  FromCSEAddr                  16    const
-     d  FromCSECount                 10i 0 const
-      * ++++++++++++
-     d RSNM0100        ds
-     d  ToCSE#                       10i 0 inz(2)
-     d  ToCSEQual                    20    inz('*NONE     *NONE')
-     d  ToCSEIdLen                   10i 0 inz(10)
-     d  ToCSEId                      10    inz('*')
-      * ++++++++++++
-     d  ToCSELen                     10i 0 inz(%len(RSNM0100))
-      *=====================================================================
-     d QMHSNDPM        pr                  extpgm('QMHSNDPM')
-     d  MsgId                         7    const
-     d  MsgFile                      20    const
-     d  MsgData                     128    const options(*varsize)
-     d  MsgDataLen                   10i 0 const
-     d  MsgType                      10    const
-     d  CallStkEnt                   10    const
-     d  CSECount                     10i 0 const
-     d  MsgKey                        4
-     d  ErrorCode                          like(EC)
-      *===============================================================
-      * Receive Program Message (QMHRCVPM) API
-     d QMHRCVPM        pr                  extpgm('QMHRCVPM')
-     d  Msg_Inf                    2048    options(*varsize)
-     d  Msg_Inf_Len                  10i 0 const
-     d  Msg_Format                    8    const
-     d  Call_Stack_E                 10    const
-     d  Call_Stack_#                 10i 0 const
-     d  Msg_Types                    10    const
-     d  Msg_Key                       4    const
-     d  Wait_Time                    10i 0 const
-     d  Msg_Action                   10    const
-     d  Error_Code                         like(EC)
-      *===============================================================
-     d MsgL            s             10i 0 inz(%size(Msg))
-     d Msg             ds                  qualified
-     d  BR                           10i 0
-     d  BA                           10i 0
-     d  Sev                          10i 0
-     d  Id                            7
-     d  Type                          2
-     d  Key                           4
-     d  R1                            7
-     d  CCSID1                       10i 0
-     d  CCSID2                       10i 0
-     d  RDR                          10i 0
-     d  RDA                          10i 0
-     d  RD                         2048
-      *===============================================================
-     d Fmt200P         s               *   inz(%addr(Fmt200))
-     d Fmt200L         s             10i 0
-     d Fmt200          ds          4096
-     d  BR200                        10i 0
-     d  BA200                        10i 0
-      *=====================================================
-     d MessageIdP      s               *
-     d MessageId       s              7    based(MessageIdP)
-      *===============================================================
-     d MessageLenP     s               *
-     d MessageLengths  ds                  based(MessageLenP)
-     d  RplDataLenR                  10i 0
-     d  RplDataLenA                  10i 0
-     d  MsgLenR                      10i 0
-     d  MsgLenA                      10i 0
-     d  HelpLenR                     10i 0
-     d  HelpLenA                     10i 0
-      *=====================================================
-     d MessageTxtP     s               *
-     d MessageTxt      s            132    based(MessageTxtP)
-      *===============================================================
-      *& ERR00: Clear Current Message Queue <<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR00           b                   export
-      *=====================================================
-      /free
-       monitor;
-          QMHRMVPM('*':1:' ':'*ALL':EC);
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& ERR00A: Clear All Inactive Message Queues <<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR00A          b                   export
-      *=====================================================
-      /free
-       monitor;
-          QMHRMVPM('*ALLINACT':1:' ':'*ALL':EC);
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& ERR01: Move *DIAG Messages <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR01           b                   export
-      *=====================================================
-      /free
-       monitor;
-          ToCSE# = GetCSE1();
-          QMHMOVPM(' ':'*DIAG':1:'*':ToCSE#:EC:10:ToCSEQual:'*CHAR':'*':1);
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& ERR02: Re-Send *ESCAPE Message <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR02           b                   export
-      *=====================================================
-      /free
-       monitor;
-          ToCSE# = GetCSE1();
-          QMHRSNEM(' ':EC:RSNM0100:ToCSELen:'RSNM0100':'*':1);
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& ERR03: Move *DIAG and Re-Send *ESCAPE Messages <<<<<<<<<<<<<<
-      *===============================================================
-     p ERR03           b                   export
-      *=====================================================
-      /free
-       //===================================================
-       monitor;
-          //================================================
-          ToCSE# = GetCSE1();
-          //================================================
-          if not ERR09(); // Not Constraint Error
-             QMHMOVPM(' ':'*DIAG':1:'*':ToCSE#:EC:10:ToCSEQual:'*CHAR':'*':1);
-             QMHRSNEM(' ':EC:RSNM0100:ToCSELen:'RSNM0100':'*':1);
-          endif;
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-       //===================================================
-      /end-free
-     p                 e
-      *===============================================================
-      *& ERR04: Retrieve *LAST Message Id <<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR04           b                   export
-     d                 pi             7
-      *=====================================================
-      /free
-       monitor;
-         QMHRCVPM(Msg:MsgL:'RCVM0100':'*':1:'*LAST':'    ':0:'*SAME':EC);
-         return Msg.Id;
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& ERR05: Move *DIAG and *ESCAPE Messages <<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR05           b                   export
-      *=====================================================
-     d MTypes          s             20    inz('*DIAG     *ESCAPE')
-      *=====================================================
-      /free
-       monitor;
-          ToCSE# = GetCSE1();
-          QMHMOVPM(' ':MTypes:2:'*':ToCSE#:EC:10:ToCSEQual:'*CHAR':'*':1);
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& ERR06: Move *ESCAPE Messages Only <<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR06           b                   export
-      *=====================================================
-      /free
-       monitor;
-          ToCSE# = GetCSE1();
-          QMHMOVPM(' ':'*ESCAPE':1:'*':ToCSE#:EC:10:ToCSEQual:'*CHAR':'*':1);
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& ERR07: Receive *LAST Message Id. & Text with *REMOVE <<<<<<<<
-      *===============================================================
-     p ERR07           b                   export
-     d                 pi              n
-     d  MsgId                         7
-     d  MsgText                     132
-      *=====================================================
-      /free
-       //===================================================
-       QMHRCVPM(Fmt200:8:'RCVM0200':'*':1:'*LAST':'    ':0:'*SAME':EC);
-       //===================================================
-       if BA200 = 0;
-          return *off;
-       endif;
-       //===================================================
-       QMHRCVPM(Fmt200:BA200:'RCVM0200':'*':1:'*LAST':'    ':0:'*REMOVE':EC);
-       //===================================================
-       MessageIdP  = Fmt200P + 12;
-       MessageLenP = Fmt200P + 152;
-       MessageTxtP = Fmt200P + 176 + RplDataLenR;
-       //===================================================
-       MsgId   = MessageId;
-       MsgText = %subst(MessageTxt:1:MsgLenR);
-       return *on;
-       //===================================================
-      /end-free
-     p                 e
-      *===============================================================
-      *& ERR072: Receive *LAST Message Id. & Text with *REMOVE -2 <<<<
-      *===============================================================
-     p ERR072          b                   export
-     d                 pi              n
-     d  MsgId                         7
-     d  MsgText                     132
-      *=====================================================
-      /free
-       //===================================================
-       QMHRCVPM(Fmt200:8:'RCVM0200':'*':2:'*LAST':'    ':0:'*SAME':EC);
-       //===================================================
-       if BA200 = 0;
-          return *off;
-       endif;
-       //===================================================
-       QMHRCVPM(Fmt200:BA200:'RCVM0200':'*':2:'*LAST':'    ':0:'*REMOVE':EC);
-       //===================================================
-       MessageIdP  = Fmt200P + 12;
-       MessageLenP = Fmt200P + 152;
-       MessageTxtP = Fmt200P + 176 + RplDataLenR;
-       //===================================================
-       MsgId   = MessageId;
-       MsgText = %subst(MessageTxt:1:MsgLenR);
-       return *on;
-       //===================================================
-      /end-free
-     p                 e
-      *===============================================================
-      *& ERR08: Receive Current Program Messages to Pointer <<<<<<<<<<
-      *===============================================================
-     p ERR08           b                   export
-     d                 pi
-     d  BufferP                        *                                        Input Parameter
-      *=====================================================
-     d Buffer          ds          4174    based(BufferP)                       Capacity 30 Messages
-     d  NoOfMsg                      10u 0
-      *=====================================================
-     d MsgEntryP       s               *
-     d MsgEntryL       s             10i 0 inz(%size(MsgEntry))
-     d MsgEntry        ds                  based(MsgEntryP)
-     d  MsgId                         7
-     d  MsgText                     132
-      *=====================================================
-      /free
-       //===================================================
-       NoOfMsg = 0;
-       MsgEntryP = BufferP + 4;
-       //===================================================
-       QMHRCVPM(Fmt200:8:'RCVM0200':'*':1:'*LAST':'    ':0:'*SAME':EC);
-       dow BA200 <> 0;
-           //===============================================
-           QMHRCVPM(Fmt200:BA200:'RCVM0200':'*':1:'*LAST':'    ':0:
-                                                               '*REMOVE':EC);
-           //===============================================
-           MessageIdP  = Fmt200P + 12;
-           MessageLenP = Fmt200P + 152;
-           MessageTxtP = Fmt200P + 176 + RplDataLenR;
-           //===============================================
-           MsgId   = MessageId;
-           MsgText = %subst(MessageTxt:1:MsgLenR);
-           //===============================================
-           NoOfMsg   += 1;
-           if NoOfMsg = 30;
-              leave;
-           endif;
-           MsgEntryP += MsgEntryL;
-           //===============================================
-           QMHRCVPM(Fmt200:8:'RCVM0200':'*':1:'*LAST':'    ':0:'*SAME':EC);
-           //===============================================
-       enddo;
-       //===================================================
-      /end-free
-     p                 e
-      *===============================================================
-      *& ERR09: Handle Constraint Errors <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p ERR09           b                   export
-      *=====================================================
-     f*AOFCMLF   if   e           k disk
-      *=====================================================
-     d                 pi              n
-      *=====================================================
-     d*CMLR            ds                  likerec(AOFCMLFR)
-      *=====================================================
-     d MI              s              7    inz('CST0000')
-     d MF              s             20    inz('CSTMSGF   *LIBL')
-     d MD              ds                  qualified
-     d  Id                            7
-     d  CstN                         25
-     d MDL             s             10i 0 inz(32)
-     d MT              s             10    inz('*ESCAPE')
-     d CSE             s             10    inz('*')
-     d CSC             s             10i 0 Inz(1)
-     d MK              s              4
-      *=====================================================
-     d CPF503A         ds
-     d  V1                          176
-     d  CstName                     258
-     d  V3                           34
-      *=====================================================
-      /free
-       //===================================================
-       monitor;
-         //=================================================
-         QMHRCVPM(Msg:MsgL:'RCVM0100':'*':2:'*LAST':'    ':0:'*SAME':EC);
-         //=================================================
-         if Msg.Id <> 'RNX1022'; // Not Constraint
-            return *off;
-         endif;
-         //=================================================
-         dou Msg.Id = 'CPF502D' or
-             Msg.Id = 'CPF502E' or
-             Msg.Id = 'CPF503A';
-             QMHRCVPM(Msg:MsgL:'RCVM0100':'*':2:'*PRV':Msg.Key:0:'*SAME':EC);
-         enddo;
-         //=================================================
-         CPF503A = %subst(Msg.RD:1:Msg.RDA);
-         //=================================================
-         QMHMOVPM(' ':'*DIAG':1:'*':ToCSE#+1:EC:10:ToCSEQual:'*CHAR':'*':2);
-         //=================================================
-         //if not %open(AOFCMLF);
-         //    open AOFCMLF;
-         // endif;
-         //=================================================
-         //chain (CstName:Msg.Id) AOFCMLF CMLR;
-         //if %found;
-         //   MI = CMLR.MSGID;
-         //else;
-         //   reset MI;
-         //endif;
-         //=================================================
-         MD.Id   = Msg.Id;
-         MD.CstN = CstName;
-         QMHRMVPM('*':ToCSE#:' ':'*ALL':EC);
-         QMHSNDPM(MI:MF:MD:MDL:MT:CSE:ToCSE#+1:MK:EC);
-         //=================================================
-         return *on;
-         //=================================================
-       on-error;
-          ERR03();
-       endmon;
-       //===================================================
-      /end-free
-     p                 e
-      *===============================================================
+000100181012      *& Apache License
+000200181221      *===============================================================
+000300181221      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+000400181221      *  Created by AO Foundation - www.adsero-optima.com
+000500181221      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+000600181221      *
+000700181221      *  Licensed under the Apache License, Version 2.0 (the "License");
+000800181221      *  you may not use this file except in compliance with the License.
+000900181221      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+001000181221      *
+001100181221      *  Unless required by applicable law or agreed to in writing, software
+001200181221      *  distributed under the License is distributed on an "AS IS" BASIS,
+001300181221      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+001400181221      *  See the License for the specific language governing permissions and
+001500181221      *  limitations under the License.
+001600181221      *
+001700181221      *  The above copyright notice and this permission notice shall be included in all
+001800181221      *  copies or substantial portions of the Software.
+001900181221      *
+002000181221      *                      http://www.adsero-optima.com/
+002100181221      *===============================================================
+002200180413     h nomain aut(*use)
+002300180413      *===============================================================
+002400180922      *& Open Source Error Handlers #01
+002500180929      *  EXPORT SYMBOL(ERR00)  /* Clear Current Message Queue                     */
+002600180929      *  EXPORT SYMBOL(ERR00A) /* Clear "ALL" Inactive Message Queues             */
+002700180929      *  EXPORT SYMBOL(ERR01)  /* Move *DIAG Messages                             */
+002800180929      *  EXPORT SYMBOL(ERR02)  /* Re-Send *ESCAPE Message                         */
+002900180929      *  EXPORT SYMBOL(ERR03)  /* Move *DIAG and Re-Send *ESCAPE Messages         */
+003000180929      *  EXPORT SYMBOL(ERR04)  /* Retrieve *LAST Message Id                       */
+003100180929      *  EXPORT SYMBOL(ERR05)  /* Move *DIAG and *ESCAPE Messages                 */
+003200180929      *  EXPORT SYMBOL(ERR06)  /* Move *ESCAPE Messages Only                      */
+003300180929      *  EXPORT SYMBOL(ERR07)  /* Receive *LAST Msg. Id. + Text (*REMOVE) from -1 */
+003400180929      *  EXPORT SYMBOL(ERR072) /* Receive *LAST Msg. Id. + Text (*REMOVE) from -2 */
+003500180929      *  EXPORT SYMBOL(ERR08)  /* Receive All Current Prog. Messages to Pointer   */
+003600180929      *  EXPORT SYMBOL(ERR09)  /* Handle Constraint Error                         */
+003700181221      *& Copy Books ==================================================
+003800181221      /copy SRCCPY,API_EC                        API Error Data Structure
+003900181221      /copy SRCCPY,ERR00                         Clear Current Message Queue
+004000181221      /copy SRCCPY,ERR00A                        Clear "ALL" Inactive Message Queues
+004100181221      /copy SRCCPY,ERR01                         Move *DIAG Messages
+004200181221      /copy SRCCPY,ERR02                         Re-Send *ESCAPE Message
+004300181221      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+004400181221      /copy SRCCPY,ERR04                         CHAR(7)=Retrieve *LAST Message Id
+004500181221      /copy SRCCPY,ERR05                         Move *DIAG and *ESCAPE Messages
+004600181221      /copy SRCCPY,ERR06                         Move *ESCAPE Messages Only
+004700181221      /copy SRCCPY,ERR07                         Boolean=Rcv. *LAST Msg.Id.+Text(*REMOVE)
+004800181221      /copy SRCCPY,ERR072                        0/1=Rcv. *LAST Msg.Id.+Text(*REMOVE)-2
+004900181221      /copy SRCCPY,ERR08                         Rcv. All Current Pgm. Msg's into Pointer
+005000181221      /copy SRCCPY,ERR09                         Handle Constraint Error
+005100181221      *& Data Definitions ============================================
+005200180413     d GetCSE1         pr            10i 0
+005300130902      *===============================================================
+005400130902     d QMHRMVPM        pr                  extpgm('QMHRMVPM')
+005500130902     d  CSEntry                      10    const
+005600130902     d  CSCounter                    10i 0 const
+005700130902     d  MsgKey                        4    const
+005800130902     d  MsgRmv                       10    const
+005900130902     d  ErrCode                            like(EC)
+006000130902      *===============================================================
+006100130902     d QMHMOVPM        pr                  extpgm('QMHMOVPM')
+006200130902     d  MsgKey                        4    const
+006300130902     d  MsgTypes                     10    const
+006400130902     d  NoTypes                      10i 0 const
+006500130902     d  ToCSE                        10    const
+006600130902     d  ToCSE#                       10i 0 const
+006700130902     d  ErrorCode                          like(EC)
+006800130902      * Optional Parameter Group 1:
+006900130902     d  ToCSELen                     10i 0 const
+007000130902     d  ToCSEQual                    20    const
+007100130902      * Optional Parameter Group 2:
+007200130902     d  ToCSEDataType                10    const
+007300130902     d  FromCSEAddr                  16    const
+007400130902     d  FromCSECount                 10i 0 const
+007500130902      * ++++++++++++
+007600130902     d CSE             s             10i 0 inz(1)
+007700130902      *===============================================================
+007800130902     d QMHRSNEM        pr                  extpgm('QMHRSNEM')
+007900130902     d  MsgKey                        4    const
+008000130902     d  ErrorCode                          like(EC)
+008100130902      * Optional Parameter Group:
+008200130902     d  ToCSE                        10    const options(*varsize)
+008300130902     d  ToCSELen                     10i 0 const
+008400130902     d  CSEFormat                     8    const
+008500130902     d  FromCSEAddr                  16    const
+008600130902     d  FromCSECount                 10i 0 const
+008700130902      * ++++++++++++
+008800130902     d RSNM0100        ds
+008900130902     d  ToCSE#                       10i 0 inz(2)
+009000130902     d  ToCSEQual                    20    inz('*NONE     *NONE')
+009100130902     d  ToCSEIdLen                   10i 0 inz(10)
+009200130902     d  ToCSEId                      10    inz('*')
+009300130902      * ++++++++++++
+009400130902     d  ToCSELen                     10i 0 inz(%len(RSNM0100))
+009500130902      *=====================================================================
+009600130902     d QMHSNDPM        pr                  extpgm('QMHSNDPM')
+009700130902     d  MsgId                         7    const
+009800130902     d  MsgFile                      20    const
+009900130902     d  MsgData                     128    const options(*varsize)
+010000130902     d  MsgDataLen                   10i 0 const
+010100130902     d  MsgType                      10    const
+010200130902     d  CallStkEnt                   10    const
+010300130902     d  CSECount                     10i 0 const
+010400130902     d  MsgKey                        4
+010500130902     d  ErrorCode                          like(EC)
+010600130902      *===============================================================
+010700130902      * Receive Program Message (QMHRCVPM) API
+010800130902     d QMHRCVPM        pr                  extpgm('QMHRCVPM')
+010900130902     d  Msg_Inf                    2048    options(*varsize)
+011000130902     d  Msg_Inf_Len                  10i 0 const
+011100130902     d  Msg_Format                    8    const
+011200130902     d  Call_Stack_E                 10    const
+011300130902     d  Call_Stack_#                 10i 0 const
+011400130902     d  Msg_Types                    10    const
+011500130902     d  Msg_Key                       4    const
+011600130902     d  Wait_Time                    10i 0 const
+011700130902     d  Msg_Action                   10    const
+011800130902     d  Error_Code                         like(EC)
+011900130902      *===============================================================
+012000130902     d MsgL            s             10i 0 inz(%size(Msg))
+012100130902     d Msg             ds                  qualified
+012200130902     d  BR                           10i 0
+012300130902     d  BA                           10i 0
+012400130902     d  Sev                          10i 0
+012500130902     d  Id                            7
+012600130902     d  Type                          2
+012700130902     d  Key                           4
+012800130902     d  R1                            7
+012900130902     d  CCSID1                       10i 0
+013000130902     d  CCSID2                       10i 0
+013100130902     d  RDR                          10i 0
+013200130902     d  RDA                          10i 0
+013300130902     d  RD                         2048
+013400180503      *===============================================================
+013500180503     d Fmt200P         s               *   inz(%addr(Fmt200))
+013600180503     d Fmt200L         s             10i 0
+013700180503     d Fmt200          ds          4096
+013800180503     d  BR200                        10i 0
+013900180503     d  BA200                        10i 0
+014000180503      *=====================================================
+014100180503     d MessageIdP      s               *
+014200180503     d MessageId       s              7    based(MessageIdP)
+014300130902      *===============================================================
+014400180503     d MessageLenP     s               *
+014500180503     d MessageLengths  ds                  based(MessageLenP)
+014600180503     d  RplDataLenR                  10i 0
+014700180503     d  RplDataLenA                  10i 0
+014800180503     d  MsgLenR                      10i 0
+014900180503     d  MsgLenA                      10i 0
+015000180503     d  HelpLenR                     10i 0
+015100180503     d  HelpLenA                     10i 0
+015200180503      *=====================================================
+015300180503     d MessageTxtP     s               *
+015400180503     d MessageTxt      s            132    based(MessageTxtP)
+015500180503      *===============================================================
+015600180922      *& ERR00: Clear Current Message Queue <<<<<<<<<<<<<<<<<<<<<<<<<<
+015700130902      *===============================================================
+015800180922     p ERR00           b                   export
+015900180413      *=====================================================
+016000130902      /free
+016100130902       monitor;
+016200130902          QMHRMVPM('*':1:' ':'*ALL':EC);
+016300130902       on-error;
+016400180922          ERR03();
+016500130902       endmon;
+016600130902      /end-free
+016700180413      *=====================================================
+016800180503     p                 e
+016900130902      *===============================================================
+017000180922      *& ERR00A: Clear All Inactive Message Queues <<<<<<<<<<<<<<<<<<<
+017100160206      *===============================================================
+017200180922     p ERR00A          b                   export
+017300180413      *=====================================================
+017400160206      /free
+017500160206       monitor;
+017600160206          QMHRMVPM('*ALLINACT':1:' ':'*ALL':EC);
+017700160206       on-error;
+017800180922          ERR03();
+017900160206       endmon;
+018000160206      /end-free
+018100180413      *=====================================================
+018200180503     p                 e
+018300160206      *===============================================================
+018400180922      *& ERR01: Move *DIAG Messages <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+018500130902      *===============================================================
+018600180922     p ERR01           b                   export
+018700180413      *=====================================================
+018800130902      /free
+018900130902       monitor;
+019000180413          ToCSE# = GetCSE1();
+019100180413          QMHMOVPM(' ':'*DIAG':1:'*':ToCSE#:EC:10:ToCSEQual:'*CHAR':'*':1);
+019200130902       on-error;
+019300180922          ERR03();
+019400130902       endmon;
+019500130902      /end-free
+019600180413      *=====================================================
+019700180503     p                 e
+019800130902      *===============================================================
+019900180922      *& ERR02: Re-Send *ESCAPE Message <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+020000130902      *===============================================================
+020100180922     p ERR02           b                   export
+020200180413      *=====================================================
+020300130902      /free
+020400130902       monitor;
+020500180413          ToCSE# = GetCSE1();
+020600130902          QMHRSNEM(' ':EC:RSNM0100:ToCSELen:'RSNM0100':'*':1);
+020700130902       on-error;
+020800180922          ERR03();
+020900130902       endmon;
+021000130902      /end-free
+021100180413      *=====================================================
+021200180503     p                 e
+021300130902      *===============================================================
+021400180922      *& ERR03: Move *DIAG and Re-Send *ESCAPE Messages <<<<<<<<<<<<<<
+021500130902      *===============================================================
+021600180922     p ERR03           b                   export
+021700130902      *=====================================================
+021800130902      /free
+021900130902       //===================================================
+022000130902       monitor;
+022100130902          //================================================
+022200180413          ToCSE# = GetCSE1();
+022300130902          //================================================
+022400180922          if not ERR09(); // Not Constraint Error
+022500180413             QMHMOVPM(' ':'*DIAG':1:'*':ToCSE#:EC:10:ToCSEQual:'*CHAR':'*':1);
+022600180413             QMHRSNEM(' ':EC:RSNM0100:ToCSELen:'RSNM0100':'*':1);
+022700130902          endif;
+022800130902          //================================================
+022900130902       on-error;
+023000180922          ERR03();
+023100130902       endmon;
+023200130902       //===================================================
+023300130902      /end-free
+023400180503     p                 e
+023500130902      *===============================================================
+023600180922      *& ERR04: Retrieve *LAST Message Id <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+023700130902      *===============================================================
+023800180922     p ERR04           b                   export
+023900180922     d                 pi             7
+024000180413      *=====================================================
+024100130902      /free
+024200130902       monitor;
+024300130902         QMHRCVPM(Msg:MsgL:'RCVM0100':'*':1:'*LAST':'    ':0:'*SAME':EC);
+024400130902         return Msg.Id;
+024500130902       on-error;
+024600180922          ERR03();
+024700130902       endmon;
+024800130902      /end-free
+024900180413      *=====================================================
+025000180503     p                 e
+025100130902      *===============================================================
+025200180922      *& ERR05: Move *DIAG and *ESCAPE Messages <<<<<<<<<<<<<<<<<<<<<<
+025300130902      *===============================================================
+025400180922     p ERR05           b                   export
+025500180413      *=====================================================
+025600130902     d MTypes          s             20    inz('*DIAG     *ESCAPE')
+025700180413      *=====================================================
+025800130902      /free
+025900130902       monitor;
+026000180413          ToCSE# = GetCSE1();
+026100180413          QMHMOVPM(' ':MTypes:2:'*':ToCSE#:EC:10:ToCSEQual:'*CHAR':'*':1);
+026200130902       on-error;
+026300180922          ERR03();
+026400130902       endmon;
+026500130902      /end-free
+026600180413      *=====================================================
+026700180503     p                 e
+026800141203      *===============================================================
+026900180922      *& ERR06: Move *ESCAPE Messages Only <<<<<<<<<<<<<<<<<<<<<<<<<<<
+027000141203      *===============================================================
+027100180922     p ERR06           b                   export
+027200180413      *=====================================================
+027300141203      /free
+027400141203       monitor;
+027500180413          ToCSE# = GetCSE1();
+027600180413          QMHMOVPM(' ':'*ESCAPE':1:'*':ToCSE#:EC:10:ToCSEQual:'*CHAR':'*':1);
+027700141203       on-error;
+027800180922          ERR03();
+027900141203       endmon;
+028000141203      /end-free
+028100180413      *=====================================================
+028200180503     p                 e
+028300130902      *===============================================================
+028400180922      *& ERR07: Receive *LAST Message Id. & Text with *REMOVE <<<<<<<<
+028500180503      *===============================================================
+028600180922     p ERR07           b                   export
+028700180503     d                 pi              n
+028800180503     d  MsgId                         7
+028900180503     d  MsgText                     132
+029000180503      *=====================================================
+029100180503      /free
+029200180503       //===================================================
+029300180503       QMHRCVPM(Fmt200:8:'RCVM0200':'*':1:'*LAST':'    ':0:'*SAME':EC);
+029400180503       //===================================================
+029500180503       if BA200 = 0;
+029600180503          return *off;
+029700180503       endif;
+029800180503       //===================================================
+029900180503       QMHRCVPM(Fmt200:BA200:'RCVM0200':'*':1:'*LAST':'    ':0:'*REMOVE':EC);
+030000180503       //===================================================
+030100180503       MessageIdP  = Fmt200P + 12;
+030200180503       MessageLenP = Fmt200P + 152;
+030300180503       MessageTxtP = Fmt200P + 176 + RplDataLenR;
+030400180503       //===================================================
+030500180503       MsgId   = MessageId;
+030600180503       MsgText = %subst(MessageTxt:1:MsgLenR);
+030700180503       return *on;
+030800180503       //===================================================
+030900180503      /end-free
+031000180503     p                 e
+031100180503      *===============================================================
+031200180929      *& ERR072: Receive *LAST Message Id. & Text with *REMOVE -2 <<<<
+031300180929      *===============================================================
+031400180929     p ERR072          b                   export
+031500180929     d                 pi              n
+031600180929     d  MsgId                         7
+031700180929     d  MsgText                     132
+031800180929      *=====================================================
+031900180929      /free
+032000180929       //===================================================
+032100180929       QMHRCVPM(Fmt200:8:'RCVM0200':'*':2:'*LAST':'    ':0:'*SAME':EC);
+032200180929       //===================================================
+032300180929       if BA200 = 0;
+032400180929          return *off;
+032500180929       endif;
+032600180929       //===================================================
+032700180929       QMHRCVPM(Fmt200:BA200:'RCVM0200':'*':2:'*LAST':'    ':0:'*REMOVE':EC);
+032800180929       //===================================================
+032900180929       MessageIdP  = Fmt200P + 12;
+033000180929       MessageLenP = Fmt200P + 152;
+033100180929       MessageTxtP = Fmt200P + 176 + RplDataLenR;
+033200180929       //===================================================
+033300180929       MsgId   = MessageId;
+033400180929       MsgText = %subst(MessageTxt:1:MsgLenR);
+033500180929       return *on;
+033600180929       //===================================================
+033700180929      /end-free
+033800180929     p                 e
+033900180929      *===============================================================
+034000180922      *& ERR08: Receive Current Program Messages to Pointer <<<<<<<<<<
+034100180503      *===============================================================
+034200180922     p ERR08           b                   export
+034300180503     d                 pi
+034400180503     d  BufferP                        *                                        Input Parameter
+034500180503      *=====================================================
+034600180503     d Buffer          ds          4174    based(BufferP)                       Capacity 30 Messages
+034700180503     d  NoOfMsg                      10u 0
+034800180503      *=====================================================
+034900180503     d MsgEntryP       s               *
+035000180503     d MsgEntryL       s             10i 0 inz(%size(MsgEntry))
+035100180503     d MsgEntry        ds                  based(MsgEntryP)
+035200180503     d  MsgId                         7
+035300180503     d  MsgText                     132
+035400180503      *=====================================================
+035500180503      /free
+035600180503       //===================================================
+035700180503       NoOfMsg = 0;
+035800180503       MsgEntryP = BufferP + 4;
+035900180503       //===================================================
+036000180503       QMHRCVPM(Fmt200:8:'RCVM0200':'*':1:'*LAST':'    ':0:'*SAME':EC);
+036100180503       dow BA200 <> 0;
+036200180503           //===============================================
+036300180503           QMHRCVPM(Fmt200:BA200:'RCVM0200':'*':1:'*LAST':'    ':0:
+036400180503                                                               '*REMOVE':EC);
+036500180503           //===============================================
+036600180503           MessageIdP  = Fmt200P + 12;
+036700180503           MessageLenP = Fmt200P + 152;
+036800180503           MessageTxtP = Fmt200P + 176 + RplDataLenR;
+036900180503           //===============================================
+037000180503           MsgId   = MessageId;
+037100180503           MsgText = %subst(MessageTxt:1:MsgLenR);
+037200180503           //===============================================
+037300180503           NoOfMsg   += 1;
+037400180503           if NoOfMsg = 30;
+037500180503              leave;
+037600180503           endif;
+037700180503           MsgEntryP += MsgEntryL;
+037800180503           //===============================================
+037900180503           QMHRCVPM(Fmt200:8:'RCVM0200':'*':1:'*LAST':'    ':0:'*SAME':EC);
+038000180503           //===============================================
+038100180503       enddo;
+038200180503       //===================================================
+038300180503      /end-free
+038400180503     p                 e
+038500180503      *===============================================================
+038600180922      *& ERR09: Handle Constraint Errors <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+038700130902      *===============================================================
+038800180922     p ERR09           b                   export
+038900130902      *=====================================================
+039000180413     f*AOFCMLF   if   e           k disk
+039100130902      *=====================================================
+039200180922     d                 pi              n
+039300130902      *=====================================================
+039400180413     d*CMLR            ds                  likerec(AOFCMLFR)
+039500130902      *=====================================================
+039600130902     d MI              s              7    inz('CST0000')
+039700130902     d MF              s             20    inz('CSTMSGF   *LIBL')
+039800130902     d MD              ds                  qualified
+039900130902     d  Id                            7
+040000130902     d  CstN                         25
+040100130902     d MDL             s             10i 0 inz(32)
+040200130902     d MT              s             10    inz('*ESCAPE')
+040300130902     d CSE             s             10    inz('*')
+040400130902     d CSC             s             10i 0 Inz(1)
+040500130902     d MK              s              4
+040600130902      *=====================================================
+040700130902     d CPF503A         ds
+040800130902     d  V1                          176
+040900130902     d  CstName                     258
+041000130902     d  V3                           34
+041100130902      *=====================================================
+041200130902      /free
+041300130902       //===================================================
+041400130902       monitor;
+041500130902         //=================================================
+041600130902         QMHRCVPM(Msg:MsgL:'RCVM0100':'*':2:'*LAST':'    ':0:'*SAME':EC);
+041700130902         //=================================================
+041800180413         if Msg.Id <> 'RNX1022'; // Not Constraint
+041900130902            return *off;
+042000130902         endif;
+042100130902         //=================================================
+042200130902         dou Msg.Id = 'CPF502D' or
+042300130902             Msg.Id = 'CPF502E' or
+042400130902             Msg.Id = 'CPF503A';
+042500130902             QMHRCVPM(Msg:MsgL:'RCVM0100':'*':2:'*PRV':Msg.Key:0:'*SAME':EC);
+042600130902         enddo;
+042700130902         //=================================================
+042800130902         CPF503A = %subst(Msg.RD:1:Msg.RDA);
+042900130902         //=================================================
+043000130902         QMHMOVPM(' ':'*DIAG':1:'*':ToCSE#+1:EC:10:ToCSEQual:'*CHAR':'*':2);
+043100130902         //=================================================
+043200180413         //if not %open(AOFCMLF);
+043300180413         //    open AOFCMLF;
+043400180413         // endif;
+043500130902         //=================================================
+043600180413         //chain (CstName:Msg.Id) AOFCMLF CMLR;
+043700180413         //if %found;
+043800180413         //   MI = CMLR.MSGID;
+043900180413         //else;
+044000180413         //   reset MI;
+044100180413         //endif;
+044200130902         //=================================================
+044300130902         MD.Id   = Msg.Id;
+044400130902         MD.CstN = CstName;
+044500130902         QMHRMVPM('*':ToCSE#:' ':'*ALL':EC);
+044600130902         QMHSNDPM(MI:MF:MD:MDL:MT:CSE:ToCSE#+1:MK:EC);
+044700130902         //=================================================
+044800130902         return *on;
+044900180413         //=================================================
+045000130902       on-error;
+045100180922          ERR03();
+045200130902       endmon;
+045300130902       //===================================================
+045400130902      /end-free
+045500180503     p                 e
+045600130902      *===============================================================

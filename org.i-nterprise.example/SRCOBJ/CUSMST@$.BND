@@ -1,8 +1,8 @@
-STRPGMEXP PGMLVL(*CURRENT) SIGNATURE('V1.0')
-          EXPORT SYMBOL(CUSMST@01A)     /* Process "Filter" Request         */
-
-          EXPORT SYMBOL(CUSMST@02A)     /* Add Customer Record              */
-          EXPORT SYMBOL(CUSMST@02B)     /* Update Customer Record           */
-          EXPORT SYMBOL(CUSMST@02C)     /* Delete Customer Record           */
-          EXPORT SYMBOL(CUSMST@02D)     /* Display Customer Record          */
-ENDPGMEXP
+000100150922STRPGMEXP PGMLVL(*CURRENT) SIGNATURE('V1.0')
+000200181004          EXPORT SYMBOL(CUSMST@01A)     /* Process "Filter" Request         */
+000300181004
+000400181004          EXPORT SYMBOL(CUSMST@02A)     /* Add Customer Record              */
+000500181004          EXPORT SYMBOL(CUSMST@02B)     /* Update Customer Record           */
+000600181004          EXPORT SYMBOL(CUSMST@02C)     /* Delete Customer Record           */
+000700181004          EXPORT SYMBOL(CUSMST@02D)     /* Display Customer Record          */
+000800150922ENDPGMEXP

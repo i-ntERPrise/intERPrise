@@ -1,166 +1,166 @@
-      *& Apache License
-      *===============================================================
-      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
-      *  Created by AO Foundation - www.adsero-optima.com
-      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
-      *
-      *  Licensed under the Apache License, Version 2.0 (the "License");
-      *  you may not use this file except in compliance with the License.
-      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-      *
-      *  Unless required by applicable law or agreed to in writing, software
-      *  distributed under the License is distributed on an "AS IS" BASIS,
-      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-      *  See the License for the specific language governing permissions and
-      *  limitations under the License.
-      *
-      *  The above copyright notice and this permission notice shall be included in all
-      *  copies or substantial portions of the Software.
-      *
-      *                      http://www.adsero-optima.com/
-      *& Exported Symbols ============================================
-      *   EXPORT SYMBOL(CRTUS)     /* Create User Space                 */
-      *   EXPORT SYMBOL(DLTUS)     /* Delete User Space                 */
-      *   EXPORT SYMBOL(RTVUSP)    /* Retrieve User Space Pointer       */
-      *   EXPORT SYMBOL(RTVUSI)    /* Retrieve User Space Info.         */
-      *===============================================================
-     h nomain aut(*use)
-      *& Copy Books ==================================================
-      /copy SRCCPY,API_EC                        API Error Data Structure
-      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
-      /copy SRCCPY,ERR11                         Send *ESCAPE Message
-      /copy SRCCPY,CMD                           Execute Command - Processor
-      *& Data Definitions ============================================
-     d QUSCRTUS        pr                  extpgm('QUSCRTUS')
-     d  USN                          20    const
-     d  EAttr                        10    const
-     d  Size                         10i 0 const
-     d  Value                         1    const
-     d  Auth                         10    const
-     d  Desc                         50    const
-     d  Repl                         10    const
-     d  Err                                like(EC)
-     d QUSCUSAT        pr                  extpgm('QUSCUSAT')
-     d  RetLib                       10
-     d  USN                          20    const
-     d  AtrDS                        50    const options(*varsize)
-     d  Err                                like(EC)
-     d AtrDS           ds
-     d  NoRecs                       10i 0 inz(1)
-     d  Key                          10i 0 inz(3)
-     d  DLen                         10i 0 inz(1)
-     d  Data                          1    inz('1')
-     d QUSRUSAT        pr                  extpgm('QUSRUSAT')
-     d  RV                           25
-     d  RVL                          10i 0 const
-     d  Format                        8    const
-     d  USN                          20    const
-     d  Err                                like(EC)
-     d QUSPTRUS        pr                  extpgm('QUSPTRUS')
-     d  US20                         20    const
-     d  USP                            *
-     d  Err                                like(EC)
-     d QUSDLTUS        pr                  extpgm('QUSDLTUS')
-     d  US20                         20    const
-     d  Err                                like(EC)
-      *===============================================================
-     d RetLib          s             10
-     d US20            s             20
-     d RV              s             25
-      *===============================================================
-     d CRTUS           pr              *
-     d  US                           10    const
-     d  USInit                        1    const
-     d DLTUS           pr
-     d  US                           10    const
-     d RTVUSP          pr              *
-     d  US20                         20    const
-     d RTVUSI          pr              *
-     d  US20                         10    const
-      *===============================================================
-      *& Create User Space <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-     p CRTUS           b                   export
-     d                 pi              *
-     d  USName                       10    const
-     d  USInit                        1    const
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          US20 = USName+'QTEMP';
-          //================================================
-          monitor;
-             //=============================================
-             Cmd('CHKOBJ OBJ(QTEMP/'+%trim(USName)+') OBJTYPE(*USRSPC)');
-             return RTVUSP(US20);
-             //=============================================
-          on-error;
-          endmon;
-          //================================================
-          QUSCRTUS(US20:' ':3000:USInit:'*ALL':'User Space':'*YES':EC);
-          QUSCUSAT(RetLib:US20:AtrDS:EC);
-          return RTVUSP(US20);
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& Delete User Space <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-     p DLTUS           b                   export
-     d                 pi
-     d  USName                       10    const
-      *=====================================================
-      /free
-       monitor;
-          //================================================
-          US20 = USName+'QTEMP';
-          QUSDLTUS(US20:EC);
-          //================================================
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& Retrieve Pointer to User Space <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p RTVUSP          b                   export
-     d                 pi              *
-     d  US10                         20    const
-      *=====================================================
-     d USP             s               *
-      *=====================================================
-      /free
-       monitor;
-          QUSPTRUS(US20:USP:EC);
-          return USP;
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
-      *& Retrieve User Space Info <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      *===============================================================
-     p RTVUSI          b                   export
-     d                 pi              *
-     d  US10                         10    const
-      *=====================================================
-     d USP             s               *
-      *=====================================================
-      /free
-       monitor;
-          QUSRUSAT(RV:25:'SPCA0100':US10+'*LIBL':EC);
-          return %addr(RV);
-       on-error;
-          ERR03();
-       endmon;
-      /end-free
-      *=====================================================
-     p                 e
-      *===============================================================
+000100181221      *& Apache License
+000200181221      *===============================================================
+000300181221      *  Copyright (c) 2008-2018 TEMBO Technology Lab (Pty) Ltd.
+000400181221      *  Created by AO Foundation - www.adsero-optima.com
+000500181221      *  Original TEMPLATE author: Tommy Atkins - Chief Development Officer
+000600181221      *
+000700181221      *  Licensed under the Apache License, Version 2.0 (the "License");
+000800181221      *  you may not use this file except in compliance with the License.
+000900181221      *  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+001000181221      *
+001100181221      *  Unless required by applicable law or agreed to in writing, software
+001200181221      *  distributed under the License is distributed on an "AS IS" BASIS,
+001300181221      *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+001400181221      *  See the License for the specific language governing permissions and
+001500181221      *  limitations under the License.
+001600181221      *
+001700181221      *  The above copyright notice and this permission notice shall be included in all
+001800181221      *  copies or substantial portions of the Software.
+001900181221      *
+002000181221      *                      http://www.adsero-optima.com/
+002100181221      *& Exported Symbols ============================================
+002200181221      *   EXPORT SYMBOL(CRTUS)     /* Create User Space                 */
+002300181221      *   EXPORT SYMBOL(DLTUS)     /* Delete User Space                 */
+002400181221      *   EXPORT SYMBOL(RTVUSP)    /* Retrieve User Space Pointer       */
+002500181221      *   EXPORT SYMBOL(RTVUSI)    /* Retrieve User Space Info.         */
+002600181108      *===============================================================
+002700190121     h nomain aut(*use) extbinint(*yes) option(*nodebugio) debug
+002800181221      *& Copy Books ==================================================
+002900181221      /copy SRCCPY,API_EC                        API Error Data Structure
+003000181221      /copy SRCCPY,ERR03                         Move *DIAG and Resend *ESCAPE Messages
+003100181221      /copy SRCCPY,ERR11                         Send *ESCAPE Message
+003200181221      /copy SRCCPY,CMD                           Execute Command - Processor
+003300181221      *& Data Definitions ============================================
+003400180507     d QUSCRTUS        pr                  extpgm('QUSCRTUS')
+003500180507     d  USN                          20    const
+003600180507     d  EAttr                        10    const
+003700180507     d  Size                         10i 0 const
+003800180507     d  Value                         1    const
+003900180507     d  Auth                         10    const
+004000180507     d  Desc                         50    const
+004100180507     d  Repl                         10    const
+004200180507     d  Err                                like(EC)
+004300180507     d QUSCUSAT        pr                  extpgm('QUSCUSAT')
+004400180507     d  RetLib                       10
+004500180507     d  USN                          20    const
+004600180507     d  AtrDS                        50    const options(*varsize)
+004700180507     d  Err                                like(EC)
+004800180507     d AtrDS           ds
+004900180507     d  NoRecs                       10i 0 inz(1)
+005000180507     d  Key                          10i 0 inz(3)
+005100180507     d  DLen                         10i 0 inz(1)
+005200180507     d  Data                          1    inz('1')
+005300180517     d QUSRUSAT        pr                  extpgm('QUSRUSAT')
+005400180517     d  RV                           25
+005500180517     d  RVL                          10i 0 const
+005600180517     d  Format                        8    const
+005700180517     d  USN                          20    const
+005800180517     d  Err                                like(EC)
+005900180507     d QUSPTRUS        pr                  extpgm('QUSPTRUS')
+006000180507     d  US20                         20    const
+006100180507     d  USP                            *
+006200180507     d  Err                                like(EC)
+006300180507     d QUSDLTUS        pr                  extpgm('QUSDLTUS')
+006400180507     d  US20                         20    const
+006500180507     d  Err                                like(EC)
+006600180507      *===============================================================
+006700180507     d RetLib          s             10
+006800180507     d US20            s             20
+006900180517     d RV              s             25
+007000180507      *===============================================================
+007100180507     d CRTUS           pr              *
+007200180507     d  US                           10    const
+007300180507     d  USInit                        1    const
+007400180507     d DLTUS           pr
+007500180507     d  US                           10    const
+007600180507     d RTVUSP          pr              *
+007700180507     d  US20                         20    const
+007800180517     d RTVUSI          pr              *
+007900180517     d  US20                         10    const
+008000180507      *===============================================================
+008100181221      *& Create User Space <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+008200180507     p CRTUS           b                   export
+008300180507     d                 pi              *
+008400180507     d  USName                       10    const
+008500180507     d  USInit                        1    const
+008600160608      *=====================================================
+008700160608      /free
+008800160608       monitor;
+008900160608          //================================================
+009000180507          US20 = USName+'QTEMP';
+009100180507          //================================================
+009200180507          monitor;
+009300180507             //=============================================
+009400180507             Cmd('CHKOBJ OBJ(QTEMP/'+%trim(USName)+') OBJTYPE(*USRSPC)');
+009500180507             return RTVUSP(US20);
+009600180507             //=============================================
+009700180507          on-error;
+009800180507          endmon;
+009900180507          //================================================
+010000180507          QUSCRTUS(US20:' ':3000:USInit:'*ALL':'User Space':'*YES':EC);
+010100180507          QUSCUSAT(RetLib:US20:AtrDS:EC);
+010200180507          return RTVUSP(US20);
+010300180425          //================================================
+010400180425       on-error;
+010500181221          ERR03();
+010600160608       endmon;
+010700160608      /end-free
+010800180507      *=====================================================
+010900180507     p                 e
+011000180507      *===============================================================
+011100181221      *& Delete User Space <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+011200180507     p DLTUS           b                   export
+011300180507     d                 pi
+011400180507     d  USName                       10    const
+011500180507      *=====================================================
+011600180507      /free
+011700180507       monitor;
+011800180507          //================================================
+011900180507          US20 = USName+'QTEMP';
+012000180507          QUSDLTUS(US20:EC);
+012100180507          //================================================
+012200180507       on-error;
+012300181221          ERR03();
+012400180507       endmon;
+012500180507      /end-free
+012600180507      *=====================================================
+012700180507     p                 e
+012800160608      *===============================================================
+012900181221      *& Retrieve Pointer to User Space <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+013000180507      *===============================================================
+013100180507     p RTVUSP          b                   export
+013200180507     d                 pi              *
+013300180517     d  US10                         20    const
+013400180507      *=====================================================
+013500180507     d USP             s               *
+013600180507      *=====================================================
+013700180507      /free
+013800180507       monitor;
+013900180507          QUSPTRUS(US20:USP:EC);
+014000180507          return USP;
+014100180507       on-error;
+014200181221          ERR03();
+014300180507       endmon;
+014400180507      /end-free
+014500180507      *=====================================================
+014600180507     p                 e
+014700180507      *===============================================================
+014800181221      *& Retrieve User Space Info <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+014900180517      *===============================================================
+015000180517     p RTVUSI          b                   export
+015100180517     d                 pi              *
+015200180517     d  US10                         10    const
+015300180517      *=====================================================
+015400180517     d USP             s               *
+015500180517      *=====================================================
+015600180517      /free
+015700180517       monitor;
+015800180517          QUSRUSAT(RV:25:'SPCA0100':US10+'*LIBL':EC);
+015900180517          return %addr(RV);
+016000180517       on-error;
+016100181221          ERR03();
+016200180517       endmon;
+016300180517      /end-free
+016400180517      *=====================================================
+016500180517     p                 e
+016600180517      *===============================================================
