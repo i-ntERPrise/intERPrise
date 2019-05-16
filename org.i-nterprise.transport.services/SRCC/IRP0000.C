@@ -15,6 +15,7 @@
 //
 // The above copyright notice and this permission notice shall be included in all copies
 // or substantial portions of the Software.
+// Fixed issue 123
 
 #include <H/COMMON>                              // common header
 #include <H/MSGFUNC>                             // message functions
