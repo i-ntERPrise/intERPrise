@@ -106,3 +106,5 @@ This project is licensed under the Apache 2.0 license see the LICENSE.md file fo
 A special word of thanks goes to Chris Hird, who was the instigator behind this entire initiative.
 
 We also wish to formally thank [Mihael Schmidt](https://www.linkedin.com/in/mihael-schmidt-09aa73106/) for his kind donation of his MiWorkplace IDE to participants who do not have access to RDi.
+
+xx
