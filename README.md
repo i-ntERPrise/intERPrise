@@ -62,7 +62,7 @@ The following tools and technologies are used by our team:
 5.	MiWorkplace tooling
 6.	iWebSrv for INITIAL delivery channel
 
-It is especially important that you are familiar and adopt with the ILE development paradigm. The **FREE** education resource at http://www.ile-rpg.org/education.html will provide you with most, if not all that you may require.
+It is especially important that you are familiar and adopt with the ILE development paradigm. The **FREE** education resource at [http://www.ile-rpg.org/education.html](https://www.ile-rpg.org/education/) will provide you with most, if not all that you may require.
 
 ## Installing
 
